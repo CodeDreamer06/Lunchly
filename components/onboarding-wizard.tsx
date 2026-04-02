@@ -247,7 +247,6 @@ export function OnboardingWizard() {
   const age = calculateAge(draft.birthDate);
   const hasExistingProfile = Boolean(profileId);
   const isEditMode = ready && (isExplicitEdit || hasExistingProfile);
-  const isFirstTime = ready && !hasExistingProfile;
   const displayName = draft.fullName.trim() || "Your Child";
   const firstName = displayName.split(" ")[0];
   const visiblePolicies = [...draft.schoolPolicies, draft.customPolicy].filter(Boolean);
@@ -358,7 +357,7 @@ export function OnboardingWizard() {
   if (successTip) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4">
-        <div className="w-full max-w-2xl rounded-[2.5rem] border border-[rgba(186,185,178,0.2)] bg-white p-10 text-center shadow-[0_22px_60px_rgba(56,56,51,0.06)]">
+        <div className="relative w-full max-w-2xl rounded-[3rem] border border-white/80 bg-white/90 p-12 text-center shadow-[0_30px_100px_rgba(34,197,94,0.15)] backdrop-blur-2xl">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(145,247,142,0.26)] text-[var(--green-700)]">
             <span className="material-symbols-outlined text-4xl">check</span>
           </div>
@@ -375,8 +374,8 @@ export function OnboardingWizard() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--ink)]">
-      <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-stone-200/50 bg-[rgba(254,252,244,0.96)] px-4 backdrop-blur-md sm:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#fafcf9] via-[#f1f7f0] to-[#f8f9f7] text-[var(--ink)] selection:bg-[var(--green-200)] pb-20">
+      <header className="fixed top-4 left-1/2 z-50 flex h-16 w-[95%] max-w-7xl -translate-x-1/2 items-center justify-between rounded-full border border-white/60 bg-white/80 px-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl">
         <Link href={hasExistingProfile ? "/dashboard" : "/"} className="font-headline text-2xl font-black tracking-tight text-[var(--green-700)]">
           LunchLogic
         </Link>
@@ -390,6 +389,12 @@ export function OnboardingWizard() {
             </Link>
             <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/insights">
               Weekly Trends
+            </Link>
+            <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/tips">
+              Tips
+            </Link>
+            <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/history">
+              History
             </Link>
             <Link className="border-b-2 border-[var(--green-700)] font-headline font-bold text-[var(--green-700)]" href="/onboarding">
               Kid Profiles
@@ -405,44 +410,13 @@ export function OnboardingWizard() {
         </div>
       </header>
 
-      <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-stone-200/50 bg-[rgba(255,255,255,0.7)] pb-8 pt-20 shadow-[32px_0_32px_rgba(0,0,0,0.06)] backdrop-blur-md md:flex">
-        <div className="mb-8 px-6">
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.22em] text-[var(--green-700)]">Parent Portal</p>
-          <p className="text-sm text-[var(--muted-ink)]">{isFirstTime ? "First-time setup" : "One active child profile"}</p>
-        </div>
-        <nav className="space-y-1">
-          {[
-            { href: "/dashboard", icon: "dashboard", label: "Dashboard" },
-            { href: "/analyze", icon: "qr_code_scanner", label: "Lunch Scanner" },
-            { href: "/insights", icon: "trending_up", label: "Weekly Trends" },
-            { href: "/tips", icon: "lightbulb", label: "Smart Tips" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="mx-2 flex items-center gap-3 rounded-[1rem] px-4 py-3 text-stone-600 transition-all hover:bg-stone-100"
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-headline text-sm font-medium">{item.label}</span>
-            </Link>
-          ))}
-          <Link
-            href="/onboarding"
-            className="mx-2 flex items-center gap-3 rounded-[1rem] bg-[rgba(0,117,31,0.1)] px-4 py-3 text-[var(--green-700)]"
-          >
-            <span className="material-symbols-outlined">face</span>
-            <span className="font-headline text-sm font-medium">Kid Profiles</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="mx-auto max-w-7xl px-4 pb-24 pt-24 md:ml-64">
+      <main className="mx-auto max-w-7xl px-4 pb-32 pt-32">
         <div className="mb-10 text-center md:text-left">
           <h1 className="font-headline text-4xl font-extrabold tracking-tight text-[var(--ink)]">
             {isEditMode ? "Edit Child Profile & Sensory Preferences" : "Child Profile & Sensory Preferences"}
           </h1>
           <p className="mt-2 max-w-2xl text-lg text-[var(--muted-ink)]">
-            {isFirstTime
+            {!hasExistingProfile
               ? "Set up your child once before using LunchLogic. We save everything locally on this device."
               : "Tailor the LunchLogic experience to your child&apos;s current needs, habits, and school environment."}
           </p>
@@ -450,14 +424,14 @@ export function OnboardingWizard() {
 
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
           <section className="space-y-8 lg:col-span-4">
-            <div className="flex flex-col items-center rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8 text-center">
+            <div className="relative flex flex-col items-center overflow-hidden rounded-[2.5rem] border border-white/60 bg-white/80 p-10 text-center shadow-[0_8px_40px_rgba(0,0,0,0.04)] backdrop-blur-xl">
               <div className="relative mb-6">
-                <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-container-high)] ring-4 ring-[rgba(145,247,142,0.45)] ring-offset-4">
+                <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-container-high)] ring-4 ring-[var(--green-400)] ring-offset-4">
                   {draft.photoDataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img alt={`${displayName} profile`} className="h-full w-full object-cover" src={draft.photoDataUrl} />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#91f78e_0%,#70b5ff_100%)] font-headline text-3xl font-extrabold text-white">
+                    <div className="flex h-full w-full items-center justify-center bg-[var(--surface-container-high)] font-headline text-3xl font-extrabold text-[var(--green-700)]">
                       {getInitials(displayName) || "CL"}
                     </div>
                   )}
@@ -476,22 +450,22 @@ export function OnboardingWizard() {
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 <span className="rounded-full bg-[rgba(112,181,255,0.18)] px-3 py-1 text-xs font-semibold text-[color:#003258]">
-                  {isFirstTime ? "Setup in progress" : "Active Profile"}
+                  Active Profile
                 </span>
                 <span className="rounded-full bg-[rgba(249,229,52,0.24)] px-3 py-1 text-xs font-semibold text-[color:#5b5300]">
-                  {draft.lunchEatingTime} lunch window
+                  Morning School
                 </span>
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-[var(--surface-container-low)] p-6">
+            <div className="relative rounded-[2.5rem] border border-white/60 bg-white/50 p-8 shadow-[0_8px_40px_rgba(0,0,0,0.03)] backdrop-blur-xl">
               <h3 className="mb-4 flex items-center gap-2 font-headline text-lg font-bold">
                 <span className="material-symbols-outlined text-[var(--green-700)]">school</span>
                 Allergy & School Policy
               </h3>
               <div className="space-y-3">
                 {visiblePolicies.map((policy) => (
-                  <div key={policy} className="flex items-center justify-between rounded-[1rem] bg-white p-3">
+                  <div key={policy} className="flex items-center justify-between rounded-lg bg-white p-3">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-[var(--blue-700)]">policy</span>
                       <span className="text-sm font-medium">{policy}</span>
@@ -511,7 +485,7 @@ export function OnboardingWizard() {
                   </div>
                 ))}
                 {visibleAllergies.map((allergy) => (
-                  <div key={allergy} className="flex items-center justify-between rounded-[1rem] bg-white p-3">
+                  <div key={allergy} className="flex items-center justify-between rounded-lg bg-white p-3">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-[color:#be2d06]">dangerous</span>
                       <span className="text-sm font-medium">{allergy}</span>
@@ -530,42 +504,26 @@ export function OnboardingWizard() {
                     </button>
                   </div>
                 ))}
-                {!visiblePolicies.length && !visibleAllergies.length ? (
-                  <div className="rounded-[1rem] bg-white p-4 text-sm text-[var(--muted-ink)]">
-                    No allergies or school rules added yet.
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-white p-6">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[rgba(56,56,51,0.48)]">Setup readiness</p>
-              <div className="mt-4 space-y-3 text-sm text-[var(--muted-ink)]">
-                <p className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
-                  Local-only profile storage
-                </p>
-                <p className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
-                  One child account active on this device
-                </p>
-                <p className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
-                  Analyzer, tips, and insights all read from this setup
-                </p>
+                <button
+                  type="button"
+                  className="group flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[color:var(--outline-variant)] bg-white/50 py-4 text-sm font-semibold text-[var(--muted-ink)] transition-all hover:border-[var(--green-500)] hover:bg-white hover:text-[var(--green-700)] hover:shadow-lg"
+                >
+                  <span className="material-symbols-outlined text-sm">add</span>
+                  Add New Policy
+                </button>
               </div>
             </div>
           </section>
 
           <section className="space-y-8 lg:col-span-8">
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8">
+            <div className="relative rounded-[2.5rem] border border-white/60 bg-white/80 p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] backdrop-blur-xl">
               <h3 className="mb-6 font-headline text-2xl font-bold">Basic Details</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Parent / Caregiver name">
                   <input
                     value={draft.caregiverName}
                     onChange={(event) => setDraft((current) => ({ ...current, caregiverName: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="Priya"
                   />
                 </Field>
@@ -573,7 +531,7 @@ export function OnboardingWizard() {
                   <input
                     value={draft.fullName}
                     onChange={(event) => setDraft((current) => ({ ...current, fullName: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="Leo Miller"
                   />
                 </Field>
@@ -582,14 +540,14 @@ export function OnboardingWizard() {
                     type="date"
                     value={draft.birthDate}
                     onChange={(event) => setDraft((current) => ({ ...current, birthDate: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   />
                 </Field>
                 <Field label="Gender">
                   <select
                     value={draft.gender}
                     onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   >
                     <option value="">Select</option>
                     <option value="Boy">Boy</option>
@@ -602,7 +560,7 @@ export function OnboardingWizard() {
                   <input
                     value={draft.grade}
                     onChange={(event) => setDraft((current) => ({ ...current, grade: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="Grade 2"
                   />
                 </Field>
@@ -610,7 +568,7 @@ export function OnboardingWizard() {
                   <input
                     value={draft.section}
                     onChange={(event) => setDraft((current) => ({ ...current, section: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="B"
                   />
                 </Field>
@@ -618,7 +576,7 @@ export function OnboardingWizard() {
                   <input
                     value={draft.height}
                     onChange={(event) => setDraft((current) => ({ ...current, height: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="124 cm"
                   />
                 </Field>
@@ -626,14 +584,14 @@ export function OnboardingWizard() {
                   <input
                     value={draft.weight}
                     onChange={(event) => setDraft((current) => ({ ...current, weight: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                     placeholder="24 kg"
                   />
                 </Field>
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8">
+            <div className="relative rounded-[2.5rem] border border-white/60 bg-white/80 p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] backdrop-blur-xl">
               <h3 className="mb-6 font-headline text-2xl font-bold">Sensory Preferences</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {foodPersonalityCards.map((item) => {
@@ -642,15 +600,15 @@ export function OnboardingWizard() {
                   return (
                     <label
                       key={item.label}
-                      className={`group relative flex cursor-pointer flex-col gap-4 rounded-[1rem] border-2 p-5 transition-all ${
+                      className={`group relative flex cursor-pointer flex-col gap-4 rounded-2xl border-2 p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
                         checked
-                          ? "border-[rgba(0,117,31,0.28)] bg-[rgba(145,247,142,0.12)]"
-                          : "border-transparent bg-[var(--surface-container)] hover:bg-[rgba(145,247,142,0.08)]"
+                          ? "border-[var(--green-500)] bg-[var(--green-50)] shadow-[0_0_0_2px_rgba(34,197,94,0.1)]"
+                          : "border-transparent bg-white shadow-sm hover:border-[var(--green-200)]"
                       }`}
                     >
                       <input
                         checked={checked}
-                        className="absolute right-4 top-4 h-5 w-5 rounded-full"
+                        className="absolute right-4 top-4 h-6 w-6 rounded-full border-[color:var(--outline)]"
                         type="checkbox"
                         onChange={() =>
                           setDraft((current) => ({
@@ -659,7 +617,7 @@ export function OnboardingWizard() {
                           }))
                         }
                       />
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-[0.8rem] bg-white ${item.accent}`}>
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-white ${item.accent}`}>
                         <span className="material-symbols-outlined text-3xl">{item.icon}</span>
                       </div>
                       <div>
@@ -672,7 +630,7 @@ export function OnboardingWizard() {
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-[var(--surface-container-low)] p-8">
+            <div className="relative rounded-[2.5rem] border border-[color:var(--outline-variant)]/20 bg-white/60 p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] backdrop-blur-xl">
               <div className="mb-4 flex items-center gap-3">
                 <span className="material-symbols-outlined text-2xl text-[var(--green-700)]">edit_note</span>
                 <h3 className="font-headline text-xl font-bold">Eating Habits & Independence</h3>
@@ -683,7 +641,7 @@ export function OnboardingWizard() {
               <textarea
                 value={draft.eatingNotes}
                 onChange={(event) => setDraft((current) => ({ ...current, eatingNotes: event.target.value }))}
-                className="w-full rounded-[1rem] border-none bg-white p-4 text-[var(--ink)] placeholder:text-[var(--outline-variant)] focus:ring-2 focus:ring-[rgba(0,117,31,0.18)]"
+                className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] p-5 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--outline-variant)]"
                 placeholder="e.g., Can peel an orange but struggles with tiny wrappers. Needs pre-cut apples."
                 rows={4}
               />
@@ -713,7 +671,7 @@ export function OnboardingWizard() {
                     onChange={(event) =>
                       setDraft((current) => ({ ...current, independenceLevel: Number(event.target.value) }))
                     }
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   >
                     <option value="1">Needs a lot of help</option>
                     <option value="2">Needs some help</option>
@@ -724,7 +682,7 @@ export function OnboardingWizard() {
                   <select
                     value={draft.lunchEatingTime}
                     onChange={(event) => setDraft((current) => ({ ...current, lunchEatingTime: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   >
                     <option>10 min</option>
                     <option>20 min</option>
@@ -735,7 +693,7 @@ export function OnboardingWizard() {
                   <select
                     value={draft.appetiteStyle}
                     onChange={(event) => setDraft((current) => ({ ...current, appetiteStyle: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   >
                     <option>Big eater</option>
                     <option>Average</option>
@@ -745,7 +703,7 @@ export function OnboardingWizard() {
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.12)] bg-white p-8">
+            <div className="relative rounded-[2.5rem] border border-white/60 bg-white/80 p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] backdrop-blur-xl">
               <h3 className="mb-6 font-headline text-2xl font-bold">Routine, School Rules & Weekly Goals</h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -780,7 +738,7 @@ export function OnboardingWizard() {
                       <input
                         value={draft.customAllergy}
                         onChange={(event) => setDraft((current) => ({ ...current, customAllergy: event.target.value }))}
-                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                         placeholder="Add another allergy"
                       />
                       <button type="button" onClick={addCustomAllergy} className="app-button-secondary">
@@ -821,7 +779,7 @@ export function OnboardingWizard() {
                       <input
                         value={draft.customPolicy}
                         onChange={(event) => setDraft((current) => ({ ...current, customPolicy: event.target.value }))}
-                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                         placeholder="Add another policy"
                       />
                       <button type="button" onClick={addCustomPolicy} className="app-button-secondary">
@@ -835,7 +793,7 @@ export function OnboardingWizard() {
                   <select
                     value={draft.activityLevel}
                     onChange={(event) => setDraft((current) => ({ ...current, activityLevel: event.target.value }))}
-                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                   >
                     <option>Mostly sedentary</option>
                     <option>Active (plays a lot)</option>
@@ -902,7 +860,7 @@ export function OnboardingWizard() {
                       <input
                         value={customHabitChip}
                         onChange={(event) => setCustomHabitChip(event.target.value)}
-                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        className="w-full rounded-2xl border-2 border-transparent bg-[var(--surface-container)] px-5 py-4 text-[var(--ink)] font-medium transition-all hover:bg-[var(--surface-container-low)] focus:border-[var(--green-500)] focus:bg-white focus:shadow-[0_0_0_4px_rgba(34,197,94,0.1)] outline-none placeholder:text-[var(--muted-ink)]/60"
                         placeholder="Add another special day"
                       />
                       <button type="button" onClick={addCustomHabitChip} className="app-button-secondary">
@@ -924,14 +882,16 @@ export function OnboardingWizard() {
               <button
                 type="button"
                 onClick={saveProfile}
-                className="flex-1 rounded-[1rem] bg-[var(--green-700)] py-4 font-headline text-lg font-bold text-white shadow-lg shadow-[rgba(0,117,31,0.2)] transition-all hover:scale-[1.02] active:scale-95"
+                className="group relative flex-1 overflow-hidden rounded-3xl bg-gradient-to-r from-[var(--green-600)] to-[#15803d] py-5 font-headline text-xl font-bold text-white shadow-[0_10px_30px_rgba(34,197,94,0.3)] transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(34,197,94,0.4)] active:scale-[0.98]"
               >
-                {isEditMode ? "Save Child Profile" : "Finish Child Setup"}
+                <div className="absolute inset-0 bg-white/20 translate-y-[-100%] transition-transform duration-500 group-hover:translate-y-[100%]" />
+                <span className="relative z-10">{isEditMode ? "Save Child Profile" : "Finish Child Setup"}</span>
               </button>
+              {/* closed by python script */}
               <button
                 type="button"
                 onClick={() => router.push(hasExistingProfile ? "/dashboard" : "/")}
-                className="rounded-[1rem] bg-[rgba(249,229,52,0.75)] px-10 py-4 font-headline text-lg font-bold text-[color:#5b5300] transition-all hover:bg-[rgba(249,229,52,0.95)]"
+                className="rounded-3xl bg-white px-10 py-5 font-headline text-xl font-bold text-stone-600 shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-stone-200 transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)]"
               >
                 Cancel
               </button>
