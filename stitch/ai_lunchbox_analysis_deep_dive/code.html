@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Lunchbox Analysis - LunchLogic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#83e881",
+              "on-tertiary-container": "#003258",
+              "secondary-fixed-dim": "#ead723",
+              "secondary-dim": "#625900",
+              "on-surface": "#383833",
+              "surface-bright": "#fefcf4",
+              "surface": "#fefcf4",
+              "error": "#be2d06",
+              "on-primary-container": "#005e17",
+              "primary-container": "#91f78e",
+              "surface-container-high": "#efeee5",
+              "inverse-surface": "#0e0f0a",
+              "secondary": "#706500",
+              "on-secondary-fixed-variant": "#665c00",
+              "surface-tint": "#00751f",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#474000",
+              "on-primary-fixed-variant": "#00691a",
+              "outline": "#81817a",
+              "surface-container": "#f5f4eb",
+              "on-background": "#383833",
+              "surface-variant": "#e9e9de",
+              "secondary-fixed": "#f9e534",
+              "inverse-on-surface": "#9e9d96",
+              "surface-dim": "#e4e3d8",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005b9a",
+              "inverse-primary": "#91f78e",
+              "secondary-container": "#f9e534",
+              "on-error": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#70b5ff",
+              "surface-container-highest": "#e9e9de",
+              "on-tertiary-fixed-variant": "#003b67",
+              "primary": "#00751f",
+              "primary-dim": "#00671a",
+              "on-secondary-container": "#5b5300",
+              "tertiary": "#0067ad",
+              "on-error-container": "#520c00",
+              "primary-fixed": "#91f78e",
+              "background": "#fefcf4",
+              "on-primary-fixed": "#00480f",
+              "tertiary-fixed-dim": "#4ca8ff",
+              "surface-container-low": "#fbf9f1",
+              "on-surface-variant": "#65655f",
+              "on-primary": "#ffffff",
+              "outline-variant": "#bab9b2",
+              "error-dim": "#b92902",
+              "on-tertiary-fixed": "#001930",
+              "tertiary-container": "#70b5ff",
+              "error-container": "#f95630"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-hotspot {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center w-full px-8 h-16 border-b border-stone-200/50 dark:border-stone-700/30 docked full-width top-0 z-50 bg-[#fefcf4] dark:bg-stone-900 sticky">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#00751f] tracking-tight font-['Plus_Jakarta_Sans']">LunchLogic</span>
+<div class="hidden md:flex gap-6">
+<a class="text-stone-500 dark:text-stone-400 hover:text-[#00751f] transition-colors font-['Plus_Jakarta_Sans'] font-semibold" href="#">Dashboard</a>
+<a class="text-[#00751f] font-bold border-b-2 border-[#00751f] font-['Plus_Jakarta_Sans'] font-semibold" href="#">Lunch Scanner</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-[#00751f] transition-colors font-['Plus_Jakarta_Sans'] font-semibold" href="#">Weekly Trends</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="p-2 bg-surface-container rounded-full text-[#00751f]">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</div>
+<div class="flex items-center gap-2 pl-2 border-l border-surface-variant">
+<img alt="Child Profile Avatar" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtLwcm4sS_cOW4_brWRp28IpFtRBj9t0owCLxfMhNlWqnUaKMV228gsB9P6XnKF2ijlsX4shZm4naSbfDgUUV1vYY3M3ubrdYq5DDSNAxhQm0Fxo00QXBDVAnHsOYbsznTBcVDm8uKyhYhav5AkWuwXK2WGk_AWoQcMXEtbAzhmHgEbxd2tNvFBo2dZeh1-e58GE_WkryWmmzl3Kmbq_8OwXEHDinF9UIAEmPvfEI3oLOJFKUe_wQsMwtWjgrUIHvkcSt-_YnirhS2"/>
+<span class="material-symbols-outlined text-stone-500" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</nav>
+<div class="flex min-h-[calc(100vh-64px)] overflow-hidden">
+<!-- SideNavBar (Hidden on smaller screens, using design system logic) -->
+<aside class="hidden lg:flex flex-col pt-20 pb-8 h-screen w-64 fixed left-0 top-0 border-r border-stone-200/50 dark:border-stone-700/30 bg-white/70 dark:bg-stone-900/70 backdrop-blur-md shadow-[32px_0_32px_rgba(0,0,0,0.06)] z-40">
+<div class="px-6 mb-10">
+<p class="font-headline font-extrabold text-lg text-primary">Parent Portal</p>
+<p class="text-on-surface-variant text-xs">Managing 2 Profiles</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 bg-[#00751f]/10 text-[#00751f] rounded-2xl px-4 py-3 mx-2 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Weekly Trends</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Swap Engine</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Kid Profiles</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="bg-surface-container-high p-4 rounded-xl flex items-center gap-3">
+<img alt="Mia Portrait" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbEdG9v0OZ4lsJOYtv069Ri5phAT-8h9vLqTUwm2o6AMSdEo3NBnEvOhyKDgg1qZ9UQr4Z8Q1EKoglKo3YtyHG3jsQ7UwEQ9QWDD4rLGUS7G_YSGuMwBBqLwC7ETEScYKTGDMDKquUXC-3Pz9UXeUI-k-kQs-Rjis21yvQhiobB69MQQB5rnNKF1AeqmMs_0OR78YdLzKfCDMFaIgLm_ap77Mu2BbMoVkM-kHT_6VcnKbwXzzPohiM1fHFUPjktKZintxW7WBxmjzy"/>
+<div>
+<p class="text-xs font-bold font-headline">Mia</p>
+<p class="text-[10px] text-on-surface-variant">3rd Grade</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-4 md:p-8 space-y-8 pb-24">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-headline font-black text-4xl text-on-surface tracking-tight">AI Lunchbox Analysis</h1>
+<p class="text-on-surface-variant font-medium">Detailed deep dive for Mia's Tuesday Bento</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span> Share Report
+                    </button>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:bg-primary-dim transition-transform active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle">check_circle</span> Approve Plan
+                    </button>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+<!-- Left: Interactive Bento View -->
+<div class="xl:col-span-7 space-y-6">
+<div class="relative group rounded-xl overflow-hidden aspect-[4/3] shadow-2xl">
+<img alt="Top-down view of a colorful bento box with salmon, rice, berries, and vegetables" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="high-end minimalist top-down shot of a vibrant bento lunchbox, bright natural studio lighting, soft cream background, fresh textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG8lUA9QjLmNAjTnw3LO4kUl4QMZFFcFzziHaUZN6T4d3WCeJqgBMFaG4EUT2Xb1I36cgza9DXhZCHxeS51OJs2a4q9ujyQJrF4B2ZCQQgsrEFes18-kdFbDYcUXMI9jEA6wYnnV-342xqvhwWBF9Rk_FadtZzD0G0HC7tcmJeLWscti-FDx_diSRvs1STWtV4ubp-fDVjMDVdWy2mbuf-0dSpK9zxtEli_maV3W5zJI8W6r2rUfPyC0UJjskYuqsJy67teh-HMoQJ"/>
+<!-- Interactive Hotspots -->
+<div class="absolute top-1/4 left-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
+<div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
+                                Salmon Sushi Rolls
+                            </div>
+</div>
+<div class="absolute bottom-1/3 right-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
+<div class="w-3 h-3 bg-tertiary rounded-full animate-pulse"></div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
+                                Mixed Berries &amp; Mint
+                            </div>
+</div>
+<div class="absolute top-1/2 right-1/3 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
+<div class="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
+                                Roasted Broccolini
+                            </div>
+</div>
+<!-- Overlay Legend -->
+<div class="absolute bottom-6 left-6 flex gap-2">
+<span class="bg-black/50 backdrop-blur-md text-white text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-bold">Tap items to analyze</span>
+</div>
+</div>
+<!-- Energy Curve Deep Dive -->
+<div class="bg-surface-container-lowest p-8 rounded-xl border border-surface-variant/30">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline font-bold text-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt">bolt</span>
+                                Energy Curve Deep Dive
+                            </h3>
+<span class="text-primary font-bold text-sm bg-primary/10 px-4 py-1 rounded-full">+4h Steady Focus</span>
+</div>
+<div class="h-40 w-full relative mb-6">
+<!-- SVG Energy Curve Chart -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 400 100">
+<defs>
+<lineargradient id="curveGradient" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" style="stop-color:#00751f;stop-opacity:1"></stop>
+<stop offset="50%" style="stop-color:#706500;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#00751f;stop-opacity:1"></stop>
+</lineargradient>
+</defs>
+<path d="M0,80 Q50,20 100,40 T200,30 T300,50 T400,60" fill="none" stroke="url(#curveGradient)" stroke-linecap="round" stroke-width="4"></path>
+<circle cx="200" cy="30" fill="#706500" r="4"></circle>
+</svg>
+<div class="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] font-bold text-on-surface-variant pt-4">
+<span>LUNCH (12:00)</span>
+<span>RECESS</span>
+<span>3RD PERIOD</span>
+<span>PICKUP (15:30)</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                            The complex carbohydrates in the brown rice and fiber from the broccolini slow down glucose absorption, preventing the standard "1:45 PM Slump". Mia will maintain <strong>92% higher focus levels</strong> compared to a white-bread sandwich.
+                        </p>
+</div>
+</div>
+<!-- Right: Analysis Sidebar -->
+<div class="xl:col-span-5 space-y-6">
+<!-- Scoring Bento Card -->
+<div class="glass-panel p-6 rounded-lg space-y-6 shadow-xl">
+<div class="flex justify-between items-center border-b border-surface-variant pb-4">
+<h2 class="font-headline font-extrabold text-2xl">Bento Intelligence</h2>
+<div class="w-12 h-12 rounded-full border-4 border-primary flex items-center justify-center font-black text-primary">88</div>
+</div>
+<!-- Balance Score -->
+<div class="space-y-4">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Balance Breakdown</p>
+<div class="space-y-3">
+<div>
+<div class="flex justify-between text-sm mb-1 font-medium">
+<span>Fiber Content</span>
+<span class="text-primary">High</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[85%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1 font-medium">
+<span>Sugar Load</span>
+<span class="text-secondary">Optimal</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1 font-medium">
+<span>Ultra-Processed Level</span>
+<span class="text-primary">Very Low</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full w-[12%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Kid Acceptance -->
+<div class="pt-4 space-y-4">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Kid Acceptance Profile</p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl text-center">
+<span class="material-symbols-outlined text-tertiary mb-2" data-icon="lock_open">lock_open</span>
+<p class="text-[10px] font-bold text-on-surface-variant block">EASE OF OPEN</p>
+<p class="font-headline font-extrabold">Easy</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl text-center">
+<span class="material-symbols-outlined text-error mb-2" data-icon="cleaning_services">cleaning_services</span>
+<p class="text-[10px] font-bold text-on-surface-variant block">MESS FACTOR</p>
+<p class="font-headline font-extrabold">Medium</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sensory Profile -->
+<div class="bg-surface-container-low p-8 rounded-xl relative overflow-hidden">
+<h3 class="font-headline font-bold text-lg mb-6">Sensory Texture Map</h3>
+<div class="flex justify-center py-4">
+<div class="relative w-48 h-48 border border-surface-variant rounded-full flex items-center justify-center">
+<!-- Radar Chart Visualization -->
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<div class="w-full h-px bg-on-surface"></div>
+<div class="h-full w-px bg-on-surface absolute"></div>
+</div>
+<svg class="w-full h-full -rotate-45" viewbox="0 0 100 100">
+<polygon fill="rgba(0, 103, 173, 0.2)" points="50,20 80,50 50,85 15,50" stroke="#0067ad" stroke-width="1.5"></polygon>
+</svg>
+<span class="absolute top-0 -translate-y-6 text-[10px] font-bold text-on-surface-variant">CRUNCHY</span>
+<span class="absolute right-0 translate-x-8 text-[10px] font-bold text-on-surface-variant">SOFT</span>
+<span class="absolute bottom-0 translate-y-6 text-[10px] font-bold text-on-surface-variant">WET</span>
+<span class="absolute left-0 -translate-x-8 text-[10px] font-bold text-on-surface-variant">MIXED</span>
+</div>
+</div>
+<div class="mt-8 bg-tertiary/5 p-4 rounded-xl border-l-4 border-tertiary">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="info">info</span>
+<div>
+<p class="text-xs font-bold text-tertiary uppercase">Social Comfort Insight</p>
+<p class="text-sm text-on-surface mt-1 leading-snug">Great nutrients, but the sushi rolls may be hard to eat quickly during the short 15-min lunch break.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Leftovers Predictor -->
+<div class="bg-[#be2d06]/5 border-l-4 border-error p-6 rounded-xl relative">
+<div class="flex gap-4">
+<div class="p-3 bg-error/10 rounded-xl text-error shrink-0 self-start">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-error">Leftovers Predictor</h4>
+<p class="text-sm text-on-surface mt-2">The <strong>apple slices</strong> are likely to brown and be rejected without acid protection (lemon juice) within 2 hours. Suggest swapping for whole grapes or pre-treating.</p>
+<button class="mt-4 text-xs font-bold text-error border-b border-error/30 hover:border-error transition-all pb-0.5">Apply Correction</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation (Visible only on small screens) -->
+<nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-xl border-t border-surface-variant/30 flex justify-around items-center px-4 md:hidden z-50">
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold mt-1">HOME</span>
+</div>
+<div class="flex flex-col items-center text-primary">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="text-[10px] font-bold mt-1">SCAN</span>
+</div>
+<div class="relative -top-8 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/40 border-4 border-white">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="text-[10px] font-bold mt-1">TRENDS</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+<span class="text-[10px] font-bold mt-1">MIA</span>
+</div>
+</nav>
+</body></html>

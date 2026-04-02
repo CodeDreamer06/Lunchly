@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LunchLogic | Weekly Pattern Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#83e881",
+              "on-tertiary-container": "#003258",
+              "secondary-fixed-dim": "#ead723",
+              "secondary-dim": "#625900",
+              "on-surface": "#383833",
+              "surface-bright": "#fefcf4",
+              "surface": "#fefcf4",
+              "error": "#be2d06",
+              "on-primary-container": "#005e17",
+              "primary-container": "#91f78e",
+              "surface-container-high": "#efeee5",
+              "inverse-surface": "#0e0f0a",
+              "secondary": "#706500",
+              "on-secondary-fixed-variant": "#665c00",
+              "surface-tint": "#00751f",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#474000",
+              "on-primary-fixed-variant": "#00691a",
+              "outline": "#81817a",
+              "surface-container": "#f5f4eb",
+              "on-background": "#383833",
+              "surface-variant": "#e9e9de",
+              "secondary-fixed": "#f9e534",
+              "inverse-on-surface": "#9e9d96",
+              "surface-dim": "#e4e3d8",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005b9a",
+              "inverse-primary": "#91f78e",
+              "secondary-container": "#f9e534",
+              "on-error": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#70b5ff",
+              "surface-container-highest": "#e9e9de",
+              "on-tertiary-fixed-variant": "#003b67",
+              "primary": "#00751f",
+              "primary-dim": "#00671a",
+              "on-secondary-container": "#5b5300",
+              "tertiary": "#0067ad",
+              "on-error-container": "#520c00",
+              "primary-fixed": "#91f78e",
+              "background": "#fefcf4",
+              "on-primary-fixed": "#00480f",
+              "tertiary-fixed-dim": "#4ca8ff",
+              "surface-container-low": "#fbf9f1",
+              "on-surface-variant": "#65655f",
+              "on-primary": "#ffffff",
+              "outline-variant": "#bab9b2",
+              "error-dim": "#b92902",
+              "on-tertiary-fixed": "#001930",
+              "tertiary-container": "#70b5ff",
+              "error-container": "#f95630"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle {
+            border-radius: 3rem;
+        }
+        .rainbow-meter {
+            background: linear-gradient(90deg, #ff6b6b, #f9e534, #00751f, #0067ad);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center w-full px-8 h-16 border-b border-stone-200/50 fixed top-0 z-50 bg-[#fefcf4]">
+<div class="text-2xl font-black text-[#00751f] tracking-tight font-headline">LunchLogic</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-[#00751f] font-bold border-b-2 border-[#00751f] font-headline text-sm" href="#">Dashboard</a>
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline text-sm" href="#">Lunch Scanner</a>
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline text-sm" href="#">Weekly Trends</a>
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline text-sm" href="#">Swap Engine</a>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="Child Profile Avatar" data-alt="Close up portrait of a smiling young child with bright eyes and soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUJh2Ttfl77JYMSkYbplmZLiYXbrdp9QVxzJB-T0gruVBnwml3zUdUmHfewhwUEus6Qxqz8hUioWqBXaw9rMAUSFCj1Fp3CPN-QWvdPpyEQJdkIi79s34CsTNEOK85_iNmis7BhECz636tlsxIeNqqqHJhBNq4ioh4EqN7N4IQFlIVAy6LAskzP8REa1UGZJA_5lGj8nT0x3nymR0rPxsThNFapHnFuDiELTOnCQx2_QZLOj96ml3EkQeT13s7_hUgzANQ7EoSmAYg"/>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</header>
+<!-- Side Navigation Bar -->
+<aside class="hidden md:flex flex-col pt-20 pb-8 h-screen w-64 fixed left-0 top-0 border-r border-stone-200/50 bg-white/70 backdrop-blur-md z-40">
+<div class="px-6 mb-8">
+<h2 class="font-headline font-bold text-lg">Parent Portal</h2>
+<p class="text-xs text-on-surface-variant">Managing 2 Profiles</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all font-headline text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all font-headline text-sm" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span> Lunch Scanner
+            </a>
+<a class="flex items-center gap-3 bg-[#00751f]/10 text-[#00751f] rounded-2xl px-4 py-3 mx-2 font-headline text-sm" href="#">
+<span class="material-symbols-outlined">trending_up</span> Weekly Trends
+            </a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all font-headline text-sm" href="#">
+<span class="material-symbols-outlined">swap_horiz</span> Swap Engine
+            </a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all font-headline text-sm" href="#">
+<span class="material-symbols-outlined">face</span> Kid Profiles
+            </a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-20 px-4 md:px-8 pb-12 min-h-screen">
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- Parent Emotional UX Banner -->
+<div class="bg-primary-container/30 rounded-xl p-6 flex items-center gap-6 relative overflow-hidden">
+<div class="flex-1">
+<h3 class="font-headline font-bold text-xl text-on-primary-container">This is a solid lunch week!</h3>
+<p class="text-on-primary-container/80">Leo is trying new textures with confidence. Tomorrow can add more color.</p>
+</div>
+<div class="hidden md:block absolute right-[-20px] top-[-20px] opacity-20">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Weekly Summary: Rainbow Meter -->
+<div class="md:col-span-8 bg-surface-container-low rounded-lg p-8 relative">
+<div class="flex justify-between items-start mb-8">
+<div>
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest font-bold">Diversity Metric</span>
+<h2 class="text-4xl font-headline font-extrabold text-on-surface mt-1">Week 4 Variety Score</h2>
+</div>
+<div class="bg-surface-container-lowest px-4 py-2 rounded-full font-headline font-bold text-primary text-2xl">
+                            84%
+                        </div>
+</div>
+<div class="relative h-12 w-full bg-surface-container-high rounded-full overflow-hidden mb-4">
+<div class="rainbow-meter h-full w-[84%] rounded-full relative">
+<div class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between text-xs font-label text-on-surface-variant px-2">
+<span>Starting Out</span>
+<span>Balanced Palette</span>
+<span>Master Taster</span>
+</div>
+</div>
+<!-- Color Quest Badge Progress -->
+<div class="md:col-span-4 bg-tertiary-container/20 rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-4">
+<div class="w-24 h-24 bg-tertiary rounded-full flex items-center justify-center shadow-lg transform rotate-12">
+<span class="material-symbols-outlined text-on-tertiary text-5xl" style="font-variation-settings: 'FILL' 1;">palette</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl text-on-tertiary-container">Color Quest</h4>
+<p class="text-sm text-on-tertiary-container/70 mb-4">4/5 colors eaten this week</p>
+<div class="flex gap-2 justify-center">
+<div class="w-3 h-3 rounded-full bg-red-400"></div>
+<div class="w-3 h-3 rounded-full bg-orange-400"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+<div class="w-3 h-3 rounded-full bg-green-400"></div>
+<div class="w-3 h-3 rounded-full bg-surface-container-high border-2 border-dashed border-tertiary-dim"></div>
+</div>
+</div>
+</div>
+<!-- Trend Charts Section -->
+<div class="md:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Veg Exposure Count -->
+<div class="bg-surface-container-lowest rounded-lg p-8 border border-surface-variant/20">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary">eco</span>
+<h3 class="font-headline font-bold text-lg">Veg Exposure Count</h3>
+</div>
+<div class="flex items-end justify-between h-48 gap-4 px-4">
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-primary-fixed-dim rounded-t-xl h-[40%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">MON</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-primary-fixed-dim rounded-t-xl h-[60%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">TUE</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-primary rounded-t-xl h-[90%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">WED</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-primary-fixed-dim rounded-t-xl h-[50%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">THU</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-primary-fixed-dim rounded-t-xl h-[75%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">FRI</span>
+</div>
+</div>
+</div>
+<!-- Protein Consistency -->
+<div class="bg-surface-container-lowest rounded-lg p-8 border border-surface-variant/20">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-secondary">fitness_center</span>
+<h3 class="font-headline font-bold text-lg">Protein Consistency</h3>
+</div>
+<div class="flex items-end justify-between h-48 gap-4 px-4">
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-secondary-container rounded-t-xl h-[70%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">MON</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-secondary-container rounded-t-xl h-[65%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">TUE</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-secondary-container rounded-t-xl h-[80%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">WED</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-secondary rounded-t-xl h-[95%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">THU</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full">
+<div class="w-full bg-secondary-container rounded-t-xl h-[75%]"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant">FRI</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Food Exposure Tracker -->
+<div class="md:col-span-7 bg-surface-container-low rounded-lg p-8 overflow-hidden relative">
+<div class="mb-6">
+<h3 class="font-headline font-bold text-xl">The Picky Eater Lab</h3>
+<p class="text-on-surface-variant text-sm">Identifying winning combinations for Leo</p>
+</div>
+<div class="space-y-4">
+<div class="bg-white p-6 rounded-xl flex items-center gap-6 shadow-sm">
+<div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
+<img alt="Bell Pepper" data-alt="Macro photo of sliced vibrant red and yellow bell peppers with water droplets on a white surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZjY7kPA9es-Nf0t0ORqf7ovm1t88Qak4AR0DxOnpEjxlxkohTZlbtTIK-w-4UKur9E4aaml3EsNVnBlr_vevnYKKk6KtmwsUh3WxXcSRNVFunu28UWRS1qDTHTXHMaLkxfP3MIANKfPYOSoIDER0BTfMgr3jz1WbPpolw1iXE-LNZB_xkjXoPXH6ObyqUE0_aV6FRqDenys5XrGpBLwEfqVuZaLN9XhT9XsT5FpTnl-wGRH_Y3aKmXPQh5HrrrbJzroPpn22QQtTk"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-label font-semibold text-primary mb-1">Winning Pair Alert!</p>
+<p class="text-lg font-headline font-bold">Bell peppers were accepted 2/5 times when paired with hummus.</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl flex items-center gap-6 shadow-sm opacity-60">
+<div class="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center">
+<img alt="Broccoli" data-alt="Close-up of fresh green broccoli florets with natural textures on a light background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIj4wlyEx-rR7sHQJ17FtR6jf0ijLfU5hHVzVprOY39M2EeVc2fx0rWPUp52t04a35GleQJPXfN19V9nno_EkZjy-fsfLceLo5WQzfgbabGNglYcSZhT0rTge7XCZ58a4w31XhucClWDGwz5NJoLgO3dvhc912-vXTq-LjicCJ2wapOGEjcejomMMjbFWmSq04RBMW6F5xxdL_kf3gnBWmzr6nzD5MoAHyHNCJRK2lJvaJZ6R_wOYY48Ocycv83x4CVQYD7F0miqqd"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-label font-semibold text-on-surface-variant mb-1">Experiment in Progress</p>
+<p class="text-lg font-headline font-bold">Broccoli + Parmesan trial: 1/5 acceptance</p>
+</div>
+</div>
+</div>
+<div class="absolute bottom-[-20px] right-[-10px] opacity-10">
+<span class="material-symbols-outlined text-[150px]">biotech</span>
+</div>
+</div>
+<!-- Quest & Badges Section -->
+<div class="md:col-span-5 bg-secondary-container/10 rounded-lg p-8">
+<h3 class="font-headline font-bold text-xl mb-6">Upcoming Milestones</h3>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-blue-600">water_drop</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-headline font-bold text-sm">Hydration Hero</span>
+<span class="text-xs font-bold text-on-surface-variant">80%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full">
+<div class="h-full bg-blue-500 rounded-full w-[80%]"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-orange-600">local_fire_department</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-headline font-bold text-sm">Lunch Streak</span>
+<span class="text-xs font-bold text-on-surface-variant">3/5 days</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full">
+<div class="h-full bg-orange-500 rounded-full w-[60%]"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-purple-600">auto_awesome</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-headline font-bold text-sm">Protein Prodigy</span>
+<span class="text-xs font-bold text-on-surface-variant">Locked</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-purple-200 rounded-full w-[30%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation (Visible only on mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-t border-stone-200 flex justify-around items-center px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-label">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="text-[10px] font-label font-bold">Trends</span>
+</button>
+<div class="relative -top-4">
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="text-[10px] font-label">Swap</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">face</span>
+<span class="text-[10px] font-label">Profile</span>
+</button>
+</nav>
+</body></html>

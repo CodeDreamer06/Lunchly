@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fridge Remix - LunchLogic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle {
+            border-radius: 3rem;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fefcf4;
+        }
+        h1, h2, h3, .font-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "outline": "#81817a",
+                "on-secondary-fixed": "#474000",
+                "on-primary-fixed-variant": "#00691a",
+                "on-background": "#383833",
+                "surface-container": "#f5f4eb",
+                "surface-variant": "#e9e9de",
+                "secondary": "#706500",
+                "surface-tint": "#00751f",
+                "on-secondary-fixed-variant": "#665c00",
+                "on-secondary": "#ffffff",
+                "primary-container": "#91f78e",
+                "on-primary-container": "#005e17",
+                "surface-container-high": "#efeee5",
+                "inverse-surface": "#0e0f0a",
+                "primary-fixed-dim": "#83e881",
+                "secondary-fixed-dim": "#ead723",
+                "on-tertiary-container": "#003258",
+                "surface-bright": "#fefcf4",
+                "on-surface": "#383833",
+                "secondary-dim": "#625900",
+                "error": "#be2d06",
+                "surface": "#fefcf4",
+                "on-primary": "#ffffff",
+                "outline-variant": "#bab9b2",
+                "error-dim": "#b92902",
+                "error-container": "#f95630",
+                "tertiary-container": "#70b5ff",
+                "on-tertiary-fixed": "#001930",
+                "background": "#fefcf4",
+                "primary-fixed": "#91f78e",
+                "tertiary-fixed-dim": "#4ca8ff",
+                "on-primary-fixed": "#00480f",
+                "surface-container-low": "#fbf9f1",
+                "on-surface-variant": "#65655f",
+                "surface-container-highest": "#e9e9de",
+                "on-tertiary-fixed-variant": "#003b67",
+                "primary-dim": "#00671a",
+                "primary": "#00751f",
+                "tertiary": "#0067ad",
+                "on-secondary-container": "#5b5300",
+                "on-error-container": "#520c00",
+                "tertiary-dim": "#005b9a",
+                "surface-container-lowest": "#ffffff",
+                "surface-dim": "#e4e3d8",
+                "secondary-fixed": "#f9e534",
+                "inverse-on-surface": "#9e9d96",
+                "inverse-primary": "#91f78e",
+                "secondary-container": "#f9e534",
+                "on-error": "#ffffff",
+                "tertiary-fixed": "#70b5ff",
+                "on-tertiary": "#ffffff"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="text-on-background">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-8 bg-[#fefcf4] dark:bg-stone-950 h-screen w-64 rounded-r-[3rem] shadow-[32px_0_32px_rgba(0,0,0,0.06)] z-50">
+<div class="px-8 mb-10">
+<h1 class="text-xl font-extrabold text-[#00751f]">LunchLogic</h1>
+<p class="text-xs text-on-surface-variant">Organic Kineticist</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="font-medium text-sm">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-medium text-sm">Weekly Trends</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="font-medium text-sm">Swap Engine</span>
+</a>
+<a class="flex items-center gap-3 bg-[#00751f] text-white rounded-full px-4 py-3 mx-2 active:scale-98 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="kitchen" style="font-variation-settings: 'FILL' 1;">kitchen</span>
+<span class="font-medium text-sm">Fridge Remix</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-medium text-sm">Logistics Check</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="family_restroom">family_restroom</span>
+<span class="font-medium text-sm">Caregiver Hub</span>
+</a>
+</nav>
+<div class="mt-auto px-6">
+<div class="bg-surface-container rounded-2xl p-4 flex items-center gap-3">
+<img alt="Profile" class="w-10 h-10 rounded-full object-cover" data-alt="Close-up portrait of a friendly smiling person with warm lighting against a soft blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn5riHGoWJRnG67OothkWrJCKG04lptyDf7GWDInidKKvH_m8Jq_aS0xRdT-qpWX2FTCsJ1-z0E7AW1J7_xkRZ8C50p4SLZ4s8sWAr04uc4R5CgP8skglDXIfkvoP4WAQ_PLuU5CNjw8v-zsAsv9RFLlX3vUXHak3ZqN-bNjcr_pmJ4BIgDVvRp3TWKCgf9LzDr2DU1R5ukFKIOWeb2chZF3YGPIv7ut4EPdFa-ZrUMXf9MjdDS7RpC_M9pG5dumlulZG2WsAmnkNc"/>
+<div>
+<p class="text-xs font-bold">Alex Chen</p>
+<p class="text-[10px] text-on-surface-variant">Level 12 Chef</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="ml-64 p-8">
+<!-- Top Header Area -->
+<header class="flex justify-between items-end mb-12">
+<div>
+<nav class="flex gap-2 text-xs font-bold text-primary mb-2 uppercase tracking-widest">
+<span>Remix</span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface-variant">Pantry Prep</span>
+</nav>
+<h2 class="text-4xl font-black tracking-tight text-on-surface">Fridge Remix</h2>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-2 rounded-full">
+<button class="px-6 py-2 bg-primary text-white rounded-full text-sm font-bold shadow-lg shadow-primary/20">Fridge Mode</button>
+<button class="px-6 py-2 text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-colors rounded-full">Pantry Only</button>
+</div>
+</header>
+<!-- Fridge Scan Hero -->
+<section class="grid grid-cols-12 gap-8 mb-12">
+<div class="col-span-8 bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-xl p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-[360px]">
+<div class="relative z-10 max-w-md">
+<div class="flex items-center gap-2 mb-4 bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-md">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-xs font-bold uppercase tracking-tighter">AI Scan Complete</span>
+</div>
+<h3 class="text-5xl font-black mb-4 leading-none">Detected Leftovers</h3>
+<p class="text-primary-container text-lg font-medium">We found 4 items in your fridge that are ready for a lunch makeover.</p>
+</div>
+<div class="relative z-10 flex gap-4 mt-8">
+<div class="glass-card p-4 rounded-2xl flex items-center gap-3 border border-white/30 text-on-surface">
+<div class="w-12 h-12 bg-secondary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="restaurant">restaurant</span>
+</div>
+<div>
+<p class="text-xs font-bold opacity-60">Main</p>
+<p class="font-bold text-sm">Roast Chicken</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center gap-3 border border-white/30 text-on-surface">
+<div class="w-12 h-12 bg-tertiary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="flatware">flatware</span>
+</div>
+<div>
+<p class="text-xs font-bold opacity-60">Base</p>
+<p class="font-bold text-sm">Penne Pasta</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center gap-3 border border-white/30 text-on-surface">
+<div class="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="eco">eco</span>
+</div>
+<div>
+<p class="text-xs font-bold opacity-60">Veggie</p>
+<p class="font-bold text-sm">Steamed Broccoli</p>
+</div>
+</div>
+</div>
+<!-- Decorative 3D-ish Image Leak -->
+<div class="absolute -right-12 -bottom-12 w-80 h-80 opacity-90 drop-shadow-2xl">
+<img alt="Healthy Bowl" class="w-full h-full object-contain transform rotate-12" data-alt="A vibrant salad bowl with roasted vegetables, seeds, and fresh greens arranged artistically with bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXPh-3RMjzQH6F5O8kxGOjQS0P8JRyhOGUv1ZvJIF6Ruz6Jl_2YcekY5_A4gqqVjs0uT5li2JKPbHW4sD2vTwLYmitkbCiakRjMiRtuq1nA6AfjQGaQ9WtMZxTdB5JjjkebN87iaPIzcQIxlJpDrQFbNz8cStXHWzL-rjEA9xv2UKMlQDLOX8O71rFi3C3r8eYTJ28QIFXIbm9Mi4Fui0Aw1ClBMYpM5j8knXl7d_FQk4uaN5MgDSEdqQpIlUdqG81I-D4YwK9xa56"/>
+</div>
+</div>
+<!-- Quick Stats/Filters -->
+<div class="col-span-4 flex flex-col gap-4">
+<div class="bg-secondary-container rounded-xl p-6 flex-1 flex flex-col justify-between">
+<h4 class="font-black text-on-secondary-container text-xl leading-tight">Quick Filters</h4>
+<div class="flex flex-wrap gap-2 mt-4">
+<button class="bg-white/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-white transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="ac_unit">ac_unit</span> No Reheating
+                        </button>
+<button class="bg-white/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-white transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="cleaning_services">cleaning_services</span> Low Mess
+                        </button>
+<button class="bg-white/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-white transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="timer">timer</span> 5-Min Prep
+                        </button>
+<button class="bg-white/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-white transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="school">school</span> Nut Free
+                        </button>
+</div>
+</div>
+<div class="bg-surface-container-highest rounded-xl p-6 h-32 flex items-center justify-between">
+<div>
+<p class="text-on-surface-variant font-bold text-sm">Pantry Items Used</p>
+<p class="text-3xl font-black">12 <span class="text-sm font-medium opacity-50">Units</span></p>
+</div>
+<div class="w-16 h-16 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
+<div class="absolute inset-0 border-t-4 border-primary rounded-full"></div>
+<span class="text-xs font-bold text-primary">82%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Remix Ideas Grid -->
+<h3 class="text-2xl font-black mb-8">Remix Ideas</h3>
+<div class="grid grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group relative bg-surface-container-low rounded-xl overflow-hidden hover:bg-white transition-all duration-300">
+<div class="h-48 overflow-hidden relative">
+<img alt="Lunch Box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Gourmet pasta salad in a bento box with colorful vegetables and chicken strips, top-down view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg3BfpoxaDaT7RZN9v3bEKSudAbP9CNB469HBkenGx7E5uMgejo_Hqwe4lzaeij335_Zx1FHaWDp6NbeTPYhc3917db4NxnHQoFnBFQiukD04jqm6xWb6OxowIaRv6akOJh2Ze-WjOE0ZDNVe4uoDOxrP8-xiH-1AlH2uuA2sFnZdHIzZgnL0GCWLe6y-aCdtmlGzznzDS3TCMN11YFPLZqRD8YukaCAVH76DisUZGRDcfjzUAVhfGRFpr0vdjZDKAGnx1xolWNEK-"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-primary">From: Roasted Chicken</div>
+</div>
+<div class="p-6">
+<h4 class="text-xl font-bold mb-2">Chicken Pasta Skewers</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Thread leftover penne and chicken chunks with fresh cherry tomatoes. Serve cold with pesto dip.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant/50">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt">bolt</span>
+<span class="text-xs font-bold">Fast</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative bg-surface-container-low rounded-xl overflow-hidden hover:bg-white transition-all duration-300">
+<div class="h-48 overflow-hidden relative">
+<img alt="Broccoli Salad" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A fresh green salad with broccoli, nuts, and a light dressing in a stylish white bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIjv4frzSVcDzDAxDtjLksD2ukztxnI2l5zyjhZ78kC6pYSsoGO1l-5rCmA8SJ_GMC1yAyb6Aoq5LXzjno49RjWLeuqLuyMNhVw2OkyQTWBazSmitBv7egLMpUdGs5tg5F0JHIiAYPRPAQD2oIUR4zvzz87YI39OliTB52f41qdN_qdz43ZcwMsKDrWocnh0-ooqTMXGRRoHlHBQLL5V9TNm3VQT-zewb0N4XfmU7fYB9eJSSoFojVQCeEKAPydi6iH-Bpj8Moq7VL"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-primary">From: Broccoli</div>
+</div>
+<div class="p-6">
+<h4 class="text-xl font-bold mb-2">Crunchy Broccoli Slaw</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Finely chop the steamed broccoli and mix with yogurt, raisins, and sunflower seeds from the pantry.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant/50">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="cool_to_front">flip_to_front</span>
+<span class="text-xs font-bold">No Heat</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative bg-surface-container-low rounded-xl overflow-hidden hover:bg-white transition-all duration-300">
+<div class="h-48 overflow-hidden relative">
+<img alt="Wrap" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Healthy chicken wrap with lettuce and creamy dressing on a rustic wooden board" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCtGLZa-C-sT6yFC_R48RpJUU4MBge2-VRQQgNxwZ66WAm-cRXuv09jpppokG6_5ip_GdsZgte2bF7WscMy30pznJkXdL3bBBY37P-Mgr0h8Mj-pwFdTVBNUXGA0uwN4Z7tcacp_kaXFv8QD48mvSzCtDo1W9l1Y4kuRNHFfGSt2REUFv8FW05TgEaQ7OGJgDkHHR1wJ3HqQF0Kg1OPg0IDahKGS1hFACB1SUq-nUbpO7rchcg7sC9s0-l1Shw12Q3nTZpCONWktCX"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-primary">Pantry Combo</div>
+</div>
+<div class="p-6">
+<h4 class="text-xl font-bold mb-2">Shelf-Stable Fiesta Wrap</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Combine canned black beans, corn, and leftover chicken in a whole wheat wrap for an easy meal.</p>
+<div class="flex items-center justify-between pt-4 border-t border-surface-variant/50">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-error" data-icon="inventory_2">inventory_2</span>
+<span class="text-xs font-bold">Pantry Focus</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pantry Prep Section -->
+<section class="mt-16 bg-surface-container rounded-xl p-10 flex items-center gap-12">
+<div class="flex-1">
+<h3 class="text-3xl font-black mb-4">Pantry Prep Mode</h3>
+<p class="text-on-surface-variant font-medium max-w-lg mb-8">Running low on fresh items? Activate our end-of-week strategy to build nutritious lunches using only long-life pantry staples.</p>
+<div class="flex gap-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="view_cozy">view_cozy</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant">Starch Base</p>
+<p class="font-bold">Quinoa &amp; Rice</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="egg_alt">egg_alt</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant">Proteins</p>
+<p class="font-bold">Tuna &amp; Beans</p>
+</div>
+</div>
+</div>
+</div>
+<div class="w-1/3 bg-white p-6 rounded-xl shadow-xl border border-surface-variant/20">
+<h4 class="font-bold text-sm mb-4 uppercase tracking-widest text-secondary">Smart Recommendation</h4>
+<div class="flex items-center gap-4 mb-4">
+<img alt="Ingredients" class="w-16 h-16 rounded-lg object-cover" data-alt="A clean kitchen pantry with organized jars of grains and legumes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjyZArDijpM1cwaodHkMxS02eGLdw0E-eedpNwBAKQsiQ7sN9TmZilFKRj4gOONdJFSxoGovhxsawRtpdz1jKoo21c1Cj8MBQcGIO2fgGgp_mPZkcycV7ypsgfrEuKEEadHflmrX9NawEfkyP08qLadd3a1l39PPCQFIPg3kt_b6w2cVx2wasult3pqmMOjcLENAdvsEYiz7g1ePyIL_uFZ8dpkWps5xlCwQ_IKuQnnyp0gsXGavWptW7lUuDF3EKr0doKIeIAR4oG"/>
+<div>
+<p class="font-bold">Mediterranean Grain Bowl</p>
+<p class="text-xs text-on-surface-variant">Couscous, Chickpeas, Olives</p>
+</div>
+</div>
+<button class="w-full py-4 bg-secondary-container text-on-secondary-container font-black rounded-full hover:scale-[1.02] transition-all">Build Pantry Lunch</button>
+</div>
+</section>
+</main>
+<!-- FAB for quick scan -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="camera" style="font-variation-settings: 'FILL' 1;">camera</span>
+</button>
+</body></html>

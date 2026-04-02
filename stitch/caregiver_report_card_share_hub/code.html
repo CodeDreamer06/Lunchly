@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Caregiver Hub - LunchLogic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#81817a",
+                        "on-secondary-fixed": "#474000",
+                        "on-primary-fixed-variant": "#00691a",
+                        "on-background": "#383833",
+                        "surface-container": "#f5f4eb",
+                        "surface-variant": "#e9e9de",
+                        "secondary": "#706500",
+                        "surface-tint": "#00751f",
+                        "on-secondary-fixed-variant": "#665c00",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#91f78e",
+                        "on-primary-container": "#005e17",
+                        "surface-container-high": "#efeee5",
+                        "inverse-surface": "#0e0f0a",
+                        "primary-fixed-dim": "#83e881",
+                        "secondary-fixed-dim": "#ead723",
+                        "on-tertiary-container": "#003258",
+                        "surface-bright": "#fefcf4",
+                        "on-surface": "#383833",
+                        "secondary-dim": "#625900",
+                        "error": "#be2d06",
+                        "surface": "#fefcf4",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#bab9b2",
+                        "error-dim": "#b92902",
+                        "error-container": "#f95630",
+                        "tertiary-container": "#70b5ff",
+                        "on-tertiary-fixed": "#001930",
+                        "background": "#fefcf4",
+                        "primary-fixed": "#91f78e",
+                        "tertiary-fixed-dim": "#4ca8ff",
+                        "on-primary-fixed": "#00480f",
+                        "surface-container-low": "#fbf9f1",
+                        "on-surface-variant": "#65655f",
+                        "surface-container-highest": "#e9e9de",
+                        "on-tertiary-fixed-variant": "#003b67",
+                        "primary-dim": "#00671a",
+                        "primary": "#00751f",
+                        "tertiary": "#0067ad",
+                        "on-secondary-container": "#5b5300",
+                        "on-error-container": "#520c00",
+                        "tertiary-dim": "#005b9a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#e4e3d8",
+                        "secondary-fixed": "#f9e534",
+                        "inverse-on-surface": "#9e9d96",
+                        "inverse-primary": "#91f78e",
+                        "secondary-container": "#f9e534",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#70b5ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle-lg { border-radius: 2rem; }
+        .squircle-xl { border-radius: 3rem; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container">
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-8 bg-[#fefcf4] dark:bg-stone-950 h-screen w-64 rounded-r-[3rem] shadow-[32px_0_32px_rgba(0,0,0,0.06)] hidden md:flex z-50">
+<div class="px-8 mb-10">
+<h1 class="text-xl font-extrabold text-[#00751f]">LunchLogic</h1>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-bold">Organic Kineticist</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-sm">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-sm">Weekly Trends</span>
+</a>
+<!-- Active Tab: Caregiver Hub -->
+<a class="flex items-center gap-3 bg-[#00751f] text-white rounded-full px-4 py-3 mx-2 transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">family_restroom</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-sm">Caregiver Hub</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="bg-surface-container rounded-xl p-4 flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a smiling mother in a sunny kitchen environment, soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4pluc5ccW36DEThC0wtTelt5LJ-pQST_mKGmVsxUTVTXHahULU-TI6myHcgve82lN8aM1fOcN5DZkvQOopfmwL6Za_dX69DtYlP7tAAE-s6LyIiqE9FFkHpSs_XaLXwyaF4BQLZ7YTHfxQ2aTASE3-KIwz9btk8K3R1YkRPtNSuaTYmD6OYgkCTVTF0dzQBhyVcLe6envzKovYsP5sVwz3fnm9W-1rwZR0E1-yBPjMQWe50HHiKuiqM5PVxFN9WsHQpE0TVKzsTwm"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">Sarah Mitchell</p>
+<p class="text-[10px] text-on-surface-variant">Pro Caregiver</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top AppBar (Mobile) -->
+<header class="fixed top-0 w-full z-40 flex justify-between items-center px-6 h-16 bg-[#fefcf4] dark:bg-stone-950 md:hidden">
+<span class="text-2xl font-black text-[#00751f] tracking-tight">LunchLogic</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-[#00751f]">notifications</span>
+<span class="material-symbols-outlined text-stone-600">menu</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen pt-20 pb-24 md:pt-8 md:pb-12 px-6">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="text-4xl font-headline font-extrabold text-on-background tracking-tight">Caregiver Hub</h2>
+<p class="text-on-surface-variant mt-2 max-w-lg">Create a personalized Report Card for Leo's grandmas or nannies. Nutrition made easy, shared instantly.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined">share</span>
+                        Share Hub
+                    </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- 1. Best Accepted Foods (Left Column) -->
+<section class="md:col-span-4 bg-surface-container-low squircle-lg p-8 flex flex-col gap-6 relative overflow-hidden">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-xl">Best Accepted</h3>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-4 squircle-md flex items-center gap-4 hover:scale-[1.02] transition-transform">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">ios</span>
+</div>
+<div>
+<p class="font-bold">Sliced Honeycrisp</p>
+<p class="text-xs text-on-surface-variant">Skin-off, slight cinnamon</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 squircle-md flex items-center gap-4 hover:scale-[1.02] transition-transform">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">bakery_dining</span>
+</div>
+<div>
+<p class="font-bold">Mini Pita Pockets</p>
+<p class="text-xs text-on-surface-variant">With hummus inside</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 squircle-md flex items-center gap-4 hover:scale-[1.02] transition-transform">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">egg</span>
+</div>
+<div>
+<p class="font-bold">Boiled Egg Stars</p>
+<p class="text-xs text-on-surface-variant">Cut with star shape mold</p>
+</div>
+</div>
+</div>
+<button class="text-primary font-bold text-sm flex items-center gap-1 mt-auto hover:underline">
+                        Edit List <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<!-- Decorative element -->
+<div class="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+</section>
+<!-- 2. Current Goals (Bento Center Top) -->
+<section class="md:col-span-8 bg-gradient-to-br from-primary to-primary-dim p-8 squircle-lg text-white relative overflow-hidden shadow-lg">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined">star</span>
+<h3 class="font-headline font-bold text-xl">Current Goals</h3>
+</div>
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h4 class="text-3xl font-black mb-2 tracking-tight">Color Quest: 3 Colors</h4>
+<p class="text-primary-container/80 text-lg">Goal: Include three vibrant colors in every lunchbox this week to boost phytonutrients.</p>
+<div class="mt-6 h-3 w-full bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-2/3"></div>
+</div>
+<p class="text-xs mt-2 font-medium">4 of 7 days completed</p>
+</div>
+<div class="shrink-0">
+<div class="bg-white/10 backdrop-blur-md p-4 squircle-lg border border-white/20">
+<span class="material-symbols-outlined text-5xl" style="font-variation-settings: 'FILL' 1;">palette</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3D Illustration Leak -->
+<div class="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+</section>
+<!-- 3. Quick Wins & Foods to Avoid (Two Cards) -->
+<div class="md:col-span-5 grid grid-rows-2 gap-6">
+<div class="bg-surface-container-high squircle-lg p-6 flex flex-col gap-4 border-l-8 border-primary">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">bolt</span>
+<h4 class="font-bold">Quick Win</h4>
+</div>
+<p class="text-on-surface font-medium italic">"Freeze the yogurt tube! It stays cold until lunch and acts as an ice pack."</p>
+</div>
+<div class="bg-error-container/10 squircle-lg p-6 flex flex-col gap-4 border-l-8 border-error">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined">block</span>
+<h4 class="font-bold">Avoid</h4>
+</div>
+<p class="text-on-surface-variant text-sm">Don't pack berries directly with yogurt. They get soggy. Use a separate small container.</p>
+</div>
+</div>
+<!-- 4. School Policy Alert (Bento Center Right) -->
+<section class="md:col-span-7 bg-surface-container-low squircle-lg p-8 relative">
+<div class="flex items-center gap-3 mb-6 text-on-surface">
+<span class="material-symbols-outlined text-error">warning</span>
+<h3 class="font-headline font-bold text-xl uppercase tracking-wider">School Policy Alert</h3>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 squircle-md shadow-sm flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">no_drinks</span>
+<p class="font-bold text-sm">100% Nut Free</p>
+</div>
+<div class="bg-white p-4 squircle-md shadow-sm flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">wine_bar</span>
+<p class="font-bold text-sm">No Glass Containers</p>
+</div>
+<div class="bg-white p-4 squircle-md shadow-sm flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">eco</span>
+<p class="font-bold text-sm">Waste-Free Preferred</p>
+</div>
+<div class="bg-white p-4 squircle-md shadow-sm flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">water_drop</span>
+<p class="font-bold text-sm">Water Only Bottles</p>
+</div>
+</div>
+</section>
+<!-- 5. Share Hub (Footer Full Width) -->
+<section class="md:col-span-12 bg-surface-container-lowest p-8 squircle-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-surface-variant/50">
+<div class="flex items-center gap-6">
+<div class="w-20 h-20 bg-secondary-container rounded-2xl flex items-center justify-center rotate-3">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl">qr_code_2</span>
+</div>
+<div>
+<h3 class="text-2xl font-headline font-extrabold tracking-tight">Ready to hand off?</h3>
+<p class="text-on-surface-variant">Your digital Report Card is ready to share.</p>
+</div>
+</div>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg active:scale-95">
+<span class="material-symbols-outlined">chat</span>
+                            WhatsApp
+                        </button>
+<button class="bg-tertiary text-on-tertiary px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg active:scale-95">
+<span class="material-symbols-outlined">mail</span>
+                            Email Hub
+                        </button>
+<button class="bg-surface-container-highest text-on-surface px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:bg-surface-variant transition-all active:scale-95">
+<span class="material-symbols-outlined">print</span>
+                            PDF Card
+                        </button>
+</div>
+</section>
+</div>
+<!-- Visual Flare - 3D Food Leak -->
+<div class="fixed bottom-12 right-12 w-32 h-32 opacity-20 pointer-events-none hidden lg:block">
+<img class="w-full h-full object-cover rounded-full shadow-2xl rotate-12" data-alt="Vibrant close-up of a fresh green salad with cherry tomatoes and avocado, bright overhead lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjsZ6ObvFFcYOheE7TDdzONrK5O7dJ08a8ZjH_M8a3fmamAK37J4niU2eg_1vTfw88pSYECWjg2_p9PGKqh8RpF5GTjg8do2QhPErj4kYu_HFW1Nn5MVP9QGdDCENYYSSITFCzWZC_DpaIzlZOKvvUk0uBzz7VwaswFazwMIfSGZQZURt148ojSU-PY2g3O130G8Hn95xV4AmU1vs4Hc_x7YnNFPYdyjhBHf-iPsVVDqHAybC3iALqCmmETBbGciRGVBbXEU-adYi9"/>
+</div>
+</div>
+</main>
+<!-- Bottom Nav (Mobile Only) -->
+<nav class="fixed bottom-0 w-full bg-white/80 backdrop-blur-xl md:hidden flex justify-around items-center py-3 z-50 rounded-t-[2rem] shadow-[0_-8px_24px_rgba(0,0,0,0.05)] px-4">
+<a class="flex flex-col items-center gap-1 text-stone-600" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Dash</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-600" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="text-[10px] font-bold">Scan</span>
+</a>
+<div class="bg-primary p-3 rounded-full -mt-10 shadow-xl border-4 border-surface">
+<span class="material-symbols-outlined text-white">add</span>
+</div>
+<a class="flex flex-col items-center gap-1 text-stone-600" href="#">
+<span class="material-symbols-outlined">kitchen</span>
+<span class="text-[10px] font-bold">Remix</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">family_restroom</span>
+<span class="text-[10px] font-bold">Hub</span>
+</a>
+</nav>
+</body></html>
