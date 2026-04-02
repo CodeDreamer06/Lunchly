@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
+import { ScreenPreview } from "@/components/screen-preview";
 import { getAllScreens, getScreenBySlug } from "@/lib/stitch";
 
 type ScreenPageProps = {
@@ -54,9 +55,9 @@ export default async function ScreenPage({ params }: ScreenPageProps) {
           <span>Screen Preview</span>
           <span>Frontend only</span>
         </div>
-        <iframe
+        <ScreenPreview
           title={screen.title}
-          src={`/preview/${screen.slug}`}
+          slug={screen.slug}
           className="h-[76vh] min-h-[860px] w-full rounded-[1.6rem] bg-[var(--background)]"
         />
       </section>

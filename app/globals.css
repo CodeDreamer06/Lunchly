@@ -51,6 +51,11 @@ select {
   font: inherit;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 ::selection {
   background: rgba(0, 117, 31, 0.18);
 }

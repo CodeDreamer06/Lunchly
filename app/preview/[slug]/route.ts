@@ -8,7 +8,15 @@ type PreviewRouteProps = {
   }>;
 };
 
-export async function GET(_: Request, { params }: PreviewRouteProps) {
+function replaceChildSpecificText(html: string, childName: string, caregiverName: string, profilesCount: string) {
+  return html
+    .replaceAll("Leo's", `${childName}'s`)
+    .replaceAll("Leo", childName)
+    .replaceAll("Managing 2 Profiles", `Managing ${profilesCount} Profiles`)
+    .replaceAll(">Parent Portal<", `>${caregiverName}'s Portal<`);
+}
+
+export async function GET(request: Request, { params }: PreviewRouteProps) {
   const { slug } = await params;
   const screen = getScreenBySlug(slug);
 
@@ -16,7 +24,26 @@ export async function GET(_: Request, { params }: PreviewRouteProps) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const html = await readScreenHtml(slug);
+  const { searchParams } = new URL(request.url);
+  const mode = searchParams.get("mode") ?? "embedded";
+  const childName = searchParams.get("childName") ?? "Leo";
+  const caregiverName = searchParams.get("caregiverName") ?? "Priya";
+  const profilesCount = searchParams.get("profilesCount") ?? "2";
+  const html = replaceChildSpecificText(
+    await readScreenHtml(slug),
+    childName,
+    caregiverName,
+    profilesCount,
+  );
+
+  if (mode === "standalone") {
+    return new NextResponse(html, {
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+      },
+    });
+  }
+
   const injectedStyle = `
     <style>
       body {
