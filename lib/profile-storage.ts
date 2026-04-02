@@ -17,6 +17,7 @@ export type LunchlyProfile = {
   customAllergy: string;
   schoolPolicies: string[];
   customPolicy: string;
+  eatingNotes: string;
   independenceLevel: number;
   lunchEatingTime: string;
   appetiteStyle: string;
@@ -43,67 +44,111 @@ export type AnalysisRecord = {
   createdAt: string;
 };
 
-const PROFILES_KEY = "lunchly_profiles_v1";
-const ACTIVE_PROFILE_KEY = "lunchly_active_profile_v1";
+const PROFILE_KEY = "lunchlogic_child_profile_v2";
+const LEGACY_PROFILES_KEY = "lunchly_profiles_v1";
+const LEGACY_ACTIVE_PROFILE_KEY = "lunchly_active_profile_v1";
 const ANALYSES_KEY = "lunchly_analyses_v1";
 
 function canUseStorage() {
   return typeof window !== "undefined";
 }
 
-export function getStoredProfiles(): LunchlyProfile[] {
-  if (!canUseStorage()) {
-    return [];
-  }
-
-  const raw = window.localStorage.getItem(PROFILES_KEY);
-
+function parseProfile(raw: string | null) {
   if (!raw) {
-    return [];
+    return null;
   }
 
   try {
-    const parsed = JSON.parse(raw) as LunchlyProfile[];
-    return Array.isArray(parsed) ? parsed : [];
+  const parsed = JSON.parse(raw) as LunchlyProfile;
+    return parsed && typeof parsed === "object"
+      ? {
+          ...parsed,
+          eatingNotes: typeof parsed.eatingNotes === "string" ? parsed.eatingNotes : "",
+        }
+      : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function saveStoredProfiles(profiles: LunchlyProfile[]) {
+function migrateLegacyProfile() {
+  if (!canUseStorage()) {
+    return null;
+  }
+
+  const current = parseProfile(window.localStorage.getItem(PROFILE_KEY));
+  if (current) {
+    return current;
+  }
+
+  const rawLegacy = window.localStorage.getItem(LEGACY_PROFILES_KEY);
+  if (!rawLegacy) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawLegacy) as LunchlyProfile[];
+    const firstProfile = Array.isArray(parsed) ? parsed[0] : null;
+
+    if (firstProfile) {
+      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(firstProfile));
+      window.localStorage.removeItem(LEGACY_PROFILES_KEY);
+      window.localStorage.removeItem(LEGACY_ACTIVE_PROFILE_KEY);
+
+      const legacyAnalyses = getStoredAnalyses().filter((record) => record.profileId === firstProfile.id);
+      saveStoredAnalyses(legacyAnalyses);
+
+      return firstProfile;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+export function getStoredProfile(): LunchlyProfile | null {
+  if (!canUseStorage()) {
+    return null;
+  }
+
+  return parseProfile(window.localStorage.getItem(PROFILE_KEY)) ?? migrateLegacyProfile();
+}
+
+export function getStoredProfiles(): LunchlyProfile[] {
+  const profile = getStoredProfile();
+  return profile ? [profile] : [];
+}
+
+export function saveStoredProfile(profile: LunchlyProfile | null) {
   if (!canUseStorage()) {
     return;
   }
 
-  window.localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  if (!profile) {
+    window.localStorage.removeItem(PROFILE_KEY);
+    return;
+  }
+
+  window.localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
 }
 
 export function getActiveProfileId() {
-  if (!canUseStorage()) {
-    return null;
-  }
-
-  return window.localStorage.getItem(ACTIVE_PROFILE_KEY);
+  return getStoredProfile()?.id ?? null;
 }
 
 export function setActiveProfileId(profileId: string) {
-  if (!canUseStorage()) {
+  const current = getStoredProfile();
+
+  if (!current || current.id !== profileId) {
     return;
   }
 
-  window.localStorage.setItem(ACTIVE_PROFILE_KEY, profileId);
+  saveStoredProfile(current);
 }
 
 export function getActiveProfile() {
-  const profiles = getStoredProfiles();
-  const activeId = getActiveProfileId();
-
-  if (!profiles.length) {
-    return null;
-  }
-
-  const activeProfile = profiles.find((profile) => profile.id === activeId);
-  return activeProfile ?? profiles[0];
+  return getStoredProfile();
 }
 
 export function getStoredAnalyses(): AnalysisRecord[] {
@@ -134,43 +179,36 @@ export function saveStoredAnalyses(records: AnalysisRecord[]) {
 }
 
 export function upsertProfile(profile: LunchlyProfile) {
-  const profiles = getStoredProfiles();
-  const existingIndex = profiles.findIndex((entry) => entry.id === profile.id);
+  saveStoredProfile(profile);
 
-  if (existingIndex >= 0) {
-    profiles[existingIndex] = profile;
-  } else {
-    profiles.push(profile);
-  }
+  const scopedAnalyses = getStoredAnalyses().filter((record) => record.profileId === profile.id);
+  saveStoredAnalyses(scopedAnalyses);
 
-  saveStoredProfiles(profiles);
-  setActiveProfileId(profile.id);
-
-  return profiles;
+  return [profile];
 }
 
 export function saveAnalysis(record: AnalysisRecord) {
-  const records = [record, ...getStoredAnalyses()];
+  const profile = getStoredProfile();
+  if (!profile || record.profileId !== profile.id) {
+    return getStoredAnalyses();
+  }
+
+  const records = [record, ...getStoredAnalyses().filter((entry) => entry.profileId === profile.id)];
   saveStoredAnalyses(records);
   return records;
 }
 
 export function deleteProfile(profileId: string) {
-  const profiles = getStoredProfiles().filter((profile) => profile.id !== profileId);
-  saveStoredProfiles(profiles);
+  const profile = getStoredProfile();
 
-  if (!profiles.length) {
-    if (canUseStorage()) {
-      window.localStorage.removeItem(ACTIVE_PROFILE_KEY);
-    }
-  } else if (getActiveProfileId() === profileId) {
-    setActiveProfileId(profiles[0].id);
+  if (!profile || profile.id !== profileId) {
+    return getStoredProfiles();
   }
 
-  const records = getStoredAnalyses().filter((record) => record.profileId !== profileId);
-  saveStoredAnalyses(records);
+  saveStoredProfile(null);
+  saveStoredAnalyses([]);
 
-  return profiles;
+  return [];
 }
 
 export function buildTeaser(profile: Pick<LunchlyProfile, "fullName" | "foodPersonality" | "familyPriorities" | "schoolPolicies">) {
@@ -183,8 +221,8 @@ export function buildTeaser(profile: Pick<LunchlyProfile, "fullName" | "foodPers
   }
 
   if (profile.schoolPolicies.includes("Plastic-free / only steel tiffin")) {
-    return `Lunchly will now favor steel-tiffin friendly ideas for ${profile.fullName.split(" ")[0]}.`;
+    return `LunchLogic will now favor steel-tiffin friendly ideas for ${profile.fullName.split(" ")[0]}.`;
   }
 
-  return `Lunchly is ready to suggest child-specific lunchbox improvements for ${profile.fullName.split(" ")[0]}.`;
+  return `LunchLogic is ready to suggest child-specific lunchbox improvements for ${profile.fullName.split(" ")[0]}.`;
 }

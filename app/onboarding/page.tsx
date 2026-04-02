@@ -5,8 +5,8 @@ import type { Metadata } from "next";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 export const metadata: Metadata = {
-  title: "Onboarding | LunchLogic",
-  description: "Create or edit a child profile for LunchLogic using a six-step onboarding wizard.",
+  title: "Child Profile Setup | LunchLogic",
+  description: "Create or edit the single child profile used by LunchLogic on this device.",
 };
 
 export default function OnboardingPage() {

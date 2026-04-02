@@ -7,7 +7,6 @@ import {
   getActiveProfileId,
   getStoredAnalyses,
   getStoredProfiles,
-  setActiveProfileId,
   type AnalysisRecord,
   type LunchlyProfile,
 } from "@/lib/profile-storage";
@@ -15,6 +14,7 @@ import {
 type LunchlyDataState = {
   ready: boolean;
   profiles: LunchlyProfile[];
+  profile: LunchlyProfile | null;
   activeProfile: LunchlyProfile | null;
   activeProfileId: string | null;
   analyses: AnalysisRecord[];
@@ -23,6 +23,7 @@ type LunchlyDataState = {
 const initialState: LunchlyDataState = {
   ready: false,
   profiles: [],
+  profile: null,
   activeProfile: null,
   activeProfileId: null,
   analyses: [],
@@ -32,15 +33,16 @@ export function useLunchlyData() {
   const [state, setState] = useState<LunchlyDataState>(initialState);
 
   const refresh = () => {
-    const nextState: LunchlyDataState = {
+    const profile = getActiveProfile();
+
+    setState({
       ready: true,
-      profiles: getStoredProfiles(),
-      activeProfile: getActiveProfile(),
+      profiles: profile ? [profile] : [],
+      profile,
+      activeProfile: profile,
       activeProfileId: getActiveProfileId(),
       analyses: getStoredAnalyses(),
-    };
-
-    setState(nextState);
+    });
   };
 
   useEffect(() => {
@@ -48,14 +50,8 @@ export function useLunchlyData() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const switchActiveProfile = (profileId: string) => {
-    setActiveProfileId(profileId);
-    refresh();
-  };
-
   return {
     ...state,
     refresh,
-    switchActiveProfile,
   };
 }

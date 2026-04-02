@@ -16,6 +16,15 @@ type AppShellProps = {
   children: ReactNode;
 };
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function AppShell({
   section,
   title,
@@ -24,14 +33,16 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const pathname = usePathname();
-  const { profiles, activeProfile, activeProfileId, switchActiveProfile } = useLunchlyData();
+  const { activeProfile } = useLunchlyData();
+  const childName = activeProfile?.fullName.split(" ")[0] ?? "Child";
+  const avatarLabel = activeProfile ? getInitials(activeProfile.fullName) : "CL";
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-[rgba(186,185,178,0.28)] bg-[rgba(254,252,244,0.96)]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[rgba(186,185,178,0.28)] bg-[rgba(254,252,244,0.96)] backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-8">
           <Link href="/" className="font-headline text-[2rem] font-black tracking-tight text-[var(--green-700)]">
-            Lunchly
+            LunchLogic
           </Link>
           <nav className="hidden items-center gap-7 md:flex">
             {APP_NAV_ITEMS.map((item) => {
@@ -53,21 +64,21 @@ export function AppShell({
             })}
           </nav>
           <div className="flex items-center gap-3">
-            {profiles.length ? (
-              <select
-                value={activeProfileId ?? ""}
-                onChange={(event) => switchActiveProfile(event.target.value)}
-                className="rounded-full bg-white px-3 py-2 text-sm font-medium text-[var(--ink)] shadow-[0_12px_26px_rgba(56,56,51,0.06)] outline-none"
-              >
-                {profiles.map((profile) => (
-                  <option key={profile.id} value={profile.id}>
-                    {profile.fullName.split(" ")[0]}
-                  </option>
-                ))}
-              </select>
+            {activeProfile ? (
+              <>
+                <Link href="/onboarding?mode=edit" className="hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--green-700)] shadow-[0_12px_26px_rgba(56,56,51,0.06)] sm:inline-flex">
+                  Edit {childName}
+                </Link>
+                <div className="flex items-center gap-3 rounded-full bg-white px-2 py-2 shadow-[0_12px_26px_rgba(56,56,51,0.06)]">
+                  <span className="material-symbols-outlined text-[color:rgba(56,56,51,0.62)]">notifications</span>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--green-400)] font-headline text-sm font-extrabold text-[var(--green-700)]">
+                    {avatarLabel}
+                  </div>
+                </div>
+              </>
             ) : (
               <Link href="/onboarding" className="app-button-secondary !min-h-[2.75rem] !px-4 !text-sm">
-                Create Profile
+                Set Up Child
               </Link>
             )}
           </div>
@@ -80,7 +91,7 @@ export function AppShell({
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[color:rgba(0,94,23,0.7)]">
-                  AI Tiffin Analyzer
+                  Parent Portal
                 </p>
                 <h1 className="font-headline mt-2 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
                   {title}

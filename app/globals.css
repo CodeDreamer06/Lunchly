@@ -9,11 +9,18 @@
   --ink: #383833;
   --muted-ink: #65655f;
   --green-700: #00751f;
+  --green-600: #00691a;
   --green-400: #91f78e;
   --sun-500: #706500;
   --sun-400: #f9e534;
   --blue-700: #0067ad;
   --blue-300: #70b5ff;
+  --outline: #81817a;
+  --outline-variant: #bab9b2;
+  --surface-container: #f5f4eb;
+  --surface-container-low: #fbf9f1;
+  --surface-container-high: #efeee5;
+  --surface-container-highest: #e9e9de;
 }
 
 @theme inline {
@@ -32,7 +39,9 @@ html {
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(145, 247, 142, 0.12), transparent 30%),
+    linear-gradient(180deg, #fefcf4 0%, #fbf9f1 100%);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
   min-height: 100vh;
@@ -66,6 +75,15 @@ button:disabled {
 
 .font-body {
   font-family: var(--font-body), sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+  line-height: 1;
 }
 
 .mesh-panel {

@@ -1,20 +1,20 @@
 "use client";
 
-import { ChangeEvent, startTransition, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, type ReactNode, startTransition, useEffect, useId, useState } from "react";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   buildTeaser,
-  getActiveProfile,
+  getStoredProfile,
   type LunchlyProfile,
   upsertProfile,
 } from "@/lib/profile-storage";
 
 type DraftProfile = Omit<LunchlyProfile, "id" | "age" | "createdAt">;
 
-const allergies = [
+const allergyOptions = [
   "Peanuts",
   "Tree nuts",
   "Milk",
@@ -26,7 +26,7 @@ const allergies = [
   "Mustard",
 ];
 
-const schoolPolicies = [
+const schoolPolicyOptions = [
   "Nut-Free campus",
   "No reheating allowed",
   "No packaged snacks (only homemade)",
@@ -38,18 +38,44 @@ const schoolPolicies = [
 ];
 
 const foodPersonalityCards = [
-  "Picky Eater",
-  "Sensory-Sensitive",
-  "Sports Day Hero",
-  "Budget-Conscious",
-  "Flavor Explorer",
-  "Veggie Champion",
-  "Eco Kid",
+  {
+    label: "Picky Eater",
+    icon: "restaurant",
+    accent: "text-[var(--green-700)]",
+    description: "Prioritizes familiar textures and predictable flavor profiles.",
+  },
+  {
+    label: "Sensory-Sensitive",
+    icon: "psychology",
+    accent: "text-[var(--blue-700)]",
+    description: "Aversion to mixed textures, strong smells, or soggy foods.",
+  },
+  {
+    label: "Sports Day Focus",
+    icon: "fitness_center",
+    accent: "text-[var(--sun-500)]",
+    description: "Higher protein and complex carbs for energy on PE days.",
+  },
+  {
+    label: "Budget-Conscious",
+    icon: "savings",
+    accent: "text-[var(--green-600)]",
+    description: "Suggests ingredients that are currently seasonal or in bulk.",
+  },
+  {
+    label: "Flavor Explorer",
+    icon: "local_dining",
+    accent: "text-[var(--blue-700)]",
+    description: "Open to variety when presentation and textures still feel safe.",
+  },
+  {
+    label: "Veggie Champion",
+    icon: "nutrition",
+    accent: "text-[var(--green-700)]",
+    description: "Already enjoys more produce than average for their age.",
+  },
 ];
 
-const activityLevels = ["Mostly sedentary", "Active (plays a lot)", "Sports champion"];
-const lunchEatingTimes = ["10 min", "20 min", "30+ min"];
-const appetiteStyles = ["Big eater", "Average", "Small / fussy eater"];
 const familyPriorityOptions = [
   "Brain food & focus",
   "Immunity & less sick days",
@@ -57,6 +83,7 @@ const familyPriorityOptions = [
   "More veggies & fibre",
   "Balanced macros (protein + carbs)",
 ];
+
 const specialDayOptions = [
   "Monday PE",
   "Tuesday PE",
@@ -66,34 +93,14 @@ const specialDayOptions = [
   "Exam week",
   "Festival week",
 ];
-const avatarOptions = ["Sprout", "Rocket", "Rainbow", "Tiger"];
 
-const stepCopy = [
-  {
-    title: "Basic Child Info",
-    why: "We personalize age-appropriate portion sizing, milestones, and school-day guidance from the start.",
-  },
-  {
-    title: "Allergies & School Policies",
-    why: "Lunchly will automatically reject foods that conflict with allergies or school rules in future analysis.",
-  },
-  {
-    title: "Eating Habits & Independence",
-    why: "We suggest easy-open packaging, pacing, and lunch ideas that are realistic for your child at school.",
-  },
-  {
-    title: "Sensory Preferences & Food Personality",
-    why: "These traits help Lunchly explain nutrition improvements in a way your child is actually likely to accept.",
-  },
-  {
-    title: "Lifestyle & Weekly Goals",
-    why: "This helps the analyzer shift recommendations for sports days, focus support, fibre, or healthy weight gain.",
-  },
-  {
-    title: "Review & Create Profile",
-    why: "A final review builds trust and gives parents a clear picture of what Lunchly will use in the analyzer.",
-  },
-] as const;
+const routineChips = [
+  "Needs pre-cut food",
+  "Finger foods only",
+  "Self-sufficient",
+  "Needs easy-open boxes",
+  "Prefers dry foods",
+];
 
 function createDefaultDraft(): DraftProfile {
   return {
@@ -111,6 +118,7 @@ function createDefaultDraft(): DraftProfile {
     customAllergy: "",
     schoolPolicies: [],
     customPolicy: "",
+    eatingNotes: "",
     independenceLevel: 2,
     lunchEatingTime: "20 min",
     appetiteStyle: "Average",
@@ -154,6 +162,7 @@ function toDraft(profile: LunchlyProfile): DraftProfile {
     customAllergy: profile.customAllergy,
     schoolPolicies: profile.schoolPolicies,
     customPolicy: profile.customPolicy,
+    eatingNotes: profile.eatingNotes ?? "",
     independenceLevel: profile.independenceLevel,
     lunchEatingTime: profile.lunchEatingTime,
     appetiteStyle: profile.appetiteStyle,
@@ -168,38 +177,58 @@ function toggleValue(values: string[], value: string) {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="space-y-2">
+      <span className="text-sm font-semibold text-[var(--ink)]">{label}</span>
+      {children}
+    </label>
+  );
+}
+
 export function OnboardingWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mode = searchParams.get("mode");
-  const isEditMode = mode === "edit";
-  const isAddMode = mode === "add";
-  const [step, setStep] = useState(1);
+  const uploadId = useId();
+  const isExplicitEdit = searchParams.get("mode") === "edit";
   const [draft, setDraft] = useState<DraftProfile>(createDefaultDraft);
-  const [existingProfileId, setExistingProfileId] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [createdAt, setCreatedAt] = useState<string>("");
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [successTip, setSuccessTip] = useState("");
+  const [customHabitChip, setCustomHabitChip] = useState("");
 
   useEffect(() => {
-    const activeProfile = getActiveProfile();
+    const existingProfile = getStoredProfile();
 
     const frame = window.requestAnimationFrame(() => {
-      if (isEditMode && activeProfile) {
-        setDraft(toDraft(activeProfile));
-        setExistingProfileId(activeProfile.id);
+      if (existingProfile) {
+        setDraft(toDraft(existingProfile));
+        setProfileId(existingProfile.id);
+        setCreatedAt(existingProfile.createdAt);
       }
 
-      if (isAddMode) {
-        setDraft((current) => ({
-          ...createDefaultDraft(),
-          caregiverName: activeProfile?.caregiverName || current.caregiverName,
-        }));
-        setExistingProfileId(null);
-      }
+      setReady(true);
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [isAddMode, isEditMode]);
+  }, []);
 
   useEffect(() => {
     if (!successTip) {
@@ -210,58 +239,34 @@ export function OnboardingWizard() {
       startTransition(() => {
         router.push("/dashboard");
       });
-    }, 2200);
+    }, 1600);
 
     return () => window.clearTimeout(timeout);
   }, [router, successTip]);
 
-  const age = useMemo(() => calculateAge(draft.birthDate), [draft.birthDate]);
-  const currentStep = stepCopy[step - 1];
+  const age = calculateAge(draft.birthDate);
+  const hasExistingProfile = Boolean(profileId);
+  const isEditMode = ready && (isExplicitEdit || hasExistingProfile);
+  const isFirstTime = ready && !hasExistingProfile;
+  const displayName = draft.fullName.trim() || "Your Child";
+  const firstName = displayName.split(" ")[0];
+  const visiblePolicies = [...draft.schoolPolicies, draft.customPolicy].filter(Boolean);
+  const visibleAllergies = [...draft.allergies, draft.customAllergy].filter(Boolean);
 
-  const validateStep = () => {
-    if (step === 1 && (!draft.fullName || !draft.birthDate || !draft.grade || !draft.gender)) {
-      return "Please complete the required child details before continuing.";
+  const validateDraft = () => {
+    if (!draft.caregiverName.trim() || !draft.fullName.trim() || !draft.birthDate || !draft.grade || !draft.gender) {
+      return "Add the core child details before saving.";
     }
 
-    if (step === 4 && draft.foodPersonality.length < 2) {
-      return "Pick at least two food personality cards so Lunchly can personalize suggestions.";
+    if (draft.foodPersonality.length < 2) {
+      return "Choose at least two sensory preference cards so LunchLogic can personalize results.";
     }
 
-    if (step === 5 && draft.familyPriorities.length < 1) {
-      return "Choose at least one family priority so the analyzer knows what to optimize for.";
+    if (!draft.familyPriorities.length) {
+      return "Select at least one family priority.";
     }
 
     return "";
-  };
-
-  const goNext = () => {
-    const validationError = validateStep();
-    setError(validationError);
-
-    if (validationError) {
-      return;
-    }
-
-    setStep((current) => Math.min(current + 1, 6));
-  };
-
-  const goBack = () => {
-    setError("");
-    setStep((current) => Math.max(current - 1, 1));
-  };
-
-  const saveProfile = () => {
-    const fullName = draft.fullName.trim();
-    const profile: LunchlyProfile = {
-      ...draft,
-      id: existingProfileId ?? `profile_${crypto.randomUUID()}`,
-      fullName,
-      age,
-      createdAt: new Date().toISOString(),
-    };
-
-    upsertProfile(profile);
-    setSuccessTip(buildTeaser(profile));
   };
 
   const handlePhotoUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -281,259 +286,474 @@ export function OnboardingWizard() {
     reader.readAsDataURL(file);
   };
 
-  const applyAiDefaults = () => {
-    const nextTraits = new Set(draft.foodPersonality);
+  const addCustomAllergy = () => {
+    const value = draft.customAllergy.trim();
 
-    if (age <= 8) {
-      nextTraits.add("Picky Eater");
-      nextTraits.add("Sensory-Sensitive");
-    }
-
-    if (draft.activityLevel === "Sports champion") {
-      nextTraits.add("Sports Day Hero");
-    }
-
-    if (draft.schoolPolicies.includes("Plastic-free / only steel tiffin")) {
-      nextTraits.add("Eco Kid");
+    if (!value) {
+      return;
     }
 
     setDraft((current) => ({
       ...current,
-      foodPersonality: Array.from(nextTraits).slice(0, 4),
-      familyPriorities: current.familyPriorities.length
-        ? current.familyPriorities
-        : ["Brain food & focus", "Balanced macros (protein + carbs)"],
+      allergies: current.allergies.includes(value) ? current.allergies : [...current.allergies, value],
+      customAllergy: "",
     }));
   };
 
+  const addCustomPolicy = () => {
+    const value = draft.customPolicy.trim();
+
+    if (!value) {
+      return;
+    }
+
+    setDraft((current) => ({
+      ...current,
+      schoolPolicies: current.schoolPolicies.includes(value) ? current.schoolPolicies : [...current.schoolPolicies, value],
+      customPolicy: "",
+    }));
+  };
+
+  const addCustomHabitChip = () => {
+    const value = customHabitChip.trim();
+
+    if (!value) {
+      return;
+    }
+
+    setDraft((current) => ({
+      ...current,
+      specialDays: current.specialDays.includes(value) ? current.specialDays : [...current.specialDays, value],
+    }));
+    setCustomHabitChip("");
+  };
+
+  const saveProfile = () => {
+    const validationError = validateDraft();
+    setError(validationError);
+
+    if (validationError) {
+      return;
+    }
+
+    const profile: LunchlyProfile = {
+      ...draft,
+      id: profileId ?? `profile_${crypto.randomUUID()}`,
+      fullName: draft.fullName.trim(),
+      caregiverName: draft.caregiverName.trim(),
+      age,
+      createdAt: createdAt || new Date().toISOString(),
+    };
+
+    upsertProfile(profile);
+    setProfileId(profile.id);
+    setCreatedAt(profile.createdAt);
+    setSuccessTip(buildTeaser(profile));
+  };
+
+  if (!ready) {
+    return <main className="min-h-screen bg-[var(--background)]" />;
+  }
+
   if (successTip) {
     return (
-      <main className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-8">
-        <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-4xl items-center justify-center">
-          <div className="w-full rounded-[2.5rem] bg-white p-10 text-center shadow-[0_22px_60px_rgba(56,56,51,0.06)]">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(145,247,142,0.26)] text-3xl font-black text-[var(--green-700)] animate-pulse">
-              OK
-            </div>
-            <h1 className="font-headline mt-6 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
-              {draft.fullName.split(" ")[0]}&apos;s profile is ready!
-            </h1>
-            <p className="mt-4 text-base leading-7 text-[var(--muted-ink)]">{successTip}</p>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--green-700)]">
-              Redirecting to dashboard...
-            </p>
+      <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4">
+        <div className="w-full max-w-2xl rounded-[2.5rem] border border-[rgba(186,185,178,0.2)] bg-white p-10 text-center shadow-[0_22px_60px_rgba(56,56,51,0.06)]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(145,247,142,0.26)] text-[var(--green-700)]">
+            <span className="material-symbols-outlined text-4xl">check</span>
           </div>
+          <h1 className="font-headline mt-6 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
+            {firstName}&apos;s profile is ready
+          </h1>
+          <p className="mt-4 text-base leading-7 text-[var(--muted-ink)]">{successTip}</p>
+          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--green-700)]">
+            Redirecting to dashboard...
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="space-y-5">
-            <Link href="/" className="tertiary-pill">
-              Back
+    <div className="min-h-screen bg-[var(--background)] text-[var(--ink)]">
+      <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-stone-200/50 bg-[rgba(254,252,244,0.96)] px-4 backdrop-blur-md sm:px-8">
+        <Link href={hasExistingProfile ? "/dashboard" : "/"} className="font-headline text-2xl font-black tracking-tight text-[var(--green-700)]">
+          LunchLogic
+        </Link>
+        <div className="flex items-center gap-6">
+          <nav className="hidden gap-6 md:flex">
+            <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/dashboard">
+              Dashboard
             </Link>
-            <div className="rounded-[2rem] bg-white p-6 shadow-[0_18px_48px_rgba(56,56,51,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[color:rgba(56,56,51,0.48)]">
-                Profile Wizard
+            <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/analyze">
+              Lunch Scanner
+            </Link>
+            <Link className="font-headline font-semibold text-stone-500 transition-colors hover:text-[var(--green-700)]" href="/insights">
+              Weekly Trends
+            </Link>
+            <Link className="border-b-2 border-[var(--green-700)] font-headline font-bold text-[var(--green-700)]" href="/onboarding">
+              Kid Profiles
+            </Link>
+          </nav>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-stone-500">notifications</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--green-400)] text-xs font-bold text-[var(--green-700)]">
+              {getInitials(displayName) || "CL"}
+            </div>
+            <span className="material-symbols-outlined text-stone-500">expand_more</span>
+          </div>
+        </div>
+      </header>
+
+      <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-stone-200/50 bg-[rgba(255,255,255,0.7)] pb-8 pt-20 shadow-[32px_0_32px_rgba(0,0,0,0.06)] backdrop-blur-md md:flex">
+        <div className="mb-8 px-6">
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.22em] text-[var(--green-700)]">Parent Portal</p>
+          <p className="text-sm text-[var(--muted-ink)]">{isFirstTime ? "First-time setup" : "One active child profile"}</p>
+        </div>
+        <nav className="space-y-1">
+          {[
+            { href: "/dashboard", icon: "dashboard", label: "Dashboard" },
+            { href: "/analyze", icon: "qr_code_scanner", label: "Lunch Scanner" },
+            { href: "/insights", icon: "trending_up", label: "Weekly Trends" },
+            { href: "/tips", icon: "lightbulb", label: "Smart Tips" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="mx-2 flex items-center gap-3 rounded-[1rem] px-4 py-3 text-stone-600 transition-all hover:bg-stone-100"
+            >
+              <span className="material-symbols-outlined">{item.icon}</span>
+              <span className="font-headline text-sm font-medium">{item.label}</span>
+            </Link>
+          ))}
+          <Link
+            href="/onboarding"
+            className="mx-2 flex items-center gap-3 rounded-[1rem] bg-[rgba(0,117,31,0.1)] px-4 py-3 text-[var(--green-700)]"
+          >
+            <span className="material-symbols-outlined">face</span>
+            <span className="font-headline text-sm font-medium">Kid Profiles</span>
+          </Link>
+        </nav>
+      </aside>
+
+      <main className="mx-auto max-w-7xl px-4 pb-24 pt-24 md:ml-64">
+        <div className="mb-10 text-center md:text-left">
+          <h1 className="font-headline text-4xl font-extrabold tracking-tight text-[var(--ink)]">
+            {isEditMode ? "Edit Child Profile & Sensory Preferences" : "Child Profile & Sensory Preferences"}
+          </h1>
+          <p className="mt-2 max-w-2xl text-lg text-[var(--muted-ink)]">
+            {isFirstTime
+              ? "Set up your child once before using LunchLogic. We save everything locally on this device."
+              : "Tailor the LunchLogic experience to your child&apos;s current needs, habits, and school environment."}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+          <section className="space-y-8 lg:col-span-4">
+            <div className="flex flex-col items-center rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8 text-center">
+              <div className="relative mb-6">
+                <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[var(--surface-container-high)] ring-4 ring-[rgba(145,247,142,0.45)] ring-offset-4">
+                  {draft.photoDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img alt={`${displayName} profile`} className="h-full w-full object-cover" src={draft.photoDataUrl} />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#91f78e_0%,#70b5ff_100%)] font-headline text-3xl font-extrabold text-white">
+                      {getInitials(displayName) || "CL"}
+                    </div>
+                  )}
+                </div>
+                <label
+                  htmlFor={uploadId}
+                  className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-[var(--green-700)] p-2 text-white shadow-lg transition-transform hover:scale-105"
+                >
+                  <span className="material-symbols-outlined text-sm">edit</span>
+                </label>
+                <input id={uploadId} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+              </div>
+              <h2 className="font-headline text-2xl font-bold text-[var(--ink)]">{displayName}</h2>
+              <p className="font-medium text-[var(--muted-ink)]">
+                {draft.grade || "Grade"} {draft.section ? `• ${draft.section}` : ""} {age ? `• ${age} Years Old` : ""}
               </p>
-              <h1 className="font-headline mt-3 text-3xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
-                {isEditMode ? "Edit Child Profile" : isAddMode ? "Add Sibling" : "Create Child Profile"}
-              </h1>
-              <p className="mt-3 text-sm leading-6 text-[var(--muted-ink)]">
-                Six guided steps, clear trust-building copy, and no dead-ends after setup.
-              </p>
-              <div className="mt-6 space-y-3">
-                {stepCopy.map((item, index) => {
-                  const stepNumber = index + 1;
-                  const isActive = step === stepNumber;
-                  const isDone = step > stepNumber;
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
+                <span className="rounded-full bg-[rgba(112,181,255,0.18)] px-3 py-1 text-xs font-semibold text-[color:#003258]">
+                  {isFirstTime ? "Setup in progress" : "Active Profile"}
+                </span>
+                <span className="rounded-full bg-[rgba(249,229,52,0.24)] px-3 py-1 text-xs font-semibold text-[color:#5b5300]">
+                  {draft.lunchEatingTime} lunch window
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-[var(--surface-container-low)] p-6">
+              <h3 className="mb-4 flex items-center gap-2 font-headline text-lg font-bold">
+                <span className="material-symbols-outlined text-[var(--green-700)]">school</span>
+                Allergy & School Policy
+              </h3>
+              <div className="space-y-3">
+                {visiblePolicies.map((policy) => (
+                  <div key={policy} className="flex items-center justify-between rounded-[1rem] bg-white p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-[var(--blue-700)]">policy</span>
+                      <span className="text-sm font-medium">{policy}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDraft((current) => ({
+                          ...current,
+                          schoolPolicies: current.schoolPolicies.filter((item) => item !== policy),
+                          customPolicy: current.customPolicy === policy ? "" : current.customPolicy,
+                        }))
+                      }
+                    >
+                      <span className="material-symbols-outlined cursor-pointer text-[var(--muted-ink)]">close</span>
+                    </button>
+                  </div>
+                ))}
+                {visibleAllergies.map((allergy) => (
+                  <div key={allergy} className="flex items-center justify-between rounded-[1rem] bg-white p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-[color:#be2d06]">dangerous</span>
+                      <span className="text-sm font-medium">{allergy}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDraft((current) => ({
+                          ...current,
+                          allergies: current.allergies.filter((item) => item !== allergy),
+                          customAllergy: current.customAllergy === allergy ? "" : current.customAllergy,
+                        }))
+                      }
+                    >
+                      <span className="material-symbols-outlined cursor-pointer text-[var(--muted-ink)]">close</span>
+                    </button>
+                  </div>
+                ))}
+                {!visiblePolicies.length && !visibleAllergies.length ? (
+                  <div className="rounded-[1rem] bg-white p-4 text-sm text-[var(--muted-ink)]">
+                    No allergies or school rules added yet.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[rgba(56,56,51,0.48)]">Setup readiness</p>
+              <div className="mt-4 space-y-3 text-sm text-[var(--muted-ink)]">
+                <p className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
+                  Local-only profile storage
+                </p>
+                <p className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
+                  One child account active on this device
+                </p>
+                <p className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[var(--green-700)]">check_circle</span>
+                  Analyzer, tips, and insights all read from this setup
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="space-y-8 lg:col-span-8">
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8">
+              <h3 className="mb-6 font-headline text-2xl font-bold">Basic Details</h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Parent / Caregiver name">
+                  <input
+                    value={draft.caregiverName}
+                    onChange={(event) => setDraft((current) => ({ ...current, caregiverName: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="Priya"
+                  />
+                </Field>
+                <Field label="Child full name">
+                  <input
+                    value={draft.fullName}
+                    onChange={(event) => setDraft((current) => ({ ...current, fullName: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="Leo Miller"
+                  />
+                </Field>
+                <Field label="Date of birth">
+                  <input
+                    type="date"
+                    value={draft.birthDate}
+                    onChange={(event) => setDraft((current) => ({ ...current, birthDate: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  />
+                </Field>
+                <Field label="Gender">
+                  <select
+                    value={draft.gender}
+                    onChange={(event) => setDraft((current) => ({ ...current, gender: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  >
+                    <option value="">Select</option>
+                    <option value="Boy">Boy</option>
+                    <option value="Girl">Girl</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </Field>
+                <Field label="Grade">
+                  <input
+                    value={draft.grade}
+                    onChange={(event) => setDraft((current) => ({ ...current, grade: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="Grade 2"
+                  />
+                </Field>
+                <Field label="Section / Class">
+                  <input
+                    value={draft.section}
+                    onChange={(event) => setDraft((current) => ({ ...current, section: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="B"
+                  />
+                </Field>
+                <Field label="Height">
+                  <input
+                    value={draft.height}
+                    onChange={(event) => setDraft((current) => ({ ...current, height: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="124 cm"
+                  />
+                </Field>
+                <Field label="Weight">
+                  <input
+                    value={draft.weight}
+                    onChange={(event) => setDraft((current) => ({ ...current, weight: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                    placeholder="24 kg"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.15)] bg-white p-8">
+              <h3 className="mb-6 font-headline text-2xl font-bold">Sensory Preferences</h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {foodPersonalityCards.map((item) => {
+                  const checked = draft.foodPersonality.includes(item.label);
 
                   return (
-                    <div
-                      key={item.title}
-                      className={`rounded-[1.5rem] px-4 py-4 ${
-                        isActive ? "bg-[rgba(0,117,31,0.1)]" : "bg-[var(--surface-low)]"
+                    <label
+                      key={item.label}
+                      className={`group relative flex cursor-pointer flex-col gap-4 rounded-[1rem] border-2 p-5 transition-all ${
+                        checked
+                          ? "border-[rgba(0,117,31,0.28)] bg-[rgba(145,247,142,0.12)]"
+                          : "border-transparent bg-[var(--surface-container)] hover:bg-[rgba(145,247,142,0.08)]"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
-                            isDone || isActive
-                              ? "bg-[var(--green-700)] text-white"
-                              : "bg-white text-[var(--muted-ink)]"
-                          }`}
-                        >
-                          {stepNumber}
-                        </span>
-                        <div>
-                          <p className="font-headline text-sm font-bold text-[var(--ink)]">{item.title}</p>
-                          <p className="text-xs leading-5 text-[var(--muted-ink)]">{item.why}</p>
-                        </div>
+                      <input
+                        checked={checked}
+                        className="absolute right-4 top-4 h-5 w-5 rounded-full"
+                        type="checkbox"
+                        onChange={() =>
+                          setDraft((current) => ({
+                            ...current,
+                            foodPersonality: toggleValue(current.foodPersonality, item.label).slice(0, 4),
+                          }))
+                        }
+                      />
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-[0.8rem] bg-white ${item.accent}`}>
+                        <span className="material-symbols-outlined text-3xl">{item.icon}</span>
                       </div>
-                    </div>
+                      <div>
+                        <p className="font-headline text-lg font-bold">{item.label}</p>
+                        <p className="text-sm text-[var(--muted-ink)]">{item.description}</p>
+                      </div>
+                    </label>
                   );
                 })}
               </div>
             </div>
-          </aside>
 
-          <section className="rounded-[2.5rem] bg-white p-6 shadow-[0_18px_48px_rgba(56,56,51,0.05)] sm:p-8">
-            <div className="flex flex-col gap-4 border-b border-[rgba(186,185,178,0.25)] pb-6 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:rgba(56,56,51,0.52)]">
-                  Step {step} of 6
-                </p>
-                <h2 className="font-headline mt-2 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
-                  {currentStep.title}
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-[var(--muted-ink)]">
-                  {currentStep.why}
-                </p>
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.1)] bg-[var(--surface-container-low)] p-8">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="material-symbols-outlined text-2xl text-[var(--green-700)]">edit_note</span>
+                <h3 className="font-headline text-xl font-bold">Eating Habits & Independence</h3>
               </div>
-              <div className="h-3 w-full max-w-xs rounded-full bg-[var(--surface-low)] sm:w-72">
-                <div
-                  className="h-full rounded-full bg-[var(--green-700)] transition-all"
-                  style={{ width: `${(step / 6) * 100}%` }}
-                />
+              <p className="mb-4 text-sm text-[var(--muted-ink)]">
+                How much help does your child need during lunch? We use this to suggest packaging and food prep levels.
+              </p>
+              <textarea
+                value={draft.eatingNotes}
+                onChange={(event) => setDraft((current) => ({ ...current, eatingNotes: event.target.value }))}
+                className="w-full rounded-[1rem] border-none bg-white p-4 text-[var(--ink)] placeholder:text-[var(--outline-variant)] focus:ring-2 focus:ring-[rgba(0,117,31,0.18)]"
+                placeholder="e.g., Can peel an orange but struggles with tiny wrappers. Needs pre-cut apples."
+                rows={4}
+              />
+              <div className="mt-4 flex flex-wrap gap-2">
+                {routineChips.map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() =>
+                      setDraft((current) => ({
+                        ...current,
+                        eatingNotes: current.eatingNotes.includes(chip)
+                          ? current.eatingNotes.replace(chip, "").replace(/,\s*,/g, ",").trim()
+                          : `${current.eatingNotes}${current.eatingNotes ? ", " : ""}${chip}`,
+                      }))
+                    }
+                    className="rounded-full bg-[var(--surface-container-high)] px-4 py-2 text-xs font-semibold transition-colors hover:bg-[var(--surface-container-highest)]"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <Field label="Independence level">
+                  <select
+                    value={String(draft.independenceLevel)}
+                    onChange={(event) =>
+                      setDraft((current) => ({ ...current, independenceLevel: Number(event.target.value) }))
+                    }
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  >
+                    <option value="1">Needs a lot of help</option>
+                    <option value="2">Needs some help</option>
+                    <option value="3">Mostly independent</option>
+                  </select>
+                </Field>
+                <Field label="Lunch eating time">
+                  <select
+                    value={draft.lunchEatingTime}
+                    onChange={(event) => setDraft((current) => ({ ...current, lunchEatingTime: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  >
+                    <option>10 min</option>
+                    <option>20 min</option>
+                    <option>30+ min</option>
+                  </select>
+                </Field>
+                <Field label="Appetite style">
+                  <select
+                    value={draft.appetiteStyle}
+                    onChange={(event) => setDraft((current) => ({ ...current, appetiteStyle: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-white px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  >
+                    <option>Big eater</option>
+                    <option>Average</option>
+                    <option>Small / fussy eater</option>
+                  </select>
+                </Field>
               </div>
             </div>
 
-            <div className="mt-8 space-y-8">
-              {step === 1 ? (
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Parent / Caregiver name</span>
-                    <input
-                      value={draft.caregiverName}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, caregiverName: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="Priya"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Full name</span>
-                    <input
-                      value={draft.fullName}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, fullName: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="Arjun Mehta"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Date of birth</span>
-                    <input
-                      type="date"
-                      value={draft.birthDate}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, birthDate: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Grade</span>
-                    <input
-                      value={draft.grade}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, grade: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="Grade 2"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Section</span>
-                    <input
-                      value={draft.section}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, section: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="B"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Gender</span>
-                    <select
-                      value={draft.gender}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, gender: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                    >
-                      <option value="">Select</option>
-                      <option value="Boy">Boy</option>
-                      <option value="Girl">Girl</option>
-                      <option value="Non-binary">Non-binary</option>
-                      <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Height (optional)</span>
-                    <input
-                      value={draft.height}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, height: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="124 cm"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Weight (optional)</span>
-                    <input
-                      value={draft.weight}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, weight: event.target.value }))
-                      }
-                      className="w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="24 kg"
-                    />
-                  </label>
-                  <div className="space-y-3 sm:col-span-2">
-                    <span className="text-sm font-semibold text-[var(--ink)]">Avatar or photo</span>
-                    <div className="flex flex-wrap gap-3">
-                      {avatarOptions.map((avatar) => (
-                        <button
-                          key={avatar}
-                          type="button"
-                          onClick={() => setDraft((current) => ({ ...current, avatar }))}
-                          className={`rounded-full px-4 py-3 text-sm font-semibold ${
-                            draft.avatar === avatar
-                              ? "bg-[var(--green-700)] text-white"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {avatar}
-                        </button>
-                      ))}
-                      <label className="inline-flex cursor-pointer items-center rounded-full bg-[var(--surface-low)] px-4 py-3 text-sm font-semibold text-[var(--ink)]">
-                        Upload photo
-                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-                      </label>
-                    </div>
-                    <p className="text-sm text-[var(--muted-ink)]">
-                      Age auto-calculates to <span className="font-semibold text-[var(--green-700)]">{age || "--"}</span> years.
-                    </p>
-                  </div>
-                </div>
-              ) : null}
-              {step === 2 ? (
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.48)]">
-                      Allergies
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {allergies.map((item) => {
-                        const isActive = draft.allergies.includes(item);
+            <div className="rounded-[1.5rem] border border-[rgba(186,185,178,0.12)] bg-white p-8">
+              <h3 className="mb-6 font-headline text-2xl font-bold">Routine, School Rules & Weekly Goals</h3>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Common allergies">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {allergyOptions.map((item) => {
+                        const active = draft.allergies.includes(item);
 
                         return (
                           <button
@@ -545,8 +765,10 @@ export function OnboardingWizard() {
                                 allergies: toggleValue(current.allergies, item),
                               }))
                             }
-                            className={`rounded-full px-4 py-3 text-sm font-semibold ${
-                              isActive ? "bg-[var(--green-700)] text-white" : "bg-[var(--surface-low)] text-[var(--ink)]"
+                            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                              active
+                                ? "bg-[rgba(249,86,48,0.14)] text-[color:#520c00]"
+                                : "bg-[var(--surface-container)] text-[var(--ink)]"
                             }`}
                           >
                             {item}
@@ -554,23 +776,25 @@ export function OnboardingWizard() {
                         );
                       })}
                     </div>
-                    <input
-                      value={draft.customAllergy}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, customAllergy: event.target.value }))
-                      }
-                      className="mt-4 w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="Other allergy"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        value={draft.customAllergy}
+                        onChange={(event) => setDraft((current) => ({ ...current, customAllergy: event.target.value }))}
+                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        placeholder="Add another allergy"
+                      />
+                      <button type="button" onClick={addCustomAllergy} className="app-button-secondary">
+                        Add
+                      </button>
+                    </div>
                   </div>
+                </Field>
 
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.48)]">
-                      School Policies
-                    </p>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      {schoolPolicies.map((item) => {
-                        const isActive = draft.schoolPolicies.includes(item);
+                <Field label="School policies">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {schoolPolicyOptions.map((item) => {
+                        const active = draft.schoolPolicies.includes(item);
 
                         return (
                           <button
@@ -582,8 +806,10 @@ export function OnboardingWizard() {
                                 schoolPolicies: toggleValue(current.schoolPolicies, item),
                               }))
                             }
-                            className={`rounded-[1.5rem] px-4 py-4 text-left text-sm font-semibold ${
-                              isActive ? "bg-[rgba(0,117,31,0.1)] text-[var(--green-700)]" : "bg-[var(--surface-low)] text-[var(--ink)]"
+                            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                              active
+                                ? "bg-[rgba(112,181,255,0.18)] text-[color:#003258]"
+                                : "bg-[var(--surface-container)] text-[var(--ink)]"
                             }`}
                           >
                             {item}
@@ -591,279 +817,153 @@ export function OnboardingWizard() {
                         );
                       })}
                     </div>
-                    <input
-                      value={draft.customPolicy}
-                      onChange={(event) =>
-                        setDraft((current) => ({ ...current, customPolicy: event.target.value }))
-                      }
-                      className="mt-4 w-full rounded-[1.5rem] bg-[var(--surface-low)] px-4 py-4 outline-none"
-                      placeholder="Custom policy"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        value={draft.customPolicy}
+                        onChange={(event) => setDraft((current) => ({ ...current, customPolicy: event.target.value }))}
+                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        placeholder="Add another policy"
+                      />
+                      <button type="button" onClick={addCustomPolicy} className="app-button-secondary">
+                        Add
+                      </button>
+                    </div>
                   </div>
+                </Field>
 
-                  <button type="button" onClick={applyAiDefaults} className="app-button-secondary">
-                    Let Lunchly&apos;s AI suggest preferences for my {age || 8}-year-old
-                  </button>
-                </div>
-              ) : null}
-              {step === 3 ? (
-                <div className="space-y-8">
-                  <div className="rounded-[1.8rem] bg-[var(--surface-low)] p-6">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="font-headline text-xl font-bold text-[var(--ink)]">
-                          How much help does your child need during lunch?
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                          1 means fully independent. 3 means they still need full help.
-                        </p>
-                      </div>
-                      <span className="font-headline text-4xl font-extrabold text-[var(--green-700)]">
-                        {draft.independenceLevel}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="1"
-                      max="3"
-                      step="1"
-                      value={draft.independenceLevel}
-                      onChange={(event) =>
-                        setDraft((current) => ({
-                          ...current,
-                          independenceLevel: Number(event.target.value),
-                        }))
-                      }
-                      className="mt-5 w-full accent-[var(--green-700)]"
-                    />
-                  </div>
+                <Field label="Activity level">
+                  <select
+                    value={draft.activityLevel}
+                    onChange={(event) => setDraft((current) => ({ ...current, activityLevel: event.target.value }))}
+                    className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                  >
+                    <option>Mostly sedentary</option>
+                    <option>Active (plays a lot)</option>
+                    <option>Sports champion</option>
+                  </select>
+                </Field>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div className="space-y-3">
-                      <p className="text-sm font-semibold text-[var(--ink)]">Average lunch eating time</p>
-                      {lunchEatingTimes.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => setDraft((current) => ({ ...current, lunchEatingTime: item }))}
-                          className={`block w-full rounded-[1.5rem] px-4 py-4 text-left text-sm font-semibold ${
-                            draft.lunchEatingTime === item
-                              ? "bg-[rgba(0,117,31,0.1)] text-[var(--green-700)]"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="space-y-3">
-                      <p className="text-sm font-semibold text-[var(--ink)]">Appetite style</p>
-                      {appetiteStyles.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => setDraft((current) => ({ ...current, appetiteStyle: item }))}
-                          className={`block w-full rounded-[1.5rem] px-4 py-4 text-left text-sm font-semibold ${
-                            draft.appetiteStyle === item
-                              ? "bg-[rgba(0,117,31,0.1)] text-[var(--green-700)]"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-              {step === 4 ? (
-                <div className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {foodPersonalityCards.map((item) => {
-                      const isActive = draft.foodPersonality.includes(item);
+                <Field label="Family priorities">
+                  <div className="flex flex-wrap gap-2">
+                    {familyPriorityOptions.map((item) => {
+                      const active = draft.familyPriorities.includes(item);
 
                       return (
                         <button
                           key={item}
                           type="button"
                           onClick={() =>
-                            setDraft((current) => {
-                              const nextValues = toggleValue(current.foodPersonality, item);
-                              return {
-                                ...current,
-                                foodPersonality: nextValues.slice(0, 4),
-                              };
-                            })
+                            setDraft((current) => ({
+                              ...current,
+                              familyPriorities: toggleValue(current.familyPriorities, item).slice(0, 3),
+                            }))
                           }
-                          className={`rounded-[1.8rem] px-5 py-5 text-left ${
-                            isActive ? "bg-[rgba(0,117,31,0.1)]" : "bg-[var(--surface-low)]"
+                          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                            active
+                              ? "bg-[rgba(145,247,142,0.18)] text-[var(--green-700)]"
+                              : "bg-[var(--surface-container)] text-[var(--ink)]"
                           }`}
                         >
-                          <p className="font-headline text-lg font-bold text-[var(--ink)]">{item}</p>
-                          <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                            {item === "Picky Eater" && "Loves familiar textures and predictable flavors."}
-                            {item === "Sensory-Sensitive" && "Aversion to mixed textures, strong smells, or soggy food."}
-                            {item === "Sports Day Hero" && "Needs higher protein and complex carbs on PE days."}
-                            {item === "Budget-Conscious" && "Prefers seasonal, value-friendly ingredients."}
-                            {item === "Flavor Explorer" && "Enjoys mild spices and new Indian tastes."}
-                            {item === "Veggie Champion" && "We will push more hidden-veg opportunities."}
-                            {item === "Eco Kid" && "Reusable and zero-waste packaging matters."}
-                          </p>
+                          {item}
                         </button>
                       );
                     })}
                   </div>
-                  <p className="text-sm text-[var(--muted-ink)]">Pick two to four cards.</p>
-                </div>
-              ) : null}
-              {step === 5 ? (
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--ink)]">Activity level</p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {activityLevels.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => setDraft((current) => ({ ...current, activityLevel: item }))}
-                          className={`rounded-full px-4 py-3 text-sm font-semibold ${
-                            draft.activityLevel === item
-                              ? "bg-[var(--green-700)] text-white"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                </Field>
 
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--ink)]">Special days selector</p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {specialDayOptions.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() =>
-                            setDraft((current) => ({
-                              ...current,
-                              specialDays: toggleValue(current.specialDays, item),
-                            }))
-                          }
-                          className={`rounded-full px-4 py-3 text-sm font-semibold ${
-                            draft.specialDays.includes(item)
-                              ? "bg-[rgba(0,103,173,0.12)] text-[var(--blue-700)]"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                <Field label="Special days">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {specialDayOptions.map((item) => {
+                        const active = draft.specialDays.includes(item);
 
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--ink)]">Family priority (choose one or two)</p>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      {familyPriorityOptions.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() =>
-                            setDraft((current) => {
-                              const nextValues = toggleValue(current.familyPriorities, item);
-                              return {
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() =>
+                              setDraft((current) => ({
                                 ...current,
-                                familyPriorities: nextValues.slice(0, 2),
-                              };
-                            })
-                          }
-                          className={`rounded-[1.5rem] px-4 py-4 text-left text-sm font-semibold ${
-                            draft.familyPriorities.includes(item)
-                              ? "bg-[rgba(249,229,52,0.42)] text-[color:#4f4700]"
-                              : "bg-[var(--surface-low)] text-[var(--ink)]"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
+                                specialDays: toggleValue(current.specialDays, item),
+                              }))
+                            }
+                            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                              active
+                                ? "bg-[rgba(249,229,52,0.24)] text-[color:#5b5300]"
+                                : "bg-[var(--surface-container)] text-[var(--ink)]"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        value={customHabitChip}
+                        onChange={(event) => setCustomHabitChip(event.target.value)}
+                        className="w-full rounded-[1rem] border border-[rgba(186,185,178,0.35)] bg-[var(--surface-container-low)] px-4 py-3 outline-none focus:border-[var(--green-700)]"
+                        placeholder="Add another special day"
+                      />
+                      <button type="button" onClick={addCustomHabitChip} className="app-button-secondary">
+                        Add
+                      </button>
                     </div>
                   </div>
-                </div>
-              ) : null}
-              {step === 6 ? (
-                <div className="space-y-6">
-                  <div className="rounded-[2rem] bg-[var(--surface-low)] p-6">
-                    <h3 className="font-headline text-2xl font-extrabold text-[var(--ink)]">Profile summary</h3>
-                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                      <div className="rounded-[1.5rem] bg-white px-4 py-4">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.46)]">
-                          Child
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                          {draft.fullName || "No name yet"} | Age {age || "--"} | {draft.grade} {draft.section}
-                        </p>
-                      </div>
-                      <div className="rounded-[1.5rem] bg-white px-4 py-4">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.46)]">
-                          Allergies & policies
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                          {[...draft.allergies, draft.customAllergy].filter(Boolean).join(", ") || "None selected"}.
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">
-                          {[...draft.schoolPolicies, draft.customPolicy].filter(Boolean).join(", ") || "No school policies selected"}.
-                        </p>
-                      </div>
-                      <div className="rounded-[1.5rem] bg-white px-4 py-4">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.46)]">
-                          Eating style
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                          Independence level {draft.independenceLevel}, {draft.lunchEatingTime}, {draft.appetiteStyle}.
-                        </p>
-                      </div>
-                      <div className="rounded-[1.5rem] bg-white px-4 py-4">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.46)]">
-                          Personality & goals
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                          {draft.foodPersonality.join(", ")}.
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">
-                          Priorities: {draft.familyPriorities.join(", ")}.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button type="button" onClick={saveProfile} className="app-button-primary min-w-[14rem] text-lg">
-                    {isEditMode ? "Save Profile" : "Create Profile"}
-                  </button>
-                </div>
-              ) : null}
+                </Field>
+              </div>
             </div>
 
             {error ? (
-              <p className="mt-6 rounded-[1.2rem] bg-[rgba(190,45,6,0.08)] px-4 py-3 text-sm font-medium text-[color:#7d2207]">
+              <div className="rounded-[1rem] border border-[rgba(249,86,48,0.35)] bg-[rgba(249,86,48,0.08)] px-4 py-3 text-sm text-[color:#520c00]">
                 {error}
-              </p>
+              </div>
             ) : null}
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <button type="button" onClick={goBack} className="app-button-secondary" disabled={step === 1}>
-                Back
+            <div className="flex flex-col gap-4 pt-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={saveProfile}
+                className="flex-1 rounded-[1rem] bg-[var(--green-700)] py-4 font-headline text-lg font-bold text-white shadow-lg shadow-[rgba(0,117,31,0.2)] transition-all hover:scale-[1.02] active:scale-95"
+              >
+                {isEditMode ? "Save Child Profile" : "Finish Child Setup"}
               </button>
-              {step < 6 ? (
-                <button type="button" onClick={goNext} className="app-button-primary">
-                  Continue
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={() => router.push(hasExistingProfile ? "/dashboard" : "/")}
+                className="rounded-[1rem] bg-[rgba(249,229,52,0.75)] px-10 py-4 font-headline text-lg font-bold text-[color:#5b5300] transition-all hover:bg-[rgba(249,229,52,0.95)]"
+              >
+                Cancel
+              </button>
             </div>
           </section>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-between border-t border-stone-200/50 bg-[rgba(255,255,255,0.82)] px-6 py-3 backdrop-blur-xl md:hidden">
+        {[
+          { icon: "dashboard", label: "Dash", href: "/dashboard" },
+          { icon: "qr_code_scanner", label: "Scan", href: "/analyze" },
+          { icon: "add", label: "Add", href: "/analyze", featured: true },
+          { icon: "trending_up", label: "Trends", href: "/insights" },
+          { icon: "face", label: "Kids", href: "/onboarding", active: true },
+        ].map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`flex flex-col items-center ${
+              item.featured
+                ? "-mt-8 rounded-full bg-[var(--green-400)] p-2 text-[var(--green-700)] shadow-xl"
+                : item.active
+                  ? "text-[var(--green-700)]"
+                  : "text-stone-400"
+            }`}
+          >
+            <span className="material-symbols-outlined">{item.icon}</span>
+            {!item.featured ? <span className="mt-1 text-[10px] font-medium">{item.label}</span> : null}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }

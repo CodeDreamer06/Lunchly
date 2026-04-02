@@ -44,7 +44,7 @@ export function DashboardExperience() {
   return (
     <AppShell
       section="dashboard"
-      title={`Namaste, ${activeProfile.caregiverName || "Priya"}! Ready to make ${childFirstName}'s lunchbox a nutrition superstar today?`}
+      title={`Namaste, ${activeProfile.caregiverName || "Priya"}! Ready to make ${childFirstName}'s lunchbox smarter today?`}
       description="This is the daily home hub for analyzing tiffins, tracking progress, and acting on child-specific AI suggestions."
       actions={
         <Link href="/analyze" className="app-button-primary">
@@ -71,7 +71,7 @@ export function DashboardExperience() {
           <p className="font-headline mt-3 text-3xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
             {topWin}
           </p>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">A practical improvement Lunchly would keep building on.</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">A practical improvement LunchLogic would keep building on.</p>
         </div>
         <div className="soft-card p-5">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(56,56,51,0.48)]">
@@ -94,9 +94,6 @@ export function DashboardExperience() {
         <Link href="/tips" className="tertiary-pill">
           Smart Tips Library
         </Link>
-        <Link href="/onboarding?mode=add" className="tertiary-pill">
-          Add Sibling
-        </Link>
       </div>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
@@ -105,7 +102,7 @@ export function DashboardExperience() {
             Today&apos;s AI focus
           </p>
           <h2 className="font-headline mt-3 text-3xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
-            Lunchly will watch for sensory fit, protein balance, and school-rule conflicts
+            LunchLogic will watch for sensory fit, protein balance, and school-rule conflicts
           </h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div className="rounded-[1.6rem] bg-[var(--surface-low)] p-4">
@@ -127,7 +124,7 @@ export function DashboardExperience() {
               <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
                 {activeProfile.schoolPolicies.length
                   ? `${activeProfile.schoolPolicies[0]} is already part of the analysis rules.`
-                  : "No school restrictions saved yet, so Lunchly focuses on nutrition and ease."}
+                  : "No school restrictions saved yet, so LunchLogic focuses on nutrition and ease."}
               </p>
             </div>
           </div>
@@ -151,9 +148,9 @@ export function DashboardExperience() {
               </p>
             </Link>
             <Link href="/profiles" className="block rounded-[1.6rem] bg-[var(--surface-low)] px-5 py-5">
-              <p className="font-headline text-xl font-bold text-[var(--ink)]">Manage child profiles</p>
+              <p className="font-headline text-xl font-bold text-[var(--ink)]">Review child setup</p>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
-                Switch active child, edit details, or add a sibling.
+                Keep allergies, sensory notes, and school rules current.
               </p>
             </Link>
           </div>
