@@ -40,12 +40,25 @@ export function HistoryExperience() {
                     {new Date(record.createdAt).toLocaleDateString()}
                   </p>
                   <h2 className="font-headline mt-2 text-2xl font-bold text-[var(--ink)]">{record.lunchTitle}</h2>
+                  <p className="mt-2 text-sm leading-7 text-[var(--muted-ink)]">{record.summary}</p>
                   <p className="mt-2 text-sm leading-7 text-[var(--muted-ink)]">{record.notes || "No extra notes added."}</p>
                 </div>
                 <div className="rounded-full bg-[rgba(145,247,142,0.22)] px-4 py-3 font-headline text-2xl font-extrabold text-[var(--green-700)]">
                   {record.score}/100
                 </div>
               </div>
+              {record.detectedItems.length ? (
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {record.detectedItems.map((item) => (
+                    <span
+                      key={`${record.id}-${item}`}
+                      className="rounded-full bg-[var(--surface-low)] px-4 py-2 text-sm font-semibold text-[var(--ink)]"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
               <div className="mt-5 grid gap-4 lg:grid-cols-3">
                 <div className="rounded-[1.5rem] bg-[var(--surface-low)] p-4 text-sm leading-6 text-[var(--muted-ink)]">
                   <p className="font-headline text-lg font-bold text-[var(--ink)]">Highlights</p>

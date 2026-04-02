@@ -1,47 +1,8 @@
 "use client";
 
-export type LunchlyProfile = {
-  id: string;
-  caregiverName: string;
-  fullName: string;
-  birthDate: string;
-  age: number;
-  grade: string;
-  section: string;
-  gender: string;
-  height: string;
-  weight: string;
-  avatar: string;
-  photoDataUrl: string;
-  allergies: string[];
-  customAllergy: string;
-  schoolPolicies: string[];
-  customPolicy: string;
-  independenceLevel: number;
-  lunchEatingTime: string;
-  appetiteStyle: string;
-  foodPersonality: string[];
-  activityLevel: string;
-  specialDays: string[];
-  familyPriorities: string[];
-  createdAt: string;
-};
+import type { AnalysisRecord, LunchlyProfile } from "@/lib/lunchly-types";
 
-export type AnalysisRecord = {
-  id: string;
-  profileId: string;
-  lunchTitle: string;
-  notes: string;
-  selectedItems: string[];
-  score: number;
-  proteinScore: number;
-  fibreScore: number;
-  hydrationScore: number;
-  flags: string[];
-  highlights: string[];
-  suggestions: string[];
-  createdAt: string;
-};
+export type { AnalysisRecord, AnalysisSource, LunchlyProfile } from "@/lib/lunchly-types";
 
 const PROFILES_KEY = "lunchly_profiles_v1";
 const ACTIVE_PROFILE_KEY = "lunchly_active_profile_v1";
@@ -118,8 +79,43 @@ export function getStoredAnalyses(): AnalysisRecord[] {
   }
 
   try {
-    const parsed = JSON.parse(raw) as AnalysisRecord[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as Partial<AnalysisRecord>[];
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((record) => ({
+      id: typeof record.id === "string" ? record.id : `analysis_${crypto.randomUUID()}`,
+      profileId: typeof record.profileId === "string" ? record.profileId : "",
+      lunchTitle: typeof record.lunchTitle === "string" ? record.lunchTitle : "Saved tiffin",
+      notes: typeof record.notes === "string" ? record.notes : "",
+      selectedItems: Array.isArray(record.selectedItems)
+        ? record.selectedItems.filter((item): item is string => typeof item === "string")
+        : [],
+      summary:
+        typeof record.summary === "string" && record.summary.trim()
+          ? record.summary
+          : "Lunchly saved this earlier lunchbox analysis before the latest AI upgrade.",
+      detectedItems: Array.isArray(record.detectedItems)
+        ? record.detectedItems.filter((item): item is string => typeof item === "string")
+        : Array.isArray(record.selectedItems)
+          ? record.selectedItems.filter((item): item is string => typeof item === "string")
+          : [],
+      score: typeof record.score === "number" ? record.score : 0,
+      proteinScore: typeof record.proteinScore === "number" ? record.proteinScore : 0,
+      fibreScore: typeof record.fibreScore === "number" ? record.fibreScore : 0,
+      hydrationScore: typeof record.hydrationScore === "number" ? record.hydrationScore : 0,
+      flags: Array.isArray(record.flags) ? record.flags.filter((item): item is string => typeof item === "string") : [],
+      highlights: Array.isArray(record.highlights)
+        ? record.highlights.filter((item): item is string => typeof item === "string")
+        : [],
+      suggestions: Array.isArray(record.suggestions)
+        ? record.suggestions.filter((item): item is string => typeof item === "string")
+        : [],
+      source: record.source === "ai" || record.source === "fallback" ? record.source : "fallback",
+      createdAt: typeof record.createdAt === "string" ? record.createdAt : new Date().toISOString(),
+    }));
   } catch {
     return [];
   }

@@ -4,7 +4,7 @@ import { TipsExperience } from "@/components/tips-experience";
 
 export const metadata: Metadata = {
   title: "Tips | Lunchly",
-  description: "A local smart tips library for tiffin packing, nutrition, sensory support, and budgeting.",
+  description: "AI-guided tiffin tips for packing, nutrition, sensory support, school rules, and budgeting.",
 };
 
 export default function TipsPage() {

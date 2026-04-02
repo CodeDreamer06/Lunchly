@@ -66,8 +66,8 @@ export function LandingStart() {
                   Make every lunchbox smarter, easier to finish, and more child-specific.
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-[var(--muted-ink)]">
-                  Lunchly helps parents build a child profile once, analyze today&apos;s tiffin in seconds, and get practical,
-                  profile-aware suggestions for nutrition, sensory comfort, school rules, and prep.
+                  Lunchly helps parents build a child profile once, analyze today&apos;s tiffin from text and photo, and get
+                  practical, profile-aware suggestions for nutrition, sensory comfort, school rules, and prep.
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
@@ -92,7 +92,7 @@ export function LandingStart() {
                     Local first
                   </p>
                   <p className="mt-3 text-sm leading-6 text-[var(--muted-ink)]">
-                    Profile data and analysis history stay on-device for this frontend prototype.
+                    Profiles and saved history stay on-device until you choose an AI-powered analysis or tip request.
                   </p>
                 </div>
                 <div className="soft-card p-5">
@@ -114,8 +114,8 @@ export function LandingStart() {
                 <div className="mt-5 space-y-4">
                   {[
                     "Create or update your child profile once with sensory needs, allergies, school rules, and weekly goals.",
-                    "Open the dashboard each morning and tap Analyze to log what is going into the tiffin.",
-                    "Get a fast AI-style result with nutrition score, sensory warnings, school-policy flags, and practical swaps.",
+                    "Open the dashboard each morning and tap Analyze to log what is going into the tiffin or upload a photo.",
+                    "Get a fast AI result with nutrition score, sensory warnings, school-policy flags, and practical swaps.",
                     "Track what is improving over time in insights, history, and a personalized tips library.",
                   ].map((item, index) => (
                     <div key={item} className="rounded-[1.6rem] bg-white px-4 py-4">
@@ -145,7 +145,7 @@ export function LandingStart() {
               {[
                 {
                   title: "Profile-aware analysis",
-                  body: "Lunchly adjusts results based on allergies, school rules, appetite, eating pace, and sensory preferences.",
+                  body: "Lunchly adjusts results based on allergies, school rules, appetite, eating pace, sensory preferences, and what it sees in the tiffin photo.",
                 },
                 {
                   title: "Indian lunchbox context",
@@ -197,7 +197,7 @@ export function LandingStart() {
               <div className="max-w-3xl">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[color:rgba(56,56,51,0.46)]">Use cases</p>
                 <h2 className="font-headline mt-3 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
-                  Everything in this frontend is clickable and local-storage powered
+                  Everything in this frontend is clickable, working, and ready for the daily lunchbox loop
                 </h2>
               </div>
               <button type="button" onClick={handleStart} className="app-button-primary">
@@ -209,9 +209,9 @@ export function LandingStart() {
                 { title: "Onboarding wizard", href: "/onboarding", body: "Six guided steps with profile data saved locally." },
                 { title: "Child dashboard", href: "/dashboard", body: "Greeting, summary cards, quick links, and the main analyze CTA." },
                 { title: "Analyze page", href: "/analyze", body: "Submit a tiffin, get a child-aware result, and save it to history." },
+                { title: "AI photo analysis", href: "/analyze", body: "Upload a tiffin image and combine vision with profile-aware nutrition guidance." },
                 { title: "Insights page", href: "/insights", body: "See score trends, sensory risk, and weekly focus areas." },
-                { title: "Tips library", href: "/tips", body: "Profile-driven tips with practical packing and swap suggestions." },
-                { title: "Profiles + history", href: "/profiles", body: "Switch children, edit profiles, add siblings, and review saved analyses." },
+                { title: "Tips library", href: "/tips", body: "Generate weekly AI tips or browse practical packing and swap suggestions." },
               ].map((item) => (
                 <Link key={item.title} href={item.href} className="gallery-card p-6">
                   <p className="font-headline text-2xl font-bold text-[var(--ink)]">{item.title}</p>
@@ -229,8 +229,8 @@ export function LandingStart() {
               Your data stays on your device until you choose to sync
             </h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--muted-ink)]">
-              This prototype keeps profiles and analysis history in local storage only. That makes it fast to demo,
-              easy to understand, and safe from backend blockers while the core experience is being refined.
+              Profiles and analysis history stay in local storage on this device. When you choose to run AI analysis or
+              generate AI tips, Lunchly sends only the details needed for that request to the model provider.
             </p>
           </div>
         </section>

@@ -4,7 +4,7 @@ import { AnalyzeExperience } from "@/components/analyze-experience";
 
 export const metadata: Metadata = {
   title: "Analyze | Lunchly",
-  description: "Analyze a tiffin locally with child-aware nutrition, sensory, and school-rule suggestions.",
+  description: "Analyze a tiffin with AI vision and child-aware nutrition, sensory, and school-rule suggestions.",
 };
 
 export default function AnalyzePage() {

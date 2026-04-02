@@ -5,6 +5,7 @@ import { ChangeEvent, startTransition, useEffect, useMemo, useState } from "reac
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import type { ProfileAssistantResponse } from "@/lib/ai-contracts";
 import {
   buildTeaser,
   getActiveProfile,
@@ -179,6 +180,10 @@ export function OnboardingWizard() {
   const [existingProfileId, setExistingProfileId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successTip, setSuccessTip] = useState("");
+  const [isSuggestingAi, setIsSuggestingAi] = useState(false);
+  const [aiReasoning, setAiReasoning] = useState("");
+  const [aiWatchouts, setAiWatchouts] = useState<string[]>([]);
+  const [aiSuggestionWarning, setAiSuggestionWarning] = useState("");
 
   useEffect(() => {
     const activeProfile = getActiveProfile();
@@ -281,29 +286,52 @@ export function OnboardingWizard() {
     reader.readAsDataURL(file);
   };
 
-  const applyAiDefaults = () => {
-    const nextTraits = new Set(draft.foodPersonality);
+  const applyAiDefaults = async () => {
+    setIsSuggestingAi(true);
+    setAiSuggestionWarning("");
 
-    if (age <= 8) {
-      nextTraits.add("Picky Eater");
-      nextTraits.add("Sensory-Sensitive");
+    try {
+      const response = await fetch("/api/profile-assistant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          age,
+          draft,
+        }),
+      });
+
+      const data = (await response.json()) as ProfileAssistantResponse | { error?: string };
+
+      if (!response.ok || "error" in data) {
+        const message = "error" in data && typeof data.error === "string"
+          ? data.error
+          : "Lunchly could not suggest profile defaults.";
+        throw new Error(message);
+      }
+
+      const responseData = data as ProfileAssistantResponse;
+
+      setDraft((current) => ({
+        ...current,
+        foodPersonality: responseData.foodPersonality.length
+          ? responseData.foodPersonality
+          : current.foodPersonality,
+        familyPriorities: responseData.familyPriorities.length
+          ? responseData.familyPriorities
+          : current.familyPriorities,
+      }));
+      setAiReasoning(responseData.reasoning);
+      setAiWatchouts(responseData.schoolPolicyWatchouts);
+      setAiSuggestionWarning(responseData.warning || "");
+    } catch (requestError) {
+      setAiSuggestionWarning(
+        requestError instanceof Error ? requestError.message : "Lunchly could not suggest profile defaults.",
+      );
+    } finally {
+      setIsSuggestingAi(false);
     }
-
-    if (draft.activityLevel === "Sports champion") {
-      nextTraits.add("Sports Day Hero");
-    }
-
-    if (draft.schoolPolicies.includes("Plastic-free / only steel tiffin")) {
-      nextTraits.add("Eco Kid");
-    }
-
-    setDraft((current) => ({
-      ...current,
-      foodPersonality: Array.from(nextTraits).slice(0, 4),
-      familyPriorities: current.familyPriorities.length
-        ? current.familyPriorities
-        : ["Brain food & focus", "Balanced macros (protein + carbs)"],
-    }));
   };
 
   if (successTip) {
@@ -601,9 +629,36 @@ export function OnboardingWizard() {
                     />
                   </div>
 
-                  <button type="button" onClick={applyAiDefaults} className="app-button-secondary">
-                    Let Lunchly&apos;s AI suggest preferences for my {age || 8}-year-old
+                  <button
+                    type="button"
+                    onClick={applyAiDefaults}
+                    className="app-button-secondary"
+                    disabled={isSuggestingAi}
+                  >
+                    {isSuggestingAi
+                      ? "Thinking through the profile..."
+                      : `Let Lunchly's AI suggest preferences for my ${age || 8}-year-old`}
                   </button>
+
+                  {aiReasoning ? (
+                    <div className="rounded-[1.6rem] bg-[rgba(145,247,142,0.18)] p-4">
+                      <p className="font-headline text-lg font-bold text-[var(--ink)]">AI recommendation snapshot</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">{aiReasoning}</p>
+                      {aiWatchouts.length ? (
+                        <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--muted-ink)]">
+                          {aiWatchouts.map((watchout) => (
+                            <li key={watchout}>- {watchout}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {aiSuggestionWarning ? (
+                    <p className="rounded-[1.2rem] bg-[rgba(249,229,52,0.18)] px-4 py-3 text-sm font-medium text-[color:#6e5d00]">
+                      {aiSuggestionWarning}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
               {step === 3 ? (

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
-import { createMockAnalysis } from "@/lib/mock-analyzer";
+import type { AnalyzeLunchResponse } from "@/lib/ai-contracts";
 import { saveAnalysis, type AnalysisRecord } from "@/lib/profile-storage";
 import { useLunchlyData } from "@/lib/use-lunchly-data";
 
@@ -30,6 +31,10 @@ export function AnalyzeExperience() {
   const [lunchTitle, setLunchTitle] = useState("Paneer roll with fruit");
   const [notes, setNotes] = useState("Steel tiffin. Needs to stay easy to eat in 20 minutes.");
   const [selectedItems, setSelectedItems] = useState<string[]>(["Paneer roll", "Fruit", "Cucumber"]);
+  const [imageDataUrl, setImageDataUrl] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
   const [result, setResult] = useState<AnalysisRecord | null>(null);
 
   useEffect(() => {
@@ -48,28 +53,76 @@ export function AnalyzeExperience() {
     );
   };
 
-  const handleAnalyze = () => {
-    const analysis = createMockAnalysis({
-      profile: activeProfile,
-      lunchTitle,
-      notes,
-      selectedItems,
-    });
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
 
-    saveAnalysis(analysis);
-    refresh();
-    setResult(analysis);
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageDataUrl(typeof reader.result === "string" ? reader.result : "");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAnalyze = async () => {
+    if (!lunchTitle.trim() && !notes.trim() && !selectedItems.length && !imageDataUrl) {
+      setError("Add a lunch title, some items, notes, or a photo before analyzing.");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError("");
+    setWarning("");
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          profile: activeProfile,
+          lunchTitle,
+          notes,
+          selectedItems,
+          imageDataUrl,
+        }),
+      });
+
+      const data = (await response.json()) as AnalyzeLunchResponse | { error?: string };
+
+      if (!response.ok || !("record" in data)) {
+        const message = "error" in data && typeof data.error === "string"
+          ? data.error
+          : "Lunchly could not analyze this tiffin.";
+        throw new Error(message);
+      }
+
+      const responseData = data as AnalyzeLunchResponse;
+
+      saveAnalysis(responseData.record);
+      refresh();
+      setResult(responseData.record);
+      setWarning(responseData.warning || "");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Lunchly could not analyze this tiffin.");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
     <AppShell
       section="analyze"
       title="Analyze today&apos;s tiffin"
-      description="Log what is going into the lunchbox and Lunchly will generate a child-aware nutrition and sensory readout."
+      description="Describe the tiffin or upload a photo and Lunchly will generate a child-aware nutrition, sensory, and policy readout."
       actions={
         <>
-          <button type="button" onClick={handleAnalyze} className="app-button-primary">
-            Analyze now
+          <button type="button" onClick={handleAnalyze} className="app-button-primary" disabled={isAnalyzing}>
+            {isAnalyzing ? "Analyzing..." : "Analyze now"}
           </button>
           <button
             type="button"
@@ -77,6 +130,9 @@ export function AnalyzeExperience() {
               setLunchTitle("Idli with coconut chutney and cucumber");
               setNotes("No reheating allowed. Prefer less mess.");
               setSelectedItems(["Idli", "Cucumber", "Buttermilk"]);
+              setImageDataUrl("");
+              setError("");
+              setWarning("");
             }}
             className="app-button-secondary"
           >
@@ -128,6 +184,39 @@ export function AnalyzeExperience() {
               })}
             </div>
           </div>
+
+          <div className="mt-5 rounded-[1.5rem] bg-[var(--surface-low)] p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-[var(--ink)]">Optional photo for vision analysis</p>
+                <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">
+                  Upload a tiffin photo and Lunchly will combine the image with your notes.
+                </p>
+              </div>
+              <label className="inline-flex cursor-pointer items-center rounded-full bg-white px-4 py-3 text-sm font-semibold text-[var(--ink)] shadow-[0_12px_26px_rgba(56,56,51,0.05)]">
+                Upload photo
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
+            </div>
+            {imageDataUrl ? (
+              <div className="mt-4 overflow-hidden rounded-[1.5rem] bg-white p-3">
+                <Image
+                  src={imageDataUrl}
+                  alt="Tiffin preview"
+                  width={960}
+                  height={640}
+                  unoptimized
+                  className="h-48 w-full rounded-[1.2rem] object-cover"
+                />
+              </div>
+            ) : null}
+          </div>
+
+          {error ? (
+            <p className="mt-5 rounded-[1.2rem] bg-[rgba(190,45,6,0.08)] px-4 py-3 text-sm font-medium text-[color:#7d2207]">
+              {error}
+            </p>
+          ) : null}
         </section>
 
         <section className="rounded-[2rem] bg-white p-6 shadow-[0_18px_48px_rgba(56,56,51,0.05)]">
@@ -135,7 +224,7 @@ export function AnalyzeExperience() {
             <div className="space-y-5">
               <div className="rounded-[1.8rem] bg-[rgba(145,247,142,0.18)] p-5">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[color:rgba(0,94,23,0.72)]">
-                  Latest result
+                  Latest result {result.source === "ai" ? "AI-powered" : "Local fallback"}
                 </p>
                 <h2 className="font-headline mt-2 text-4xl font-extrabold tracking-[-0.05em] text-[var(--ink)]">
                   {result.score}/100
@@ -143,6 +232,12 @@ export function AnalyzeExperience() {
                 <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">
                   {result.lunchTitle} analyzed for {activeProfile.fullName}.
                 </p>
+                <p className="mt-3 text-sm leading-7 text-[var(--muted-ink)]">{result.summary}</p>
+                {warning ? (
+                  <p className="mt-3 rounded-[1rem] bg-white/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[color:#7d5b00]">
+                    {warning}
+                  </p>
+                ) : null}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
@@ -159,6 +254,22 @@ export function AnalyzeExperience() {
                   </div>
                 ))}
               </div>
+
+              {result.detectedItems.length ? (
+                <div className="rounded-[1.5rem] bg-white p-1">
+                  <p className="font-headline px-3 pt-3 text-xl font-bold text-[var(--ink)]">Detected items</p>
+                  <div className="mt-3 flex flex-wrap gap-3 px-3 pb-3">
+                    {result.detectedItems.map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-full bg-[var(--surface-low)] px-4 py-2 text-sm font-semibold text-[var(--ink)]"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="rounded-[1.5rem] bg-[var(--surface-low)] p-4">
                 <p className="font-headline text-xl font-bold text-[var(--ink)]">Highlights</p>
@@ -202,7 +313,8 @@ export function AnalyzeExperience() {
             <div className="rounded-[1.8rem] bg-[var(--surface-low)] p-6">
               <p className="font-headline text-2xl font-bold text-[var(--ink)]">Ready when you are</p>
               <p className="mt-3 text-sm leading-7 text-[var(--muted-ink)]">
-                Press Analyze now to generate a local AI-style result for this tiffin and save it to history.
+                Press Analyze now to send today&apos;s tiffin through Lunchly&apos;s AI analyzer and save the result to
+                history.
               </p>
             </div>
           )}

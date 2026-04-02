@@ -1,4 +1,4 @@
-import type { AnalysisRecord, LunchlyProfile } from "@/lib/profile-storage";
+import type { AnalysisRecord, LunchlyProfile } from "@/lib/lunchly-types";
 
 const proteinItems = ["paneer", "egg", "eggs", "dal", "sprouts", "chicken", "tofu", "curd", "yogurt", "chana"];
 const fibreItems = ["fruit", "apple", "banana", "carrot", "cucumber", "salad", "beans", "broccoli", "peas"];
@@ -99,6 +99,10 @@ export function createMockAnalysis(input: {
     lunchTitle,
     notes,
     selectedItems,
+    summary: hasProtein
+      ? "Lunchly sees a fairly balanced tiffin base with decent energy support and one or two easy next upgrades."
+      : "Lunchly sees a workable lunch base, but protein support looks like the easiest upgrade for tomorrow.",
+    detectedItems: selectedItems,
     score: boundedScore,
     proteinScore: Math.max(40, Math.min(98, proteinScore)),
     fibreScore: Math.max(38, Math.min(98, fibreScore)),
@@ -106,6 +110,7 @@ export function createMockAnalysis(input: {
     flags,
     highlights,
     suggestions,
+    source: "fallback",
     createdAt: new Date().toISOString(),
   };
 }

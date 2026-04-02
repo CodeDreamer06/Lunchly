@@ -8,9 +8,8 @@ import {
   getStoredAnalyses,
   getStoredProfiles,
   setActiveProfileId,
-  type AnalysisRecord,
-  type LunchlyProfile,
 } from "@/lib/profile-storage";
+import type { AnalysisRecord, LunchlyProfile } from "@/lib/lunchly-types";
 
 type LunchlyDataState = {
   ready: boolean;
