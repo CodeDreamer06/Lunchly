@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LunchLogic",
-  description: "A stitched LunchLogic frontend prototype rendered inside a polished Next.js shell.",
+  title: "Lunchly",
+  description: "A frontend-first AI tiffin analyzer with local child profiles, daily analysis, and actionable lunchbox guidance.",
 };
 
 export default function RootLayout({
