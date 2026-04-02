@@ -38,11 +38,25 @@ type VoidAICompletionResponse = {
 };
 
 const VOIDAI_ENDPOINT = "https://api.voidai.app/v1/chat/completions";
+let roundRobinCursor = 0;
 
 function getConfiguredKeys() {
   return [process.env.VOIDAI_API_KEY_PRIMARY, process.env.VOIDAI_API_KEY_SECONDARY].filter(
     (value): value is string => Boolean(value?.trim()),
   );
+}
+
+function getRotatedKeys() {
+  const apiKeys = getConfiguredKeys();
+
+  if (apiKeys.length <= 1) {
+    return apiKeys;
+  }
+
+  const startIndex = roundRobinCursor % apiKeys.length;
+  roundRobinCursor = (roundRobinCursor + 1) % apiKeys.length;
+
+  return apiKeys.map((_, index) => apiKeys[(startIndex + index) % apiKeys.length]);
 }
 
 function extractTextContent(content: string | Array<{ type?: string; text?: string }> | undefined) {
@@ -60,6 +74,79 @@ function extractTextContent(content: string | Array<{ type?: string; text?: stri
     .join("");
 }
 
+async function readVoidAIStream(response: Response) {
+  if (!response.body) {
+    return "";
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let content = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop() ?? "";
+
+    for (const event of events) {
+      const lines = event
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      for (const line of lines) {
+        if (!line.startsWith("data:")) {
+          continue;
+        }
+
+        const payload = line.slice(5).trim();
+
+        if (payload === "[DONE]") {
+          return content;
+        }
+
+        try {
+          const chunk = JSON.parse(payload) as {
+            choices?: Array<{
+              delta?: {
+                content?: string;
+              };
+            }>;
+          };
+
+          const delta = chunk.choices?.[0]?.delta?.content;
+
+          if (typeof delta === "string") {
+            content += delta;
+          }
+        } catch {
+          // Ignore malformed intermediate chunks and continue collecting content.
+        }
+      }
+    }
+  }
+
+  return content;
+}
+
+async function readVoidAIResponseText(response: Response) {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("text/event-stream")) {
+    return readVoidAIStream(response);
+  }
+
+  const data = (await response.json()) as VoidAICompletionResponse;
+  return extractTextContent(data.choices?.[0]?.message?.content);
+}
+
 export async function createVoidAIJsonCompletion<T>({
   systemPrompt,
   userContent,
@@ -68,7 +155,7 @@ export async function createVoidAIJsonCompletion<T>({
   reasoningEffort = "medium",
   temperature = 0.4,
 }: CallVoidAIJsonOptions): Promise<T> {
-  const apiKeys = getConfiguredKeys();
+  const apiKeys = getRotatedKeys();
 
   if (!apiKeys.length) {
     throw new Error("VoidAI keys are not configured.");
@@ -85,6 +172,10 @@ export async function createVoidAIJsonCompletion<T>({
     temperature,
     max_tokens: maxTokens,
     reasoning_effort: reasoningEffort,
+    stream: true,
+    stream_options: {
+      include_usage: true,
+    },
     response_format: {
       type: "json_object",
     },
@@ -96,6 +187,7 @@ export async function createVoidAIJsonCompletion<T>({
     const response = await fetch(VOIDAI_ENDPOINT, {
       method: "POST",
       cache: "no-store",
+      signal: AbortSignal.timeout(120000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -109,8 +201,7 @@ export async function createVoidAIJsonCompletion<T>({
       continue;
     }
 
-    const data = (await response.json()) as VoidAICompletionResponse;
-    const text = extractTextContent(data.choices?.[0]?.message?.content);
+    const text = await readVoidAIResponseText(response);
 
     if (!text) {
       failures.push("Empty content returned from VoidAI.");
