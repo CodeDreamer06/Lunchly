@@ -24,6 +24,7 @@ export type AiLunchAnalysisDraft = Pick<
 export type AnalyzeLunchResponse = {
   record: AnalysisRecord;
   warning?: string;
+  debug?: Record<string, unknown>;
 };
 
 export type ProfileAssistantResponse = {
@@ -33,6 +34,7 @@ export type ProfileAssistantResponse = {
   reasoning: string;
   source: AnalysisSource;
   warning?: string;
+  debug?: Record<string, unknown>;
 };
 
 export type AiTipCard = {
@@ -46,4 +48,5 @@ export type TipsResponse = {
   tips: AiTipCard[];
   source: AnalysisSource;
   warning?: string;
+  debug?: Record<string, unknown>;
 };

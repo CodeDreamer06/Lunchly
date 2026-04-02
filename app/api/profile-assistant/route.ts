@@ -4,6 +4,7 @@ import type { ProfileAssistantResponse } from "@/lib/ai-contracts";
 import { createVoidAIJsonCompletion } from "@/lib/voidai";
 
 export const runtime = "nodejs";
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 const allowedFoodPersonalities = [
   "Picky Eater",
@@ -123,7 +124,7 @@ Rules:
 `.trim();
 
   try {
-    const aiResponse = await createVoidAIJsonCompletion<Partial<ProfileAssistantResponse>>({
+    const { data: aiResponse, debug } = await createVoidAIJsonCompletion<Partial<ProfileAssistantResponse>>({
       systemPrompt,
       userContent: JSON.stringify(body),
       maxTokens: 650,
@@ -152,10 +153,26 @@ Rules:
           ? aiResponse.reasoning.trim()
           : fallback.reasoning,
       source: "ai",
+      ...(IS_DEV ? { debug } : {}),
     };
 
     return NextResponse.json(normalized);
-  } catch {
-    return NextResponse.json(heuristicAssistantResponse(body));
+  } catch (error) {
+    console.error("Lunchly profile assistant AI failure", error);
+    const fallback = heuristicAssistantResponse(body);
+    return NextResponse.json(
+      IS_DEV
+        ? {
+            ...fallback,
+            debug: {
+              error: error instanceof Error ? error.message : String(error),
+              provider:
+                error instanceof Error && "debug" in error && error.debug && typeof error.debug === "object"
+                  ? error.debug
+                  : undefined,
+            },
+          }
+        : fallback,
+    );
   }
 }

@@ -6,13 +6,15 @@ import type { AnalysisRecord, LunchlyProfile } from "@/lib/lunchly-types";
 import { createVoidAIJsonCompletion } from "@/lib/voidai";
 
 export const runtime = "nodejs";
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 function clampScore(value: unknown, fallback: number) {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return fallback;
   }
 
-  return Math.max(0, Math.min(100, Math.round(value)));
+  const normalizedValue = value >= 0 && value <= 10 ? value * 10 : value;
+  return Math.max(0, Math.min(100, Math.round(normalizedValue)));
 }
 
 function toStringList(value: unknown, fallback: string[] = [], limit = 4) {
@@ -165,7 +167,7 @@ Rules:
   });
 
   try {
-    const aiDraft = await createVoidAIJsonCompletion<AiLunchAnalysisDraft>({
+    const { data: aiDraft, debug } = await createVoidAIJsonCompletion<AiLunchAnalysisDraft>({
       systemPrompt: analysisPrompt,
       userContent: input.imageDataUrl
         ? [
@@ -188,12 +190,54 @@ Rules:
     });
 
     const record = buildAnalysisRecord(input, normalizeAiDraft(aiDraft, input));
-    return NextResponse.json({ record } satisfies AnalyzeLunchResponse);
-  } catch {
+    return NextResponse.json({
+      record,
+      ...(IS_DEV
+        ? {
+            debug: {
+              ...debug,
+              inputPreview: {
+                lunchTitle: input.lunchTitle,
+                selectedItems: input.selectedItems,
+                notesLength: input.notes.length,
+                imageProvided: Boolean(input.imageDataUrl),
+              },
+            },
+          }
+        : {}),
+    } satisfies AnalyzeLunchResponse);
+  } catch (error) {
     const record = createMockAnalysis(input);
+    const debug =
+      error instanceof Error && "debug" in error && error.debug && typeof error.debug === "object"
+        ? error.debug
+        : undefined;
+    console.error("Lunchly analyze AI failure", {
+      message: error instanceof Error ? error.message : String(error),
+      debug,
+      lunchTitle: input.lunchTitle,
+      notesLength: input.notes.length,
+      selectedItems: input.selectedItems,
+      imageProvided: Boolean(input.imageDataUrl),
+    });
     return NextResponse.json({
       record,
       warning: "Lunchly used a local fallback because the AI provider was unavailable just now.",
+      ...(IS_DEV
+        ? {
+            debug: {
+              error: error instanceof Error ? error.message : String(error),
+              provider: "voidai",
+              ...(debug ? { providerDebug: debug } : {}),
+              inputPreview: {
+                lunchTitle: input.lunchTitle,
+                selectedItems: input.selectedItems,
+                notesLength: input.notes.length,
+                imageProvided: Boolean(input.imageDataUrl),
+              },
+            },
+          }
+        : {}),
     } satisfies AnalyzeLunchResponse);
   }
 }

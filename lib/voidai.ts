@@ -29,6 +29,18 @@ type CallVoidAIJsonOptions = {
   temperature?: number;
 };
 
+export type VoidAIDebugInfo = {
+  endpoint: string;
+  model: string;
+  streamed: boolean;
+  keyOrder: string[];
+  usedKeySlot?: string;
+  responseContentType?: string;
+  rawTextPreview?: string;
+  failures: string[];
+  reasoningEffortSent?: string | null;
+};
+
 type VoidAICompletionResponse = {
   choices?: Array<{
     message?: {
@@ -72,6 +84,14 @@ function extractTextContent(content: string | Array<{ type?: string; text?: stri
     .filter((part) => part?.type === "text" && typeof part.text === "string")
     .map((part) => part.text)
     .join("");
+}
+
+function getKeySlotLabel(index: number) {
+  return index === 0 ? "primary" : index === 1 ? "secondary" : `key_${index + 1}`;
+}
+
+function supportsReasoningEffort(model: string) {
+  return /^(o[1-9]|o\d-mini|gpt-5|gpt-5-mini|gpt-5-nano)/i.test(model);
 }
 
 async function readVoidAIStream(response: Response) {
@@ -154,8 +174,9 @@ export async function createVoidAIJsonCompletion<T>({
   model = process.env.VOIDAI_MODEL || "gpt-4o",
   reasoningEffort = "medium",
   temperature = 0.4,
-}: CallVoidAIJsonOptions): Promise<T> {
+}: CallVoidAIJsonOptions): Promise<{ data: T; debug: VoidAIDebugInfo }> {
   const apiKeys = getRotatedKeys();
+  const configuredKeys = getConfiguredKeys();
 
   if (!apiKeys.length) {
     throw new Error("VoidAI keys are not configured.");
@@ -166,12 +187,12 @@ export async function createVoidAIJsonCompletion<T>({
     { role: "user", content: userContent },
   ];
 
+  const shouldSendReasoningEffort = supportsReasoningEffort(model);
   const payload = {
     model,
     messages,
     temperature,
     max_tokens: maxTokens,
-    reasoning_effort: reasoningEffort,
     stream: true,
     stream_options: {
       include_usage: true,
@@ -180,10 +201,25 @@ export async function createVoidAIJsonCompletion<T>({
       type: "json_object",
     },
   };
+  const requestBody = shouldSendReasoningEffort
+    ? {
+        ...payload,
+        reasoning_effort: reasoningEffort,
+      }
+    : payload;
 
   const failures: string[] = [];
+  const debugBase: VoidAIDebugInfo = {
+    endpoint: VOIDAI_ENDPOINT,
+    model,
+    streamed: true,
+    keyOrder: apiKeys.map((apiKey) => getKeySlotLabel(configuredKeys.indexOf(apiKey))),
+    failures,
+    reasoningEffortSent: shouldSendReasoningEffort ? reasoningEffort : null,
+  };
 
   for (const apiKey of apiKeys) {
+    const usedKeySlot = getKeySlotLabel(configuredKeys.indexOf(apiKey));
     const response = await fetch(VOIDAI_ENDPOINT, {
       method: "POST",
       cache: "no-store",
@@ -192,24 +228,43 @@ export async function createVoidAIJsonCompletion<T>({
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      failures.push(`${response.status} ${errorText}`.trim());
+      failures.push(`${usedKeySlot}: ${response.status} ${errorText}`.trim());
       continue;
     }
 
     const text = await readVoidAIResponseText(response);
 
     if (!text) {
-      failures.push("Empty content returned from VoidAI.");
+      failures.push(`${usedKeySlot}: Empty content returned from VoidAI.`);
       continue;
     }
 
-    return JSON.parse(text) as T;
+    try {
+      return {
+        data: JSON.parse(text) as T,
+        debug: {
+          ...debugBase,
+          usedKeySlot,
+          responseContentType: response.headers.get("content-type") || "",
+          rawTextPreview: text.slice(0, 1000),
+        },
+      };
+    } catch (error) {
+      failures.push(
+        `${usedKeySlot}: Invalid JSON returned by VoidAI (${error instanceof Error ? error.message : "parse error"}).`,
+      );
+      debugBase.rawTextPreview = text.slice(0, 1000);
+    }
   }
 
-  throw new Error(failures.join(" | ") || "VoidAI request failed.");
+  const error = new Error(failures.join(" | ") || "VoidAI request failed.") as Error & {
+    debug?: VoidAIDebugInfo;
+  };
+  error.debug = debugBase;
+  throw error;
 }

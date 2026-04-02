@@ -6,6 +6,7 @@ import type { AnalysisRecord, LunchlyProfile } from "@/lib/lunchly-types";
 import { createVoidAIJsonCompletion } from "@/lib/voidai";
 
 export const runtime = "nodejs";
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 type TipsInput = {
   profile: LunchlyProfile;
@@ -130,7 +131,7 @@ Rules:
 `.trim();
 
   try {
-    const aiResponse = await createVoidAIJsonCompletion<{
+    const { data: aiResponse, debug } = await createVoidAIJsonCompletion<{
       intro?: string;
       tips?: AiTipCard[];
     }>({
@@ -159,10 +160,25 @@ Rules:
           : fallback.intro,
       tips: toTipCards(aiResponse.tips, fallback.tips),
       source: "ai",
+      ...(IS_DEV ? { debug } : {}),
     };
 
     return NextResponse.json(response);
-  } catch {
-    return NextResponse.json(fallback);
+  } catch (error) {
+    console.error("Lunchly tips AI failure", error);
+    return NextResponse.json(
+      IS_DEV
+        ? {
+            ...fallback,
+            debug: {
+              error: error instanceof Error ? error.message : String(error),
+              provider:
+                error instanceof Error && "debug" in error && error.debug && typeof error.debug === "object"
+                  ? error.debug
+                  : undefined,
+            },
+          }
+        : fallback,
+    );
   }
 }
