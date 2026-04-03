@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getUserData, type ChildProfile } from "../lib/storage";
+
+const DEFAULT_AVATAR =
+  "/stitch-assets/954feca66ac9c89903b8d369f8398c3b5c20aee131eedebd068548b10244bef5.png";
 
 interface NavItem {
   href: string;
@@ -21,10 +25,18 @@ const navItems: NavItem[] = [
 
 export default function TopNav() {
   const pathname = usePathname();
+  const [childProfile, setChildProfile] = useState<ChildProfile | null>(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const syncProfile = () => setChildProfile(getUserData()?.childProfile ?? null);
+    syncProfile();
+    window.addEventListener("lunchlogic-user-data-changed", syncProfile);
+    return () => window.removeEventListener("lunchlogic-user-data-changed", syncProfile);
+  }, []);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -75,6 +87,9 @@ export default function TopNav() {
       icon: "calendar_month",
     },
   ];
+
+  const displayName = childProfile?.name?.trim() || "Child";
+  const avatarSrc = childProfile?.photo?.trim() ? childProfile.photo : DEFAULT_AVATAR;
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-surface border-b border-stone-200/50 flex justify-between items-center px-4 md:px-8 h-16">
@@ -157,7 +172,7 @@ export default function TopNav() {
         <div className="relative" ref={profileRef}>
           <button
             type="button"
-            aria-label="Open profile menu"
+            aria-label={`Open profile menu for ${displayName}`}
             aria-expanded={isProfileOpen}
             onClick={() => {
               setIsProfileOpen((open) => !open);
@@ -166,17 +181,17 @@ export default function TopNav() {
             className="flex items-center gap-2 bg-surface-container rounded-full pl-1 pr-3 py-1 transition-colors hover:bg-surface-container-high"
           >
             <img
-              alt="Child Profile Avatar"
-              className="w-8 h-8 rounded-full"
-              src="/stitch-assets/954feca66ac9c89903b8d369f8398c3b5c20aee131eedebd068548b10244bef5.png"
+              alt=""
+              className="w-8 h-8 rounded-full object-cover"
+              src={avatarSrc}
             />
-            <span className="font-headline font-bold text-sm">Leo</span>
+            <span className="font-headline font-bold text-sm">{displayName}</span>
           </button>
 
           {isProfileOpen && (
             <div className="absolute right-0 top-12 w-72 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-3 shadow-[0_18px_48px_rgba(0,0,0,0.12)]">
               <div className="rounded-3xl bg-surface-container-low p-4">
-                <p className="font-headline text-base font-extrabold text-on-surface">Leo&apos;s profile</p>
+                <p className="font-headline text-base font-extrabold text-on-surface">{`${displayName}'s profile`}</p>
                 <p className="mt-1 text-xs text-on-surface-variant">Profile settings, sensory details, and caregiver handoff tools now live together.</p>
               </div>
               <div className="mt-2 space-y-1">

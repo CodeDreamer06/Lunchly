@@ -37,6 +37,7 @@ export function setUserData(data: UserData): void {
   
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent("lunchlogic-user-data-changed"));
   } catch (error) {
     console.error("Error saving user data to localStorage:", error);
     throw new Error("Failed to save user data");
