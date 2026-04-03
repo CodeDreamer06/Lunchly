@@ -1,5 +1,4 @@
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
 
 export default function Lab() {
@@ -17,9 +16,8 @@ export default function Lab() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="lg:ml-64 pt-24 px-6 pb-20">
+      <main className="pt-24 px-4 md:px-6 pb-20 max-w-7xl mx-auto">
         {/* Hero Title Section */}
         <header className="max-w-7xl mx-auto mb-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

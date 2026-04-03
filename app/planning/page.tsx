@@ -1,8 +1,76 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
+import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorToast from "../components/ErrorToast";
+import { generateWeeklyPlan, type LLMError } from "../lib/openai";
+import { getUserData, saveWeeklyPlan, getWeeklyPlans, type ChildProfile, type WeeklyPlan } from "../lib/storage";
 
 export default function Planning() {
+  const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [generatedPlan, setGeneratedPlan] = useState<WeeklyPlan | null>(null);
+  const [savedPlans, setSavedPlans] = useState<WeeklyPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"generated" | "saved">("generated");
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.childProfile) {
+      setProfile(userData.childProfile);
+    }
+    const plans = getWeeklyPlans();
+    setSavedPlans(plans);
+    if (plans.length > 0) {
+      setGeneratedPlan(plans[0]);
+    }
+  }, []);
+
+  const handleGeneratePlan = async () => {
+    if (!profile) {
+      setError("Please set up a child profile first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await generateWeeklyPlan(
+        {
+          name: profile.name,
+          age: profile.age,
+          preferences: profile.sensoryPreferences || [],
+          allergies: profile.allergies || [],
+          schoolPolicies: profile.schoolPolicies || [],
+        },
+        budget
+      );
+
+      if (typeof result === "object" && "error" in result) {
+        const llmError = result as LLMError;
+        setError(llmError.details || llmError.error);
+      } else {
+        const newPlan: WeeklyPlan = {
+          id: Date.now().toString(),
+          content: result as string,
+          budget: budget,
+          generatedAt: new Date().toISOString(),
+        };
+        setGeneratedPlan(newPlan);
+        saveWeeklyPlan(newPlan);
+        setSavedPlans(prev => [newPlan, ...prev].slice(0, 5));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate weekly plan");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const days = [
     { day: "Monday", main: "Lemon Roast Chicken Skewers", side: "Apple Slices + Sunbutter", tag: "REPURPOSABLE", tagColor: "bg-primary-container text-on-primary-container" },
     { day: "Tuesday", main: "Rainbow Quinoa Salad", side: "Greek Yogurt Parfait", tag: "VEGGIE BOOST", tagColor: "bg-tertiary-container text-on-tertiary-container" },
@@ -14,9 +82,8 @@ export default function Planning() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="flex-1 p-6 md:p-10 space-y-10 md:ml-64 pt-20">
+      <main className="flex-1 p-4 md:p-10 space-y-10 pt-24">
         {/* Header & Action Row */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -25,15 +92,62 @@ export default function Planning() {
             </h1>
             <p className="text-on-surface-variant text-lg">Your weekly bento strategy for zero morning stress.</p>
           </div>
-          <div className="flex gap-4">
-            <button className="bg-surface-container-high px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
-              <span className="material-symbols-outlined">calendar_month</span> Oct 14 - Oct 18
-            </button>
-            <button className="bg-primary text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95">
-              <span className="material-symbols-outlined">magic_button</span> Smart Fill
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-center gap-2 bg-surface-container-high px-4 py-3 rounded-full">
+              <span className="material-symbols-outlined text-on-surface-variant">payments</span>
+              <input
+                type="number"
+                placeholder="Budget per lunch ($)"
+                value={budget || ""}
+                onChange={(e) => setBudget(e.target.value ? parseFloat(e.target.value) : undefined)}
+                className="bg-transparent text-sm font-medium outline-none w-32"
+              />
+            </div>
+            <button
+              onClick={handleGeneratePlan}
+              disabled={isLoading}
+              className="bg-primary text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined">magic_button</span>
+              {isLoading ? "Generating..." : "Smart Fill"}
             </button>
           </div>
         </header>
+
+        {/* AI Generated Plan Display */}
+        {generatedPlan && (
+          <section className="bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">auto_awesome</span>
+                <h2 className="text-xl font-headline font-bold">AI-Generated Weekly Plan</h2>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveTab("generated")}
+                  className={`px-4 py-2 rounded-full text-sm font-bold ${activeTab === "generated" ? "bg-primary text-white" : "bg-surface-container-high text-on-surface"}`}
+                >
+                  Latest
+                </button>
+                {savedPlans.length > 1 && (
+                  <button
+                    onClick={() => setActiveTab("saved")}
+                    className={`px-4 py-2 rounded-full text-sm font-bold ${activeTab === "saved" ? "bg-primary text-white" : "bg-surface-container-high text-on-surface"}`}
+                  >
+                    History ({savedPlans.length})
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap bg-surface-container-low rounded-xl p-6">
+              {activeTab === "generated" ? generatedPlan.content : savedPlans[0]?.content}
+            </div>
+            <div className="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
+              <span>Generated: {new Date(generatedPlan.generatedAt).toLocaleString()}</span>
+              {generatedPlan.budget && <span>Budget: ${generatedPlan.budget}/lunch</span>}
+            </div>
+          </section>
+        )}
 
         {/* 5-Day Calendar Grid */}
         <section className="grid grid-cols-1 md:grid-cols-5 gap-6">
@@ -194,6 +308,15 @@ export default function Planning() {
           </div>
         </div>
       </main>
+
+      <LoadingOverlay isVisible={isLoading} message="Generating weekly meal plan..." />
+      
+      {error && (
+        <ErrorToast
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
 
       <MobileNav />
     </>

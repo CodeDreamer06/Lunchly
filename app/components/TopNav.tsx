@@ -14,7 +14,10 @@ const navItems: NavItem[] = [
   { href: "/analysis", label: "Lunch Scanner", icon: "qr_code_scanner" },
   { href: "/trends", label: "Weekly Trends", icon: "trending_up" },
   { href: "/swaps", label: "Swap Engine", icon: "swap_horiz" },
-  { href: "/profile", label: "Kid Profiles", icon: "face" },
+  { href: "/fridge", label: "Fridge Remix", icon: "kitchen" },
+  { href: "/planning", label: "Weekly Plan", icon: "calendar_month" },
+  { href: "/caregiver", label: "Caregiver Hub", icon: "family_restroom" },
+  { href: "/profile", label: "Profile", icon: "face" },
 ];
 
 export default function TopNav() {

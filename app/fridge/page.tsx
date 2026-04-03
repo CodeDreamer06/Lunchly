@@ -1,8 +1,95 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
+import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorToast from "../components/ErrorToast";
+import { generateLunchSuggestions, type LLMError } from "../lib/openai";
+import { getUserData, getAvailableIngredients, setAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
 
 export default function Fridge() {
+  const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [newIngredient, setNewIngredient] = useState("");
+  const [suggestions, setSuggestions] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.childProfile) {
+      setProfile(userData.childProfile);
+    }
+    const storedIngredients = getAvailableIngredients();
+    if (storedIngredients.items.length > 0) {
+      setIngredients(storedIngredients.items);
+    }
+  }, []);
+
+  const addIngredient = () => {
+    if (!newIngredient.trim()) return;
+    if (!ingredients.includes(newIngredient.trim())) {
+      const updated = [...ingredients, newIngredient.trim()];
+      setIngredients(updated);
+      setAvailableIngredients(updated);
+    }
+    setNewIngredient("");
+  };
+
+  const removeIngredient = (ingredient: string) => {
+    const updated = ingredients.filter(i => i !== ingredient);
+    setIngredients(updated);
+    setAvailableIngredients(updated);
+  };
+
+  const handleScanFridge = async () => {
+    if (!profile) {
+      setError("Please set up a child profile first");
+      return;
+    }
+
+    if (ingredients.length === 0) {
+      setError("Please add some ingredients first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await generateLunchSuggestions(
+        {
+          name: profile.name,
+          age: profile.age,
+          grade: profile.grade,
+          allergies: profile.allergies || [],
+          preferences: profile.sensoryPreferences || [],
+          schoolPolicies: profile.schoolPolicies || [],
+          eatingHabits: profile.eatingHabits || "",
+        },
+        ingredients
+      );
+
+      if (typeof result === "object" && "error" in result) {
+        const llmError = result as LLMError;
+        setError(llmError.details || llmError.error);
+      } else {
+        setSuggestions(result as string);
+        saveLunchSuggestion({
+          id: Date.now().toString(),
+          content: result as string,
+          ingredients: ingredients,
+          generatedAt: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate suggestions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const remixes = [
     {
       name: "Chicken Pasta Skewers",
@@ -30,9 +117,8 @@ export default function Fridge() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="ml-0 lg:ml-64 p-8">
+      <main className="pt-24 p-4 md:p-8 max-w-7xl mx-auto">
         {/* Top Header Area */}
         <header className="flex justify-between items-end mb-12">
           <div>
@@ -49,6 +135,72 @@ export default function Fridge() {
           </div>
         </header>
 
+        {/* Ingredients Input Section */}
+        <section className="mb-12 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+          <h2 className="text-xl font-headline font-bold mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">kitchen</span>
+            Available Ingredients
+          </h2>
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={newIngredient}
+              onChange={(e) => setNewIngredient(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && addIngredient()}
+              placeholder="Add ingredient (e.g., chicken, broccoli, pasta)"
+              className="flex-1 px-4 py-3 bg-surface-container-low rounded-xl border border-transparent focus:border-primary outline-none"
+            />
+            <button
+              onClick={addIngredient}
+              className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dim transition-colors"
+            >
+              <span className="material-symbols-outlined">add</span>
+            </button>
+          </div>
+          
+          {/* Ingredient Tags */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {ingredients.map((ingredient) => (
+              <div key={ingredient} className="flex items-center gap-1 bg-primary-container px-3 py-1 rounded-full">
+                <span className="text-sm font-medium text-on-primary-container">{ingredient}</span>
+                <button
+                  onClick={() => removeIngredient(ingredient)}
+                  className="material-symbols-outlined text-on-primary-container hover:text-error text-sm"
+                >
+                  close
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={handleScanFridge}
+            disabled={isLoading || ingredients.length === 0}
+            className="w-full bg-gradient-to-r from-primary to-primary-dim text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined">auto_awesome</span>
+            {isLoading ? "Generating Ideas..." : "Generate Lunch Ideas from Ingredients"}
+          </button>
+
+          {/* Generated Suggestions */}
+          {suggestions && (
+            <div className="mt-8 bg-surface-container-low rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">AI-Generated Suggestions</span>
+                <button
+                  onClick={() => setSuggestions(null)}
+                  className="material-symbols-outlined text-on-surface-variant hover:text-error"
+                >
+                  close
+                </button>
+              </div>
+              <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
+                {suggestions}
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* Fridge Scan Hero */}
         <section className="grid grid-cols-12 gap-8 mb-12">
           <div className="col-span-12 lg:col-span-8 bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-xl p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-[360px]">
@@ -59,14 +211,14 @@ export default function Fridge() {
               </div>
               <h3 className="text-5xl font-headline font-black mb-4 leading-none">Detected Leftovers</h3>
               <p className="text-primary-container text-lg font-medium">
-                We found 4 items in your fridge that are ready for a lunch makeover.
+                We found {ingredients.length} item{ingredients.length !== 1 ? "s" : ""} in your fridge ready for a lunch makeover.
               </p>
             </div>
             <div className="relative z-10 flex gap-4 mt-8 flex-wrap">
               {[
-                { icon: "restaurant", label: "Main", value: "Roast Chicken", color: "bg-secondary-container text-on-secondary-container" },
-                { icon: "flatware", label: "Base", value: "Penne Pasta", color: "bg-tertiary-container text-on-tertiary-container" },
-                { icon: "eco", label: "Veggie", value: "Steamed Broccoli", color: "bg-primary-container text-on-primary-container" },
+                { icon: "restaurant", label: "Main", value: ingredients[0] || "Add ingredients", color: "bg-secondary-container text-on-secondary-container" },
+                { icon: "flatware", label: "Base", value: ingredients[1] || "--", color: "bg-tertiary-container text-on-tertiary-container" },
+                { icon: "eco", label: "Veggie", value: ingredients[2] || "--", color: "bg-primary-container text-on-primary-container" },
               ].map((item, i) => (
                 <div key={i} className="glass-card p-4 rounded-2xl flex items-center gap-3 border border-white/30 text-on-surface">
                   <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center`}>
@@ -109,11 +261,11 @@ export default function Fridge() {
             <div className="bg-surface-container-highest rounded-xl p-6 h-32 flex items-center justify-between">
               <div>
                 <p className="text-on-surface-variant font-bold text-sm">Pantry Items Used</p>
-                <p className="text-3xl font-black">12 <span className="text-sm font-medium opacity-50">Units</span></p>
+                <p className="text-3xl font-black">{ingredients.length} <span className="text-sm font-medium opacity-50">Items</span></p>
               </div>
               <div className="w-16 h-16 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
                 <div className="absolute inset-0 border-t-4 border-primary rounded-full"></div>
-                <span className="text-xs font-bold text-primary">82%</span>
+                <span className="text-xs font-bold text-primary">{Math.min(ingredients.length * 10, 100)}%</span>
               </div>
             </div>
           </div>
@@ -190,6 +342,15 @@ export default function Fridge() {
           </div>
         </section>
       </main>
+
+      <LoadingOverlay isVisible={isLoading} message="Generating lunch ideas from your ingredients..." />
+      
+      {error && (
+        <ErrorToast
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
 
       {/* FAB for quick scan */}
       <button className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-50">

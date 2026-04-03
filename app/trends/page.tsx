@@ -1,14 +1,12 @@
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
 
 export default function Trends() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="md:ml-64 pt-20 px-4 md:px-8 pb-12 min-h-screen">
+      <main className="pt-24 px-4 md:px-8 pb-20 min-h-screen">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Parent Emotional UX Banner */}
           <div className="bg-primary-container/30 rounded-xl p-6 flex items-center gap-6 relative overflow-hidden">

@@ -1,19 +1,86 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
+import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorToast from "../components/ErrorToast";
+import ImageUploader from "../components/ImageUploader";
+import { analyzeLunchboxImage, type LLMError } from "../lib/openai";
+import { getUserData, saveAnalysisResult, type ChildProfile } from "../lib/storage";
 
 export default function Analysis() {
+  const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [analysisHistory, setAnalysisHistory] = useState<{ imageData: string; analysis: string; date: string }[]>([]);
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.childProfile) {
+      setProfile(userData.childProfile);
+    }
+  }, []);
+
+  const handleImageSelected = (base64Image: string) => {
+    setSelectedImage(base64Image);
+    setAnalysisResult(null);
+    setError(null);
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedImage) {
+      setError("Please upload a lunchbox photo first");
+      return;
+    }
+
+    if (!profile) {
+      setError("Please set up a child profile first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await analyzeLunchboxImage(selectedImage, {
+        name: profile.name,
+        age: profile.age,
+        allergies: profile.allergies || [],
+      });
+
+      if (typeof result === "object" && "error" in result) {
+        const llmError = result as LLMError;
+        setError(llmError.details || llmError.error);
+      } else {
+        setAnalysisResult(result as string);
+        saveAnalysisResult({
+          id: Date.now().toString(),
+          imageData: selectedImage,
+          analysis: result as string,
+          analyzedAt: new Date().toISOString(),
+        });
+        setAnalysisHistory(prev => [{ imageData: selectedImage, analysis: result as string, date: new Date().toLocaleString() }, ...prev].slice(0, 5));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to analyze lunchbox");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="flex-1 lg:ml-64 p-4 md:p-8 space-y-8 pt-20 pb-24">
+      <main className="flex-1 p-4 md:p-8 space-y-8 pt-24 pb-24">
         {/* Header Section */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="font-headline font-black text-4xl text-on-surface tracking-tight">AI Lunchbox Analysis</h1>
-            <p className="text-on-surface-variant font-medium">Detailed deep dive for Mia&apos;s Tuesday Bento</p>
+            <p className="text-on-surface-variant font-medium">Upload a photo of {profile?.name || "your child"}&apos;s lunchbox for AI analysis</p>
           </div>
           <div className="flex gap-3">
             <button className="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm hover:bg-surface-variant transition-colors flex items-center gap-2">
@@ -24,6 +91,81 @@ export default function Analysis() {
             </button>
           </div>
         </header>
+
+        {/* Image Upload Section */}
+        <section className="bg-surface-container-lowest rounded-xl p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-xl font-headline font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">camera_alt</span>
+                Upload Lunchbox Photo
+              </h2>
+              <ImageUploader
+                onImageSelected={handleImageSelected}
+                className="mb-4"
+              />
+              {selectedImage && (
+                <button
+                  onClick={handleAnalyze}
+                  disabled={isLoading}
+                  className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-dim transition-transform active:scale-95 disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined">auto_awesome</span>
+                  {isLoading ? "Analyzing..." : "Analyze Lunchbox"}
+                </button>
+              )}
+            </div>
+
+            {/* Analysis Results */}
+            <div>
+              <h2 className="text-xl font-headline font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-secondary">analytics</span>
+                Analysis Results
+              </h2>
+              {analysisResult ? (
+                <div className="bg-surface-container-low rounded-xl p-6 border border-primary/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">AI Analysis Complete</span>
+                    <button
+                      onClick={() => setAnalysisResult(null)}
+                      className="material-symbols-outlined text-on-surface-variant hover:text-error"
+                    >
+                      close
+                    </button>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
+                    {analysisResult}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-surface-container-low rounded-xl p-6 text-center text-on-surface-variant">
+                  <span className="material-symbols-outlined text-4xl mb-2">restaurant</span>
+                  <p>Upload a photo and click Analyze to see AI insights</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Previous Analyses */}
+        {analysisHistory.length > 0 && (
+          <section className="bg-surface-container-low rounded-xl p-8">
+            <h2 className="text-xl font-headline font-bold mb-6">Recent Analyses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {analysisHistory.map((item, index) => (
+                <div key={index} className="bg-surface-container-lowest rounded-lg p-4">
+                  <img
+                    src={`data:image/jpeg;base64,${item.imageData}`}
+                    alt={`Analysis ${index + 1}`}
+                    className="w-full h-32 object-cover rounded-lg mb-3"
+                  />
+                  <p className="text-xs text-on-surface-variant">{item.date}</p>
+                  <p className="text-sm line-clamp-3">{item.analysis.substring(0, 100)}...</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left: Interactive Bento View */}
@@ -204,6 +346,15 @@ export default function Analysis() {
           </div>
         </div>
       </main>
+
+      <LoadingOverlay isVisible={isLoading} message="Analyzing lunchbox with AI..." />
+      
+      {error && (
+        <ErrorToast
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
 
       <MobileNav />
     </>

@@ -1,8 +1,71 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
+import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorToast from "../components/ErrorToast";
+import { suggestFoodSwaps, type LLMError } from "../lib/openai";
+import { getUserData, saveFoodSwap, getFoodSwaps, type ChildProfile, type FoodSwap } from "../lib/storage";
 
 export default function Swaps() {
+  const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [rejectedFood, setRejectedFood] = useState("");
+  const [swapResult, setSwapResult] = useState<string | null>(null);
+  const [swapHistory, setSwapHistory] = useState<FoodSwap[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.childProfile) {
+      setProfile(userData.childProfile);
+    }
+    const history = getFoodSwaps();
+    setSwapHistory(history);
+  }, []);
+
+  const handleGetSwaps = async () => {
+    if (!rejectedFood.trim()) {
+      setError("Please enter a food that was rejected");
+      return;
+    }
+
+    if (!profile) {
+      setError("Please set up a child profile first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await suggestFoodSwaps(rejectedFood, {
+        preferences: profile.sensoryPreferences || [],
+        allergies: profile.allergies || [],
+      });
+
+      if (typeof result === "object" && "error" in result) {
+        const llmError = result as LLMError;
+        setError(llmError.details || llmError.error);
+      } else {
+        setSwapResult(result as string);
+        const newSwap: FoodSwap = {
+          id: Date.now().toString(),
+          rejectedFood: rejectedFood,
+          suggestions: result as string,
+          generatedAt: new Date().toISOString(),
+        };
+        saveFoodSwap(newSwap);
+        setSwapHistory(prev => [newSwap, ...prev].slice(0, 10));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get food swap suggestions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const swaps = [
     {
       before: { name: "Potato Chips", img: "/stitch-assets/f2b41e39e32622df780b19791caf5f3d6f85f7055f21d059621732a94904f6a2.png" },
@@ -38,9 +101,8 @@ export default function Swaps() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="pt-24 pb-12 px-6 lg:pl-72 lg:pr-12 max-w-7xl mx-auto">
+      <main className="pt-24 px-4 md:px-8 pb-20 min-h-screen lg:pl-72 lg:pr-12 max-w-7xl mx-auto">
         {/* Header Section */}
         <header className="mb-12">
           <h1 className="text-4xl lg:text-5xl font-headline font-extrabold text-on-surface tracking-tight mb-4">
@@ -50,6 +112,82 @@ export default function Swaps() {
             Small changes, massive impact. The Swap Engine uses data to find healthier alternatives that kids actually love.
           </p>
         </header>
+
+        {/* AI Swap Generator */}
+        <section className="mb-16 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+          <h2 className="text-xl font-headline font-bold mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">auto_fix_high</span>
+            AI Swap Generator
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-sm font-medium text-on-surface-variant mb-2">
+                What did your child reject today?
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={rejectedFood}
+                  onChange={(e) => setRejectedFood(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleGetSwaps()}
+                  placeholder="e.g., broccoli, apple slices, yogurt"
+                  className="flex-1 px-4 py-3 bg-surface-container-low rounded-xl border border-transparent focus:border-primary outline-none"
+                />
+                <button
+                  onClick={handleGetSwaps}
+                  disabled={isLoading}
+                  className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dim transition-colors disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined">send</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              {swapResult ? (
+                <div className="bg-surface-container-low rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-bold text-primary uppercase tracking-wider">AI Suggestions</span>
+                    <button
+                      onClick={() => setSwapResult(null)}
+                      className="material-symbols-outlined text-on-surface-variant hover:text-error"
+                    >
+                      close
+                    </button>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
+                    {swapResult}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-surface-container-low rounded-xl p-6 text-center text-on-surface-variant">
+                  <span className="material-symbols-outlined text-4xl mb-2">swap_horiz</span>
+                  <p>Enter a rejected food to get AI-powered swap suggestions</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Swap History */}
+          {swapHistory.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-on-surface-variant mb-4">Recent Swaps</h3>
+              <div className="flex flex-wrap gap-2">
+                {swapHistory.map((swap) => (
+                  <button
+                    key={swap.id}
+                    onClick={() => {
+                      setRejectedFood(swap.rejectedFood);
+                      setSwapResult(swap.suggestions);
+                    }}
+                    className="px-4 py-2 bg-surface-container-high rounded-full text-sm hover:bg-primary hover:text-white transition-colors"
+                  >
+                    {swap.rejectedFood}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
 
         {/* Swap Gallery Grid */}
         <section className="mb-16">
@@ -163,6 +301,15 @@ export default function Swaps() {
           </div>
         </section>
       </main>
+
+      <LoadingOverlay isVisible={isLoading} message="Generating food swap suggestions..." />
+      
+      {error && (
+        <ErrorToast
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
 
       <MobileNav />
     </>

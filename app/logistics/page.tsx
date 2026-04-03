@@ -1,5 +1,4 @@
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
 
 export default function Logistics() {
@@ -19,9 +18,8 @@ export default function Logistics() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="pt-24 pb-12 px-6 md:ml-64 max-w-7xl mx-auto">
+      <main className="pt-24 pb-12 px-4 md:px-6 max-w-7xl mx-auto">
         {/* Hero Header */}
         <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>

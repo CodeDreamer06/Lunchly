@@ -1,14 +1,78 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
+import LoadingOverlay from "../components/LoadingOverlay";
+import ErrorToast from "../components/ErrorToast";
+import { generateLunchSuggestions, type LLMError } from "../lib/openai";
+import { getUserData, getAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
 
 export default function Dashboard() {
+  const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.childProfile) {
+      setProfile(userData.childProfile);
+    }
+    const storedIngredients = getAvailableIngredients();
+    if (storedIngredients.items.length > 0) {
+      setIngredients(storedIngredients.items);
+    }
+  }, []);
+
+  const handleGenerateSuggestions = async () => {
+    if (!profile) {
+      setError("Please set up a child profile first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await generateLunchSuggestions(
+        {
+          name: profile.name,
+          age: profile.age,
+          grade: profile.grade,
+          allergies: profile.allergies || [],
+          preferences: profile.sensoryPreferences || [],
+          schoolPolicies: profile.schoolPolicies || [],
+          eatingHabits: profile.eatingHabits || "",
+        },
+        ingredients.length > 0 ? ingredients : undefined
+      );
+
+      if (typeof result === "object" && "error" in result) {
+        const llmError = result as LLMError;
+        setError(llmError.details || llmError.error);
+      } else {
+        setSuggestions(result as string);
+        saveLunchSuggestion({
+          id: Date.now().toString(),
+          content: result as string,
+          ingredients: ingredients.length > 0 ? ingredients : undefined,
+          generatedAt: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate suggestions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="lg:ml-64 pt-20 px-4 pb-24 md:px-8 max-w-7xl mx-auto">
+      <main className="pt-24 px-4 pb-24 md:px-8 max-w-7xl mx-auto">
         {/* Hero Section */}
         <section className="relative mb-12 overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-dim p-8 md:p-12 text-on-primary">
           <div className="relative z-10 max-w-2xl">
@@ -16,11 +80,15 @@ export default function Dashboard() {
               Morning Rush Mode
             </span>
             <h1 className="text-4xl md:text-5xl font-headline font-extrabold mb-6 leading-tight">
-              Ready to fuel Leo&apos;s day?
+              Ready to fuel {profile?.name || "your child"}&apos;s day?
             </h1>
-            <button className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl font-headline font-bold text-lg flex items-center gap-3 hover:scale-105 transition-transform">
+            <button
+              onClick={handleGenerateSuggestions}
+              disabled={isLoading}
+              className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl font-headline font-bold text-lg flex items-center gap-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <span className="material-symbols-outlined material-symbols-outlined-filled">qr_code_scanner</span>
-              Scan Lunchbox Now
+              {isLoading ? "Generating..." : "Get Lunch Suggestions"}
             </button>
           </div>
           <div className="absolute top-1/2 -right-8 -translate-y-1/2 w-72 h-72 md:w-96 md:h-96 opacity-90 hidden sm:block">
@@ -31,6 +99,27 @@ export default function Dashboard() {
             />
           </div>
         </section>
+
+        {/* AI Suggestions Display */}
+        {suggestions && (
+          <section className="mb-12 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">auto_awesome</span>
+                AI-Generated Lunch Ideas
+              </h2>
+              <button
+                onClick={() => setSuggestions(null)}
+                className="material-symbols-outlined text-on-surface-variant hover:text-error"
+              >
+                close
+              </button>
+            </div>
+            <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
+              {suggestions}
+            </div>
+          </section>
+        )}
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -153,7 +242,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="mt-6 p-4 bg-surface-container rounded-lg italic text-sm text-on-surface-variant">
-                &quot;Leo prefers crunchier textures in the morning; today&apos;s lunch needs more crunch.&quot;
+                &quot;{profile?.name || "Your child"} prefers crunchier textures in the morning; today&apos;s lunch needs more crunch.&quot;
               </div>
             </div>
           </div>
@@ -205,9 +294,22 @@ export default function Dashboard() {
         </div>
       </main>
 
+      <LoadingOverlay isVisible={isLoading} message="Generating lunch suggestions..." />
+      
+      {error && (
+        <ErrorToast
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
+
       {/* Mobile FAB */}
-      <div className="md:hidden fixed bottom-24 right-4 z-50">
-        <button className="w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+      <div className="md:hidden fixed bottom-24 right-4 z-40">
+        <button
+          onClick={handleGenerateSuggestions}
+          disabled={isLoading}
+          className="w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform disabled:opacity-50"
+        >
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
       </div>

@@ -1,5 +1,4 @@
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
 
 export default function Store() {
@@ -19,9 +18,8 @@ export default function Store() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto md:ml-64 pt-20">
+      <main className="flex-1 p-4 md:p-10 overflow-y-auto pt-24">
         <div className="max-w-6xl mx-auto space-y-10">
           {/* Header & Budget Goal */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

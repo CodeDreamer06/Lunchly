@@ -1,5 +1,4 @@
 import TopNav from "../components/TopNav";
-import SideNav from "../components/SideNav";
 import MobileNav from "../components/MobileNav";
 
 export default function Caregiver() {
@@ -19,9 +18,8 @@ export default function Caregiver() {
   return (
     <>
       <TopNav />
-      <SideNav />
       
-      <main className="md:ml-64 min-h-screen pt-20 pb-24 md:pt-8 md:pb-12 px-6">
+      <main className="min-h-screen pt-24 pb-20 px-4 md:px-6 max-w-6xl mx-auto">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
