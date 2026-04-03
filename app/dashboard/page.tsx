@@ -7,7 +7,7 @@ import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
 import ShareModal from "../components/ShareModal";
 import { useToast } from "../components/ToastProvider";
-import { getUserData, getAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
+import { getUserData, getAvailableIngredients, saveLunchSuggestion, getAnalysisResults, type ChildProfile, type AnalysisResult } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -26,6 +26,7 @@ export default function Dashboard() {
     soft: 3,
     crunch: 1,
   });
+  const [latestAnalysis, setLatestAnalysis] = useState<AnalysisResult | null>(null);
 
   useEffect(() => {
     const userData = getUserData();
@@ -35,6 +36,10 @@ export default function Dashboard() {
     const storedIngredients = getAvailableIngredients();
     if (storedIngredients.items.length > 0) {
       setIngredients(storedIngredients.items);
+    }
+    const analyses = getAnalysisResults();
+    if (analyses.length > 0) {
+      setLatestAnalysis(analyses[0]);
     }
   }, []);
 
@@ -92,7 +97,7 @@ export default function Dashboard() {
         <section className="relative mb-12 overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dim p-8 md:p-12 text-on-primary">
           <div className="relative z-10 max-w-2xl">
             <span className="inline-block bg-white/20 backdrop-blur-sm text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
-              Morning Rush Mode
+              {latestAnalysis ? "Analysis Ready" : "Morning Rush Mode"}
             </span>
             <h1 className="text-4xl md:text-5xl font-headline font-extrabold mb-6 leading-tight">
               Ready to fuel {profile?.name || "your child"}&apos;s day?
@@ -114,6 +119,32 @@ export default function Dashboard() {
             />
           </div>
         </section>
+
+        {/* Latest Analysis Result */}
+        {latestAnalysis && (
+          <section className="mb-12 bg-surface-container-lowest rounded-3xl p-8 border border-primary/20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">analytics</span>
+                Latest Analysis
+              </h2>
+              <button
+                onClick={() => setLatestAnalysis(null)}
+                className="material-symbols-outlined text-on-surface-variant hover:text-error"
+              >
+                close
+              </button>
+            </div>
+            <div className="prose prose-sm max-w-none text-on-surface">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {latestAnalysis.analysis}
+              </ReactMarkdown>
+            </div>
+            <p className="text-xs text-on-surface-variant mt-4">
+              Analyzed {new Date(latestAnalysis.analyzedAt).toLocaleString()}
+            </p>
+          </section>
+        )}
 
         {/* AI Suggestions Display */}
         {suggestions !== null && (
@@ -140,83 +171,84 @@ export default function Dashboard() {
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Active Analysis Widget (Rainbow Meter) */}
+          {/* Active Analysis Widget (Rainbow Meter) - Shows real data or placeholder */}
           <div className="lg:col-span-8 bg-surface-container-lowest rounded-lg p-8 shadow-[0_32px_32px_rgba(0,0,0,0.03)] border-b-4 border-primary">
             <div className="flex justify-between items-start mb-10">
               <div>
                 <h2 className="text-2xl font-headline font-bold mb-1">Latest Scan Results</h2>
-                <p className="text-on-surface-variant">Today&apos;s Bento: &quot;The Power Pack&quot;</p>
+                <p className="text-on-surface-variant">
+                  {latestAnalysis 
+                    ? `Analyzed on ${new Date(latestAnalysis.analyzedAt).toLocaleDateString()}`
+                    : "No scan yet — upload a lunchbox photo to analyze"}
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsShareModalOpen(true)}
-                  className="bg-surface-container-high text-on-surface px-3 py-2 rounded-lg font-bold text-sm hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
+                  disabled={!latestAnalysis}
+                  className="bg-surface-container-high text-on-surface px-3 py-2 rounded-lg font-bold text-sm hover:bg-primary hover:text-white transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-sm">share</span>
                   Share
                 </button>
-                <div className="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm">
-                  Analyzed 2m ago
-                </div>
+                {latestAnalysis && (
+                  <div className="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm">
+                    {Math.round((Date.now() - new Date(latestAnalysis.analyzedAt).getTime()) / 60000)}m ago
+                  </div>
+                )}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {/* Rainbow Meter Column */}
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-bold">Protein (Muscle Power)</span>
-                    <span className="text-sm font-bold text-primary">85%</span>
+            
+            {latestAnalysis ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                {/* Rainbow Meter Column */}
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-bold">Analysis Complete</span>
+                      <span className="text-sm font-bold text-primary">View Details</span>
+                    </div>
+                    <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+                      <div className="h-full bg-primary rounded-full" style={{ width: "100%" }}></div>
+                    </div>
                   </div>
-                  <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: "85%" }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-bold">Fiber (Digestive Health)</span>
-                    <span className="text-sm font-bold text-secondary">60%</span>
-                  </div>
-                  <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                    <div className="h-full bg-secondary-fixed rounded-full" style={{ width: "60%" }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-bold">Micronutrients (Immunity)</span>
-                    <span className="text-sm font-bold text-tertiary">92%</span>
-                  </div>
-                  <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                    <div className="h-full bg-tertiary rounded-full" style={{ width: "92%" }}></div>
-                  </div>
-                </div>
-              </div>
-              {/* Scores & Logistics */}
-              <div className="flex flex-col justify-between">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-surface-container p-4 rounded-lg text-center">
-                    <span className="material-symbols-outlined text-primary text-3xl block mb-2">psychology</span>
-                    <p className="text-xs uppercase font-bold text-on-surface-variant">Brain Fuel</p>
-                    <p className="text-2xl font-headline font-black">9.2</p>
-                  </div>
-                  <div className="bg-surface-container p-4 rounded-lg text-center">
-                    <span className="material-symbols-outlined text-secondary text-3xl block mb-2">bolt</span>
-                    <p className="text-xs uppercase font-bold text-on-surface-variant">Explorer Energy</p>
-                    <p className="text-2xl font-headline font-black">8.5</p>
-                  </div>
-                </div>
-                {/* Logistics Alert */}
-                <div className="mt-6 flex gap-4 bg-error-container/10 p-4 rounded-lg border-l-4 border-error">
-                  <span className="material-symbols-outlined text-error">warning</span>
-                  <p className="text-sm font-medium text-on-surface leading-snug">
-                    This portion may be too large for a kindergartener&apos;s 20-minute lunch break.
+                  <p className="text-sm text-on-surface-variant">
+                    {latestAnalysis.analysis.substring(0, 150)}...
                   </p>
                 </div>
+                {/* Scores & Logistics */}
+                <div className="flex flex-col justify-between">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-surface-container p-4 rounded-lg text-center">
+                      <span className="material-symbols-outlined text-primary text-3xl block mb-2">analytics</span>
+                      <p className="text-xs uppercase font-bold text-on-surface-variant">Scan Status</p>
+                      <p className="text-2xl font-headline font-black">Done</p>
+                    </div>
+                    <div className="bg-surface-container p-4 rounded-lg text-center">
+                      <span className="material-symbols-outlined text-secondary text-3xl block mb-2">schedule</span>
+                      <p className="text-xs uppercase font-bold text-on-surface-variant">When</p>
+                      <p className="text-2xl font-headline font-black">
+                        {new Date(latestAnalysis.analyzedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center py-12">
+                <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">camera_alt</span>
+                <p className="text-on-surface-variant mb-4">No lunchbox scans yet</p>
+                <button
+                  onClick={() => router.push('/analysis')}
+                  className="bg-primary text-on-primary px-6 py-3 rounded-full font-bold hover:bg-primary-dim transition-colors"
+                >
+                  Scan Your First Lunchbox
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* One-Minute Upgrade Banner */}
+          {/* One-Minute Upgrade Banner - Dynamic tip based on profile */}
           {showUpgradeCard && (
             <div className="lg:col-span-4 flex flex-col gap-8">
               <div className="bg-secondary-container rounded-lg p-6 flex flex-col justify-between relative overflow-hidden h-full min-h-[280px]">
@@ -227,7 +259,9 @@ export default function Dashboard() {
                   </div>
                   <h3 className="text-2xl font-headline font-extrabold text-on-secondary-container mb-2">Tiny Tweak</h3>
                   <p className="text-on-secondary-container font-medium opacity-80 mb-6">
-                    &quot;Add one crunchy veggie like a baby carrot for better fiber density.&quot;
+                    {profile?.sensoryPreferences?.length 
+                      ? `Consider adding something ${profile.sensoryPreferences[0].toLowerCase()} to match ${profile.name}'s preferences.`
+                      : `"Add one crunchy veggie like a baby carrot for better fiber density."`}
                   </p>
                   <button 
                     onClick={() => {
@@ -301,6 +335,7 @@ export default function Dashboard() {
               <h3 className="text-xl font-headline font-bold">Energy Curve Prediction</h3>
               <div className="flex items-center gap-2 text-primary font-bold text-sm">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                {latestAnalysis ? "Based on latest scan" : "Simulated prediction"}
               </div>
             </div>
             <div className="relative h-48 w-full mt-12">
@@ -324,7 +359,7 @@ export default function Dashboard() {
                 <circle className="fill-primary" cx="280" cy="38" r="8"></circle>
               </svg>
               <div className="absolute top-0 left-[70%] -translate-x-1/2 -translate-y-full bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
-                Peak Focus: Math (1:30 PM)
+                Peak Focus: {profile?.name ? `${profile.name}'s Peak` : "Afternoon"} (1:30 PM)
               </div>
               {/* Time Markers */}
               <div className="flex justify-between text-[10px] font-bold text-on-surface-variant mt-4 uppercase tracking-widest">
@@ -335,7 +370,9 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-8 flex items-center justify-between border-t border-surface-container pt-6">
-              <p className="text-sm font-bold text-primary">Steady Energy until 3 PM</p>
+              <p className="text-sm font-bold text-primary">
+                {latestAnalysis ? "Energy curve based on your lunch" : "Scan a lunchbox for personalized curve"}
+              </p>
               <span className="text-xs text-on-surface-variant font-medium">Based on Glycemic Load Index</span>
             </div>
           </div>
@@ -353,7 +390,9 @@ export default function Dashboard() {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         title="Share Scan Results"
-        text={`Latest lunch scan results for ${profile?.name || "your child"}: "The Power Pack" - Protein 85%, Fiber 60%, Micronutrients 92%. Brain Fuel: 9.2, Explorer Energy: 8.5. Steady energy predicted until 3 PM.`}
+        text={latestAnalysis 
+          ? `Latest lunch scan for ${profile?.name || "your child"} from ${new Date(latestAnalysis.analyzedAt).toLocaleDateString()}: ${latestAnalysis.analysis.substring(0, 200)}...`
+          : `Lunch suggestions for ${profile?.name || "your child"}. Generate AI-powered lunch ideas with Lunchly!`}
       />
 
       {/* Mobile FAB */}

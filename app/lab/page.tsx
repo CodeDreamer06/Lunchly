@@ -273,20 +273,8 @@ export default function Lab() {
                   <p className="font-bold text-on-surface">Plain Crackers</p>
                 </div>
               </div>
-              <div className="absolute left-1/2 top-1/4 -translate-x-1/2 z-20">
-                <div className="bg-surface-container-lowest/80 p-5 rounded-3xl shadow-lg w-44 text-center glass-panel transform rotate-3">
-                  <div className="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
-                    <img alt="Whole Grain" className="object-cover w-full h-full" src="/stitch-assets/a535da97c1fdfc8bc40c91258eca7a8650263649dfde64982cb03fde075ce899.png" />
-                  </div>
-                  <span className="font-bold text-secondary text-xs uppercase tracking-tight">Step 1: Color</span>
-                  <p className="font-bold text-on-surface">Whole Grain</p>
-                  <div className="mt-2 h-1.5 w-full bg-surface-container-high rounded-full">
-                    <div className="h-full bg-secondary w-3/4 rounded-full" />
-                  </div>
-                </div>
-              </div>
               <div className="absolute left-1/2 bottom-1/4 -translate-x-1/2 z-20">
-                <div className="bg-surface-container-lowest/80 p-5 rounded-3xl shadow-lg w-44 text-center glass-panel transform -rotate-1">
+                <div className="bg-surface-container-lowest p-5 rounded-3xl shadow-lg w-44 text-center glass-panel transform -rotate-1">
                   <div className="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
                     <img alt="Sweet Potato" className="object-cover w-full h-full" src="/stitch-assets/287c3e836982dac95dcc15ab57748007c32d6c8271419b90b452340182d56890.png" />
                   </div>
