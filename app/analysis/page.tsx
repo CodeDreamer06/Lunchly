@@ -5,18 +5,25 @@ import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
 import ImageUploader from "../components/ImageUploader";
+import ShareModal from "../components/ShareModal";
+import { useToast } from "../components/ToastProvider";
 import { getUserData, saveAnalysisResult, type ChildProfile } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Analysis() {
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<ChildProfile | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysisHistory, setAnalysisHistory] = useState<{ imageData: string; analysis: string; date: string }[]>([]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [planApproved, setPlanApproved] = useState(false);
+  const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
+  const [correctionApplied, setCorrectionApplied] = useState(false);
 
   useEffect(() => {
     const userData = getUserData();
@@ -90,11 +97,27 @@ export default function Analysis() {
             <p className="text-on-surface-variant font-medium">Upload a photo of {profile?.name || "your child"}&apos;s lunchbox for AI analysis</p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm hover:bg-surface-variant transition-colors flex items-center gap-2">
+            <button 
+              onClick={() => setIsShareModalOpen(true)}
+              className="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm hover:bg-surface-variant transition-colors flex items-center gap-2"
+            >
               <span className="material-symbols-outlined text-lg">share</span> Share Report
             </button>
-            <button className="bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:bg-primary-dim transition-transform active:scale-95 flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">check_circle</span> Approve Plan
+            <button 
+              onClick={() => {
+                setPlanApproved(true);
+                showToast("Lunch plan approved! Added to your weekly plan.", "success");
+              }}
+              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-transform active:scale-95 flex items-center gap-2 ${
+                planApproved 
+                  ? "bg-secondary text-white" 
+                  : "bg-primary text-on-primary hover:bg-primary-dim"
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">
+                {planApproved ? "check" : "check_circle"}
+              </span>
+              {planApproved ? "Approved" : "Approve Plan"}
             </button>
           </div>
         </header>
@@ -188,22 +211,31 @@ export default function Analysis() {
                 src="/stitch-assets/70905aa3af7fa5e5d3ebb5f425f8109a08a79e91595beaab931f3855e38dd2f4.png"
               />
               {/* Interactive Hotspots */}
-              <div className="absolute top-1/4 left-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
-                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+              <div 
+                className="absolute top-1/4 left-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot"
+                onClick={() => setActiveHotspot("sushi")}
+              >
+                <div className={`w-3 h-3 rounded-full animate-pulse ${activeHotspot === "sushi" ? "bg-secondary" : "bg-primary"}`}></div>
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
-                  Salmon Sushi Rolls
+                  {activeHotspot === "sushi" ? "High protein, omega-3 rich ✓" : "Salmon Sushi Rolls"}
                 </div>
               </div>
-              <div className="absolute bottom-1/3 right-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
-                <div className="w-3 h-3 bg-tertiary rounded-full animate-pulse"></div>
+              <div 
+                className="absolute bottom-1/3 right-1/4 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot"
+                onClick={() => setActiveHotspot("berries")}
+              >
+                <div className={`w-3 h-3 rounded-full animate-pulse ${activeHotspot === "berries" ? "bg-secondary" : "bg-tertiary"}`}></div>
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
-                  Mixed Berries &amp; Mint
+                  {activeHotspot === "berries" ? "Antioxidants, vitamin C ✓" : "Mixed Berries & Mint"}
                 </div>
               </div>
-              <div className="absolute top-1/2 right-1/3 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot">
-                <div className="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
+              <div 
+                className="absolute top-1/2 right-1/3 bento-hotspot w-12 h-12 rounded-full flex items-center justify-center cursor-pointer group/spot"
+                onClick={() => setActiveHotspot("broccoli")}
+              >
+                <div className={`w-3 h-3 rounded-full animate-pulse ${activeHotspot === "broccoli" ? "bg-secondary" : "bg-secondary"}`}></div>
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/spot:opacity-100 transition-all bg-surface p-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">
-                  Roasted Broccolini
+                  {activeHotspot === "broccoli" ? "Fiber, vitamin K boost ✓" : "Roasted Broccolini"}
                 </div>
               </div>
               {/* Overlay Legend */}
@@ -348,8 +380,18 @@ export default function Analysis() {
                   <p className="text-sm text-on-surface mt-2">
                     The <strong>apple slices</strong> are likely to brown and be rejected without acid protection (lemon juice) within 2 hours. Suggest swapping for whole grapes or pre-treating.
                   </p>
-                  <button className="mt-4 text-xs font-bold text-error border-b border-error/30 hover:border-error transition-all pb-0.5">
-                    Apply Correction
+                  <button 
+                    onClick={() => {
+                      setCorrectionApplied(true);
+                      showToast("Correction applied: Swap apple slices for grapes with lemon juice!");
+                    }}
+                    className={`mt-4 text-xs font-bold border-b transition-all pb-0.5 ${
+                      correctionApplied 
+                        ? "text-secondary border-secondary" 
+                        : "text-error border-error/30 hover:border-error"
+                    }`}
+                  >
+                    {correctionApplied ? "Correction Applied ✓" : "Apply Correction"}
                   </button>
                 </div>
               </div>
@@ -364,6 +406,19 @@ export default function Analysis() {
           onClose={() => setError(null)}
         />
       )}
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title="Share Analysis Report"
+        text={`AI Lunchbox Analysis for ${profile?.name || "your child"}:
+Bento Intelligence Score: 88/100
+Fiber Content: High (85%)
+Sugar Load: Optimal (30%)
+Ultra-Processed Level: Very Low (12%)
+
+The complex carbohydrates in the brown rice and fiber from the broccolini slow down glucose absorption, preventing the standard "1:45 PM Slump".`}
+      />
 
       <MobileNav />
     </>

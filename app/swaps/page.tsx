@@ -1,21 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
+import ShareModal from "../components/ShareModal";
+import { useToast } from "../components/ToastProvider";
 import { getUserData, saveFoodSwap, getFoodSwaps, type ChildProfile, type FoodSwap } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Swaps() {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<ChildProfile | null>(null);
   const [rejectedFood, setRejectedFood] = useState("");
   const [swapResult, setSwapResult] = useState<string | null>(null);
   const [swapHistory, setSwapHistory] = useState<FoodSwap[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [appliedSwaps, setAppliedSwaps] = useState<Set<number>>(new Set());
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isImpactModalOpen, setIsImpactModalOpen] = useState(false);
+  const [addedRemixes, setAddedRemixes] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const userData = getUserData();
@@ -242,9 +251,32 @@ export default function Swaps() {
                     </span>
                   ))}
                 </div>
-                <button className="w-full py-4 bg-primary text-on-primary font-bold rounded-full flex items-center justify-center gap-2 hover:bg-primary-dim transition-all active:scale-95 shadow-lg shadow-primary/20">
-                  Apply this Swap
-                  <span className="material-symbols-outlined">upgrade</span>
+                <button 
+                  onClick={() => {
+                    if (appliedSwaps.has(i)) {
+                      showToast("Swap already applied!");
+                      return;
+                    }
+                    setAppliedSwaps(prev => new Set([...prev, i]));
+                    showToast(`Swapped ${swap.before.name} for ${swap.after.name}!`, "success");
+                  }}
+                  className={`w-full py-4 font-bold rounded-full flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg ${
+                    appliedSwaps.has(i) 
+                      ? "bg-secondary-container text-on-secondary-container" 
+                      : "bg-primary text-on-primary hover:bg-primary-dim shadow-primary/20"
+                  }`}
+                >
+                  {appliedSwaps.has(i) ? (
+                    <>
+                      Applied
+                      <span className="material-symbols-outlined">check</span>
+                    </>
+                  ) : (
+                    <>
+                      Apply this Swap
+                      <span className="material-symbols-outlined">upgrade</span>
+                    </>
+                  )}
                 </button>
               </div>
             ))}
@@ -264,7 +296,10 @@ export default function Swaps() {
               <p className="text-on-surface-variant mb-6">
                 Stop wasting, start remixing. We scanned your pantry—here&apos;s what you can make with yesterday&apos;s leftovers.
               </p>
-              <button className="text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all">
+              <button 
+                onClick={() => router.push("/fridge")}
+                className="text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all"
+              >
                 Scan Fridge Again
                 <span className="material-symbols-outlined">refresh</span>
               </button>
@@ -285,7 +320,23 @@ export default function Swaps() {
                           <span className="material-symbols-outlined text-[14px]">timer</span>
                           {remix.time}
                         </span>
-                        <button className="material-symbols-outlined bg-surface-container-high p-1 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">add</button>
+                        <button 
+                          onClick={() => {
+                            if (addedRemixes.has(i)) {
+                              showToast("Already added to plan!");
+                              return;
+                            }
+                            setAddedRemixes(prev => new Set([...prev, i]));
+                            showToast(`${remix.name} added to lunch plan!`);
+                          }}
+                          className={`material-symbols-outlined p-1 rounded-full transition-colors ${
+                            addedRemixes.has(i) 
+                              ? "bg-secondary text-white" 
+                              : "bg-surface-container-high group-hover:bg-primary group-hover:text-white"
+                          }`}
+                        >
+                          {addedRemixes.has(i) ? "check" : "add"}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -302,11 +353,20 @@ export default function Swaps() {
             Our &quot;One-Minute Upgrade&quot; automatically scans your current week&apos;s plan and finds 5 healthier alternatives for a 20% nutrition boost.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-            <button className="px-8 py-4 bg-secondary-container text-on-secondary-container font-bold rounded-full flex items-center justify-center gap-3 hover:scale-105 transition-transform">
+            <button 
+              onClick={() => {
+                setIsUpgradeModalOpen(true);
+                showToast("Scanning your weekly plan for upgrades...");
+              }}
+              className="px-8 py-4 bg-secondary-container text-on-secondary-container font-bold rounded-full flex items-center justify-center gap-3 hover:scale-105 transition-transform"
+            >
               <span className="material-symbols-outlined material-symbols-outlined-filled">bolt</span>
               Run One-Minute Upgrade
             </button>
-            <button className="px-8 py-4 border-2 border-primary-fixed text-primary-fixed font-bold rounded-full flex items-center justify-center gap-3 hover:bg-white/10 transition-colors">
+            <button 
+              onClick={() => setIsImpactModalOpen(true)}
+              className="px-8 py-4 border-2 border-primary-fixed text-primary-fixed font-bold rounded-full flex items-center justify-center gap-3 hover:bg-white/10 transition-colors"
+            >
               View Impact Report
             </button>
           </div>
@@ -319,6 +379,18 @@ export default function Swaps() {
           onClose={() => setError(null)}
         />
       )}
+
+      <ShareModal
+        isOpen={isImpactModalOpen}
+        onClose={() => setIsImpactModalOpen(false)}
+        title="Nutrition Impact Report"
+        text={`One-Minute Upgrade Impact Report:
+- Swapped Potato Chips → Air-Popped Popcorn (Focus Fuel, Same Budget)
+- Swapped Sugary Yogurt → Greek Yogurt + Berries (Steady Energy)
+- Swapped White Bread → Whole Grain Wrap (Protein Punch)
+
+Estimated nutrition boost: 20% more fiber, 15% less sugar, same cost!`}
+      />
 
       <MobileNav />
     </>

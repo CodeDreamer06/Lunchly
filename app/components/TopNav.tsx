@@ -14,10 +14,9 @@ const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/lab", label: "Lunchbox Lab", icon: "science" },
   { href: "/analysis", label: "Lunch Scanner", icon: "qr_code_scanner" },
-  { href: "/trends", label: "Weekly Trends", icon: "trending_up" },
+  { href: "/planning", label: "Weekly", icon: "calendar_month" },
   { href: "/swaps", label: "Swap Engine", icon: "swap_horiz" },
   { href: "/fridge", label: "Fridge Remix", icon: "kitchen" },
-  { href: "/planning", label: "Weekly Plan", icon: "calendar_month" },
 ];
 
 export default function TopNav() {

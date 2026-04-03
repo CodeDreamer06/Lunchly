@@ -1,7 +1,14 @@
+"use client";
+
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
+import { useToast } from "../components/ToastProvider";
+import { useRouter } from "next/navigation";
 
 export default function Store() {
+  const { showToast } = useToast();
+  const router = useRouter();
+  
   const products = [
     { name: "Fresh Strawberries", desc: "1lb Organic Pack", price: "$3.49", original: "$4.99", discount: "-30%", discountColor: "bg-error", img: "/stitch-assets/02e28a4ddb1e9c1835e2e9c5b3c1fc91fd08073cf4180773ca45298920940eeb.png" },
     { name: "Sprouted Grain Bread", desc: "High-Fiber 20oz Loaf", price: "$3.25", original: "$6.49", discount: "BOGO", discountColor: "bg-secondary", img: "/stitch-assets/fe0fc967bf4a92d310ca936c6134963162490c7020165af660509b1230fd3806.png" },
@@ -57,7 +64,12 @@ export default function Store() {
                 </h2>
                 <div className="flex gap-2">
                   <span className="px-4 py-2 bg-surface-container-lowest rounded-full text-xs font-bold shadow-sm">Aisle 4: Dairy</span>
-                  <span className="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold shadow-sm">Start Shopping</span>
+                  <button 
+                    onClick={() => showToast("Starting shopping route! Follow the green path on the map.")}
+                    className="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold shadow-sm hover:scale-105 transition-transform"
+                  >
+                    Start Shopping
+                  </button>
                 </div>
               </div>
               {/* Map Visualization */}
@@ -110,7 +122,12 @@ export default function Store() {
                 </div>
               </div>
               <div className="mt-8">
-                <button className="w-full py-4 bg-on-tertiary-container text-white rounded-3xl font-headline font-bold text-sm">Update Preferences</button>
+                <button 
+                  onClick={() => router.push("/profile")}
+                  className="w-full py-4 bg-on-tertiary-container text-white rounded-3xl font-headline font-bold text-sm hover:scale-105 transition-transform"
+                >
+                  Update Preferences
+                </button>
               </div>
             </div>
 
@@ -121,7 +138,10 @@ export default function Store() {
                   <h2 className="text-3xl font-headline font-extrabold">On-Sale Staples</h2>
                   <p className="text-on-surface-variant">Recommended lunchbox basics at Target</p>
                 </div>
-                <button className="text-primary font-bold flex items-center gap-1">
+                <button 
+                  onClick={() => showToast("Showing full weekly flyer with all deals!")}
+                  className="text-primary font-bold flex items-center gap-1 hover:gap-2 transition-all"
+                >
                   View Full Flyer
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
@@ -142,7 +162,10 @@ export default function Store() {
                         <span className="text-xs text-on-surface-variant line-through">{product.original}</span>
                         <span className="text-xl font-black text-primary">{product.price}</span>
                       </div>
-                      <button className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                      <button 
+                        onClick={() => showToast(`${product.name} added to shopping list!`)}
+                        className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                      >
                         <span className="material-symbols-outlined">add</span>
                       </button>
                     </div>

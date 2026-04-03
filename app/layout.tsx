@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ToastProvider } from "./components/ToastProvider";
 
 export const metadata: Metadata = {
   title: "LunchLogic - Smart Lunch Planning",
@@ -24,7 +25,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-surface text-on-surface font-body">
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

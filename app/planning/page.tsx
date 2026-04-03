@@ -1,15 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
+import WeeklyTrendsSection from "../components/WeeklyTrendsSection";
+import { useToast } from "../components/ToastProvider";
 import { getUserData, saveWeeklyPlan, getWeeklyPlans, type ChildProfile, type WeeklyPlan } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Planning() {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<ChildProfile | null>(null);
   const [budget, setBudget] = useState<number | undefined>(undefined);
   const [generatedPlan, setGeneratedPlan] = useState<WeeklyPlan | null>(null);
@@ -17,6 +22,26 @@ export default function Planning() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"generated" | "saved">("generated");
+  
+  // Timer state
+  const [timerActive, setTimerActive] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(25 * 60); // 25 minutes in seconds
+  const [timerCompleted, setTimerCompleted] = useState(false);
+  
+  // Shopping list state
+  const [shoppingItems, setShoppingItems] = useState([
+    { name: "Organic Apples (1 bag)", checked: false, category: "produce" },
+    { name: "English Cucumbers (2)", checked: true, category: "produce" },
+    { name: "Bell Pepper Trio (1 pack)", checked: false, category: "produce" },
+    { name: "Ripe Avocados (3)", checked: false, category: "produce" },
+    { name: "Chicken Breast/Thighs (2.5 lbs)", checked: false, category: "protein" },
+    { name: "Greek Yogurt (Large Tub)", checked: false, category: "protein" },
+    { name: "Turkey Breast Slices (12oz)", checked: false, category: "protein" },
+  ]);
+  
+  // Speed prep state
+  const [speedPrepActive, setSpeedPrepActive] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = getUserData();
@@ -86,6 +111,61 @@ export default function Planning() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timerActive && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            setTimerActive(false);
+            setTimerCompleted(true);
+            showToast("Prep timer completed! Great job!", "success");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timeRemaining, showToast]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const toggleShoppingItem = (index: number) => {
+    setShoppingItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, checked: !item.checked } : item
+    ));
+  };
+
+  const handlePrint = () => {
+    window.print();
+    showToast("Shopping list sent to printer");
+  };
+
+  const handleAddToCart = () => {
+    const uncheckedItems = shoppingItems.filter(item => !item.checked);
+    if (uncheckedItems.length === 0) {
+      showToast("All items already in your cart!");
+    } else {
+      showToast(`${uncheckedItems.length} items added to cart`);
+    }
+  };
+
+  const handleSpeedPrep = () => {
+    setSpeedPrepActive(true);
+    showToast("Speed Prep activated! Simplified 3-ingredient plan generated.");
+  };
+
+  const handleDayClick = (day: string) => {
+    setSelectedDay(day);
+    showToast(`${day} meal plan opened`);
   };
 
   const days = [
@@ -175,7 +255,11 @@ export default function Planning() {
         {/* 5-Day Calendar Grid */}
         <section className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {days.map((d, i) => (
-            <div key={i} className={`bg-surface-container-low p-6 rounded-lg flex flex-col gap-4 relative overflow-hidden ${d.day === "Wednesday" ? "border-2 border-primary/20 ring-4 ring-primary/5" : ""}`}>
+            <div 
+              key={i} 
+              onClick={() => handleDayClick(d.day)}
+              className={`bg-surface-container-low p-6 rounded-lg flex flex-col gap-4 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${d.day === "Wednesday" ? "border-2 border-primary/20 ring-4 ring-primary/5" : ""}`}
+            >
               <div className="flex justify-between items-center">
                 <span className={`font-black uppercase tracking-widest text-xs ${d.day === "Wednesday" ? "text-primary" : "text-on-surface-variant"}`}>{d.day}</span>
                 <span className="material-symbols-outlined text-on-surface-variant">more_vert</span>
@@ -236,8 +320,37 @@ export default function Planning() {
                   </div>
                 ))}
               </div>
-              <button className="mt-10 w-full bg-white text-primary py-4 rounded-3xl font-bold flex items-center justify-center gap-2 hover:bg-primary-container transition-colors">
-                <span className="material-symbols-outlined">timer</span> Start Timer (25m)
+              <button 
+                onClick={() => {
+                  if (timerActive) {
+                    setTimerActive(false);
+                    showToast("Timer paused");
+                  } else if (timerCompleted) {
+                    setTimerCompleted(false);
+                    setTimeRemaining(25 * 60);
+                    setTimerActive(true);
+                    showToast("Timer restarted!");
+                  } else {
+                    setTimerActive(true);
+                    showToast("25-minute prep timer started!");
+                  }
+                }}
+                className={`mt-10 w-full py-4 rounded-3xl font-bold flex items-center justify-center gap-2 transition-colors ${
+                  timerActive 
+                    ? "bg-error text-white hover:bg-error-dim" 
+                    : timerCompleted
+                    ? "bg-secondary text-white hover:bg-secondary-dim"
+                    : "bg-white text-primary hover:bg-primary-container"
+                }`}
+              >
+                <span className="material-symbols-outlined">
+                  {timerActive ? "pause" : timerCompleted ? "refresh" : "timer"}
+                </span>
+                {timerActive 
+                  ? `Pause (${formatTime(timeRemaining)})` 
+                  : timerCompleted 
+                  ? "Restart Timer (25m)" 
+                  : "Start Timer (25m)"}
               </button>
             </div>
           </div>
@@ -269,7 +382,10 @@ export default function Planning() {
             <div className="bg-surface-container-low rounded-lg p-8 flex-1">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="font-headline font-bold text-2xl">Shopping List</h3>
-                <button className="text-primary font-bold text-sm flex items-center gap-1">
+                <button 
+                  onClick={handlePrint}
+                  className="text-primary font-bold text-sm flex items-center gap-1 hover:underline"
+                >
                   <span className="material-symbols-outlined text-sm">print</span> Print
                 </button>
               </div>
@@ -277,14 +393,13 @@ export default function Planning() {
                 <div>
                   <div className="text-xs font-black text-on-surface-variant uppercase tracking-widest mb-4">Produce</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
-                    {[
-                      { name: "Organic Apples (1 bag)", checked: false },
-                      { name: "English Cucumbers (2)", checked: true },
-                      { name: "Bell Pepper Trio (1 pack)", checked: false },
-                      { name: "Ripe Avocados (3)", checked: false },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded border-2 ${item.checked ? "border-primary bg-primary" : "border-outline-variant"} flex items-center justify-center`}>
+                    {shoppingItems.filter(item => item.category === "produce").map((item, i) => (
+                      <div 
+                        key={item.name} 
+                        onClick={() => toggleShoppingItem(shoppingItems.findIndex(si => si.name === item.name))}
+                        className="flex items-center gap-3 cursor-pointer hover:bg-surface-container-high/50 p-1 rounded transition-colors"
+                      >
+                        <div className={`w-5 h-5 rounded border-2 ${item.checked ? "border-primary bg-primary" : "border-outline-variant"} flex items-center justify-center transition-colors`}>
                           {item.checked && <span className="material-symbols-outlined text-white text-[14px]">check</span>}
                         </div>
                         <span className={`text-sm ${item.checked ? "line-through text-on-surface-variant" : ""}`}>{item.name}</span>
@@ -295,21 +410,32 @@ export default function Planning() {
                 <div>
                   <div className="text-xs font-black text-on-surface-variant uppercase tracking-widest mb-4">Proteins &amp; Dairy</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
-                    {["Chicken Breast/Thighs (2.5 lbs)", "Greek Yogurt (Large Tub)", "Turkey Breast Slices (12oz)"].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded border-2 border-outline-variant flex items-center justify-center"></div>
-                        <span className="text-sm">{item}</span>
+                    {shoppingItems.filter(item => item.category === "protein").map((item, i) => (
+                      <div 
+                        key={item.name} 
+                        onClick={() => toggleShoppingItem(shoppingItems.findIndex(si => si.name === item.name))}
+                        className="flex items-center gap-3 cursor-pointer hover:bg-surface-container-high/50 p-1 rounded transition-colors"
+                      >
+                        <div className={`w-5 h-5 rounded border-2 ${item.checked ? "border-primary bg-primary" : "border-outline-variant"} flex items-center justify-center transition-colors`}>
+                          {item.checked && <span className="material-symbols-outlined text-white text-[14px]">check</span>}
+                        </div>
+                        <span className={`text-sm ${item.checked ? "line-through text-on-surface-variant" : ""}`}>{item.name}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <button className="w-full bg-white text-secondary font-bold py-3 rounded-full border border-secondary/20 hover:bg-secondary-container transition-colors">
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-white text-secondary font-bold py-3 rounded-full border border-secondary/20 hover:bg-secondary-container transition-colors"
+                >
                   Add Items to Cart
                 </button>
               </div>
             </div>
           </div>
         </div>
+
+        <WeeklyTrendsSection />
 
         {/* Suggestion Footer Card */}
         <div className="bg-secondary-container rounded-lg p-10 flex flex-col md:flex-row items-center gap-8 shadow-sm">
@@ -325,8 +451,15 @@ export default function Planning() {
             <p className="text-on-secondary-container/80 mb-6">
               Try our &quot;Speed Prep&quot; mode. We&apos;ll strip down the menu to only 3 core ingredients that can be mixed and matched across the whole week.
             </p>
-            <button className="bg-on-secondary-container text-white px-8 py-3 rounded-full font-bold hover:opacity-90 transition-opacity">
-              Activate Speed Prep
+            <button 
+              onClick={handleSpeedPrep}
+              className={`px-8 py-3 rounded-full font-bold transition-opacity ${
+                speedPrepActive 
+                  ? "bg-secondary text-white hover:opacity-90" 
+                  : "bg-on-secondary-container text-white hover:opacity-90"
+              }`}
+            >
+              {speedPrepActive ? "Speed Prep Active ✓" : "Activate Speed Prep"}
             </button>
           </div>
         </div>

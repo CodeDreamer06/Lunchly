@@ -1,20 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
+import ShareModal from "../components/ShareModal";
+import { useToast } from "../components/ToastProvider";
 import { getUserData, getAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<ChildProfile | null>(null);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgradeCard, setShowUpgradeCard] = useState(true);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sensoryProfile, setSensoryProfile] = useState({
+    soft: 3,
+    crunch: 1,
+  });
 
   useEffect(() => {
     const userData = getUserData();
@@ -136,8 +147,17 @@ export default function Dashboard() {
                 <h2 className="text-2xl font-headline font-bold mb-1">Latest Scan Results</h2>
                 <p className="text-on-surface-variant">Today&apos;s Bento: &quot;The Power Pack&quot;</p>
               </div>
-              <div className="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm">
-                Analyzed 2m ago
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="bg-surface-container-high text-on-surface px-3 py-2 rounded-lg font-bold text-sm hover:bg-primary hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">share</span>
+                  Share
+                </button>
+                <div className="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm">
+                  Analyzed 2m ago
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -197,26 +217,34 @@ export default function Dashboard() {
           </div>
 
           {/* One-Minute Upgrade Banner */}
-          <div className="lg:col-span-4 flex flex-col gap-8">
-            <div className="bg-secondary-container rounded-lg p-6 flex flex-col justify-between relative overflow-hidden h-full min-h-[280px]">
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 text-secondary mb-4">
-                  <span className="material-symbols-outlined font-bold">bolt</span>
-                  <span className="font-headline font-bold uppercase tracking-widest text-xs">One-Minute Upgrade</span>
+          {showUpgradeCard && (
+            <div className="lg:col-span-4 flex flex-col gap-8">
+              <div className="bg-secondary-container rounded-lg p-6 flex flex-col justify-between relative overflow-hidden h-full min-h-[280px]">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 text-secondary mb-4">
+                    <span className="material-symbols-outlined font-bold">bolt</span>
+                    <span className="font-headline font-bold uppercase tracking-widest text-xs">One-Minute Upgrade</span>
+                  </div>
+                  <h3 className="text-2xl font-headline font-extrabold text-on-secondary-container mb-2">Tiny Tweak</h3>
+                  <p className="text-on-secondary-container font-medium opacity-80 mb-6">
+                    &quot;Add one crunchy veggie like a baby carrot for better fiber density.&quot;
+                  </p>
+                  <button 
+                    onClick={() => {
+                      setShowUpgradeCard(false);
+                      showToast("Upgrade tip dismissed");
+                    }}
+                    className="bg-on-secondary-container text-white px-6 py-2 rounded-full text-sm font-bold w-fit hover:opacity-90 transition-opacity"
+                  >
+                    Got it!
+                  </button>
                 </div>
-                <h3 className="text-2xl font-headline font-extrabold text-on-secondary-container mb-2">Tiny Tweak</h3>
-                <p className="text-on-secondary-container font-medium opacity-80 mb-6">
-                  &quot;Add one crunchy veggie like a baby carrot for better fiber density.&quot;
-                </p>
-                <button className="bg-on-secondary-container text-white px-6 py-2 rounded-full text-sm font-bold w-fit">
-                  Got it!
-                </button>
+                <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-[120px] text-on-secondary-container/10 rotate-12">
+                  nutrition
+                </span>
               </div>
-              <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-[120px] text-on-secondary-container/10 rotate-12">
-                nutrition
-              </span>
             </div>
-          </div>
+          )}
 
           {/* Sensory Overview Widget */}
           <div className="lg:col-span-5 bg-surface-container-low rounded-lg p-8">
@@ -230,25 +258,39 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Soft &amp; Smooth</span>
                 <div className="flex gap-1">
-                  <div className="w-3 h-3 rounded-full bg-tertiary"></div>
-                  <div className="w-3 h-3 rounded-full bg-tertiary"></div>
-                  <div className="w-3 h-3 rounded-full bg-tertiary"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
+                  {[1, 2, 3, 4, 5].map((dot) => (
+                    <button
+                      key={`soft-${dot}`}
+                      onClick={() => {
+                        setSensoryProfile(prev => ({ ...prev, soft: dot }));
+                        showToast(`Soft & Smooth preference: ${dot}/5`);
+                      }}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        dot <= sensoryProfile.soft ? "bg-tertiary" : "bg-surface-variant"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Crunch Factor</span>
                 <div className="flex gap-1">
-                  <div className="w-3 h-3 rounded-full bg-secondary"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
-                  <div className="w-3 h-3 rounded-full bg-surface-variant"></div>
+                  {[1, 2, 3, 4, 5].map((dot) => (
+                    <button
+                      key={`crunch-${dot}`}
+                      onClick={() => {
+                        setSensoryProfile(prev => ({ ...prev, crunch: dot }));
+                        showToast(`Crunch preference: ${dot}/5`);
+                      }}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        dot <= sensoryProfile.crunch ? "bg-secondary" : "bg-surface-variant"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="mt-6 p-4 bg-surface-container rounded-lg italic text-sm text-on-surface-variant">
-                &quot;{profile?.name || "Your child"} prefers crunchier textures in the morning; today&apos;s lunch needs more crunch.&quot;
+                &quot;{profile?.name || "Your child"} prefers {sensoryProfile.crunch > sensoryProfile.soft ? "crunchier" : "softer"} textures; today&apos;s lunch needs more {sensoryProfile.crunch > sensoryProfile.soft ? "crunch" : "soft options"}.&quot;
               </div>
             </div>
           </div>
@@ -306,6 +348,13 @@ export default function Dashboard() {
           onClose={() => setError(null)}
         />
       )}
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title="Share Scan Results"
+        text={`Latest lunch scan results for ${profile?.name || "your child"}: "The Power Pack" - Protein 85%, Fiber 60%, Micronutrients 92%. Brain Fuel: 9.2, Explorer Energy: 8.5. Steady energy predicted until 3 PM.`}
+      />
 
       {/* Mobile FAB */}
       <div className="md:hidden fixed bottom-24 right-4 z-40">

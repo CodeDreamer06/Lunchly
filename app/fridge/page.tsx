@@ -4,18 +4,29 @@ import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
+import { useToast } from "../components/ToastProvider";
 import { getUserData, getAvailableIngredients, setAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function Fridge() {
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<ChildProfile | null>(null);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const [suggestions, setSuggestions] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Filter state
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
+  
+  // Added remixes state
+  const [addedRemixes, setAddedRemixes] = useState<Set<number>>(new Set());
+  
+  // Pantry mode state
+  const [isPantryMode, setIsPantryMode] = useState(false);
 
   useEffect(() => {
     const userData = getUserData();
@@ -134,8 +145,18 @@ export default function Fridge() {
             <h2 className="text-4xl font-headline font-black tracking-tight text-on-surface">Fridge Remix</h2>
           </div>
           <div className="flex items-center gap-4 bg-surface-container-low p-2 rounded-full">
-            <button className="px-6 py-2 bg-primary text-white rounded-full text-sm font-bold shadow-lg shadow-primary/20">Fridge Mode</button>
-            <button className="px-6 py-2 text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-colors rounded-full">Pantry Only</button>
+            <button 
+              onClick={() => setIsPantryMode(false)}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${!isPantryMode ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:bg-surface-container"}`}
+            >
+              Fridge Mode
+            </button>
+            <button 
+              onClick={() => setIsPantryMode(true)}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${isPantryMode ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:bg-surface-container"}`}
+            >
+              Pantry Only
+            </button>
           </div>
         </header>
 
@@ -260,7 +281,27 @@ export default function Fridge() {
                   { icon: "timer", text: "5-Min Prep" },
                   { icon: "school", text: "Nut Free" },
                 ].map((filter, i) => (
-                  <button key={i} className="bg-white/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-white transition-all flex items-center gap-2">
+                  <button 
+                    key={i} 
+                    onClick={() => {
+                      setActiveFilters(prev => {
+                        const newFilters = new Set(prev);
+                        if (newFilters.has(filter.text)) {
+                          newFilters.delete(filter.text);
+                          showToast(`Removed ${filter.text} filter`);
+                        } else {
+                          newFilters.add(filter.text);
+                          showToast(`Applied ${filter.text} filter`);
+                        }
+                        return newFilters;
+                      });
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                      activeFilters.has(filter.text) 
+                        ? "bg-primary text-white" 
+                        : "bg-white/50 hover:bg-white"
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-sm">{filter.icon}</span> {filter.text}
                   </button>
                 ))}
@@ -298,8 +339,24 @@ export default function Fridge() {
                     <span className="material-symbols-outlined text-secondary">bolt</span>
                     <span className="text-xs font-bold">{remix.tag}</span>
                   </div>
-                  <button className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all">
-                    <span className="material-symbols-outlined">add</span>
+                  <button 
+                    onClick={() => {
+                      if (addedRemixes.has(i)) {
+                        showToast("Already added to plan!");
+                        return;
+                      }
+                      setAddedRemixes(prev => new Set([...prev, i]));
+                      showToast(`${remix.name} added to lunch plan!`);
+                    }}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all ${
+                      addedRemixes.has(i) 
+                        ? "bg-secondary text-white" 
+                        : "bg-primary text-white hover:scale-105"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined">
+                      {addedRemixes.has(i) ? "check" : "add"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -344,7 +401,12 @@ export default function Fridge() {
                 <p className="text-xs text-on-surface-variant">Couscous, Chickpeas, Olives</p>
               </div>
             </div>
-            <button className="w-full py-4 bg-secondary-container text-on-secondary-container font-black rounded-full hover:scale-[1.02] transition-all">
+            <button 
+              onClick={() => {
+                showToast("Pantry lunch plan generated! Using couscous, chickpeas, and olives.");
+              }}
+              className="w-full py-4 bg-secondary-container text-on-secondary-container font-black rounded-full hover:scale-[1.02] transition-all"
+            >
               Build Pantry Lunch
             </button>
           </div>

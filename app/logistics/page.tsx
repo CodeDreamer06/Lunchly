@@ -1,7 +1,15 @@
+"use client";
+
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
+import ShareModal from "../components/ShareModal";
+import { useToast } from "../components/ToastProvider";
+import { useState } from "react";
 
 export default function Logistics() {
+  const { showToast } = useToast();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  
   const containers = [
     { name: "Thermos Cap", difficulty: "Easy", width: "20%", color: "bg-primary", icon: "kitchen" },
     { name: "Yogurt Foil", difficulty: "Hard", width: "90%", color: "bg-error", icon: "warning", warning: true },
@@ -170,13 +178,36 @@ export default function Logistics() {
                 </div>
               ))}
             </div>
-            <button className="mt-auto bg-primary py-4 rounded-3xl font-bold hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+            <button 
+              onClick={() => setIsExportModalOpen(true)}
+              className="mt-auto bg-primary py-4 rounded-3xl font-bold hover:bg-primary-dim transition-colors flex items-center justify-center gap-2"
+            >
               Confirm & Export Report
               <span className="material-symbols-outlined">send</span>
             </button>
           </section>
         </div>
       </main>
+
+      <ShareModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        title="Logistics Report"
+        text={`Lunchbox Logistics Report - Pre-Flight Review
+
+Logistics Score: 85/100 - Ready for Takeoff
+
+Openability Check:
+- Thermos Cap: Easy (Twist-off mechanism)
+- Bento Latches: Medium (Needs thumb strength practice)
+- Silicone Bag: Easy (Pinch-press seal)
+
+Texture Integrity (4-hour forecast):
+- Mess Factor: Moderate
+- Sogginess Predictor: Low Risk
+
+Packing confirmed! Report ready for caregiver handoff.`}
+      />
 
       <MobileNav />
     </>

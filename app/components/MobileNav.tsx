@@ -13,7 +13,7 @@ const navItems: NavItem[] = [
   { href: "/dashboard", label: "Home", icon: "dashboard" },
   { href: "/lab", label: "Lab", icon: "science" },
   { href: "/analysis", label: "Scan", icon: "qr_code_scanner" },
-  { href: "/trends", label: "Trends", icon: "trending_up" },
+  { href: "/planning", label: "Weekly", icon: "calendar_month" },
   { href: "/profile", label: "Kids", icon: "face" },
 ];
 
