@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import { getUserData, updateChildProfile, type ChildProfile } from "../lib/storage";
 
+const caregiverAcceptedFoods = [
+  { name: "Sliced Honeycrisp", note: "Skin-off, slight cinnamon", icon: "nutrition" },
+  { name: "Mini Pita Pockets", note: "With hummus inside", icon: "bakery_dining" },
+  { name: "Boiled Egg Stars", note: "Cut with star shape mold", icon: "egg" },
+];
+
+const caregiverPolicies = [
+  { icon: "no_drinks", text: "100% Nut Free" },
+  { icon: "wine_bar", text: "No Glass Containers" },
+  { icon: "eco", text: "Waste-Free Preferred" },
+  { icon: "water_drop", text: "Water Only Bottles" },
+];
+
 export default function Profile() {
-  const [profile, setProfile] = useState<ChildProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<ChildProfile | null>(() => getUserData()?.childProfile ?? null);
   const [newPolicy, setNewPolicy] = useState("");
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const userData = getUserData();
-    if (userData?.childProfile) {
-      setProfile(userData.childProfile);
-    }
-    setIsLoading(false);
-  }, []);
+  const [caregiverMessage, setCaregiverMessage] = useState<string | null>(null);
 
   const handleUpdateProfile = (updates: Partial<ChildProfile>) => {
     if (!profile) return;
@@ -63,19 +69,73 @@ export default function Profile() {
     handleUpdateProfile({ schoolPolicies: currentPolicies.filter(p => p !== policy) });
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <TopNav />
-        <main className="pt-24 px-4 pb-20 flex items-center justify-center min-h-screen">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-on-surface-variant">Loading profile...</p>
-          </div>
-        </main>
-      </>
-    );
-  }
+  const setTimedMessage = (message: string) => {
+    setCaregiverMessage(message);
+    window.setTimeout(() => setCaregiverMessage(null), 2500);
+  };
+
+  const getCaregiverSummary = () => {
+    if (!profile) return "";
+
+    const sensorySummary = (profile.sensoryPreferences || []).join(", ") || "No sensory preferences saved yet";
+    const schoolSummary = (profile.schoolPolicies || []).join(", ") || "No school policies saved yet";
+
+    return [
+      `${profile.name}'s caregiver handoff`,
+      `${profile.grade}, age ${profile.age}`,
+      `Sensory preferences: ${sensorySummary}`,
+      `Eating habits: ${profile.eatingHabits || "No notes yet"}`,
+      `School policies: ${schoolSummary}`,
+      "Quick win: Freeze the yogurt tube so it stays cold until lunch.",
+      "Avoid: Keep berries separate from yogurt to prevent sogginess.",
+    ].join("\n");
+  };
+
+  const handleCaregiverAction = async (action: "share" | "whatsapp" | "email" | "print") => {
+    if (!profile) return;
+
+    const summary = getCaregiverSummary();
+
+    try {
+      if (action === "share") {
+        if (navigator.share) {
+          await navigator.share({
+            title: `${profile.name}'s Caregiver Hub`,
+            text: summary,
+          });
+          setTimedMessage("Caregiver summary shared.");
+          return;
+        }
+
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(summary);
+          setTimedMessage("Caregiver summary copied to clipboard.");
+          return;
+        }
+
+        setTimedMessage("Sharing isn't available in this browser.");
+        return;
+      }
+
+      if (action === "whatsapp") {
+        window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, "_blank", "noopener,noreferrer");
+        setTimedMessage("Opened WhatsApp share.");
+        return;
+      }
+
+      if (action === "email") {
+        window.location.href = `mailto:?subject=${encodeURIComponent(`${profile.name}'s LunchLogic Handoff`)}&body=${encodeURIComponent(summary)}`;
+        setTimedMessage("Opened email draft.");
+        return;
+      }
+
+      window.print();
+      setTimedMessage("Print dialog opened.");
+    } catch (error) {
+      console.error("Caregiver action failed:", error);
+      setTimedMessage("That action could not be completed.");
+    }
+  };
 
   if (!profile) {
     return (
@@ -84,9 +144,9 @@ export default function Profile() {
         <main className="pt-24 px-4 pb-20 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <p className="text-on-surface-variant mb-4">No profile found. Please complete the setup.</p>
-            <a href="/" className="bg-primary text-white px-6 py-3 rounded-3xl font-bold">
+            <Link href="/" className="bg-primary text-white px-6 py-3 rounded-3xl font-bold">
               Go to Setup
-            </a>
+            </Link>
           </div>
         </main>
       </>
@@ -188,14 +248,14 @@ export default function Profile() {
           {/* Right Column */}
           <section className="lg:col-span-8 space-y-8">
             {/* Sensory Preferences */}
-            <div className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/15">
+            <div id="sensory-preferences" className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/15 scroll-mt-24">
               <h3 className="font-headline font-bold text-2xl mb-6">Sensory Preferences</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { icon: "restaurant", title: "Picky Eater", desc: "Prioritizes familiar textures and predictable flavor profiles.", color: "primary" },
-                  { icon: "psychology", title: "Sensory-Sensitive", desc: "Aversion to mixed textures, strong smells, or soggy foods.", color: "tertiary" },
-                  { icon: "fitness_center", title: "Sports Day Focus", desc: "Higher protein and complex carbs for energy on PE days.", color: "secondary" },
-                  { icon: "savings", title: "Budget-Conscious", desc: "Suggests ingredients that are currently seasonal or in-bulk.", color: "on-primary-container" },
+                  { icon: "restaurant", title: "Picky Eater", desc: "Prioritizes familiar textures and predictable flavor profiles.", iconClass: "text-primary" },
+                  { icon: "psychology", title: "Sensory-Sensitive", desc: "Aversion to mixed textures, strong smells, or soggy foods.", iconClass: "text-tertiary" },
+                  { icon: "fitness_center", title: "Sports Day Focus", desc: "Higher protein and complex carbs for energy on PE days.", iconClass: "text-secondary" },
+                  { icon: "savings", title: "Budget-Conscious", desc: "Suggests ingredients that are currently seasonal or in-bulk.", iconClass: "text-on-primary-container" },
                 ].map((item) => (
                   <label 
                     key={item.title} 
@@ -211,7 +271,7 @@ export default function Profile() {
                       onChange={() => toggleSensoryPreference(item.title)}
                       className="absolute right-4 top-4 w-6 h-6 rounded-full text-primary focus:ring-primary-container border-outline"
                     />
-                    <div className={`w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-${item.color}`}>
+                    <div className={`w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center ${item.iconClass}`}>
                       <span className="material-symbols-outlined text-3xl">{item.icon}</span>
                     </div>
                     <div>
@@ -259,6 +319,161 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Caregiver Hub */}
+            <section id="caregiver-hub" className="scroll-mt-24 space-y-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-headline text-2xl font-extrabold text-on-surface">Caregiver Hub</h3>
+                  <p className="mt-2 max-w-2xl text-sm text-on-surface-variant">
+                    Keep the handoff notes, accepted foods, and school-day rules inside the profile so whoever packs lunch gets the same guidance.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleCaregiverAction("share")}
+                  className="rounded-full bg-secondary-container px-6 py-3 font-bold text-on-secondary-container shadow-sm transition-transform hover:scale-105"
+                >
+                  Share Hub
+                </button>
+              </div>
+
+              {caregiverMessage && (
+                <div className="rounded-3xl border border-primary/15 bg-primary-container/20 px-4 py-3 text-sm font-semibold text-on-primary-container">
+                  {caregiverMessage}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+                <section className="md:col-span-4 bg-surface-container-low squircle-lg p-8 flex flex-col gap-6 relative overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-headline font-bold text-xl">Best Accepted</h4>
+                    <span className="material-symbols-outlined text-primary material-symbols-outlined-filled">favorite</span>
+                  </div>
+                  <div className="space-y-4">
+                    {caregiverAcceptedFoods.map((food) => (
+                      <div key={food.name} className="bg-surface-container-lowest p-4 rounded-3xl flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+                          <span className="material-symbols-outlined text-on-primary-container">{food.icon}</span>
+                        </div>
+                        <div>
+                          <p className="font-bold">{food.name}</p>
+                          <p className="text-xs text-on-surface-variant">{food.note}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTimedMessage("Accepted foods reflect the current caregiver card.")}
+                    className="mt-auto flex items-center gap-1 text-sm font-bold text-primary hover:underline"
+                  >
+                    Review List <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </button>
+                  <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
+                </section>
+
+                <section className="md:col-span-8 bg-gradient-to-br from-primary to-primary-dim p-8 squircle-lg text-white relative overflow-hidden shadow-lg">
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="material-symbols-outlined">star</span>
+                      <h4 className="font-headline font-bold text-xl">Current Goals</h4>
+                    </div>
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                      <div className="flex-1">
+                        <h5 className="text-3xl font-black mb-2 tracking-tight">Color Quest: 3 Colors</h5>
+                        <p className="text-primary-container/80 text-lg">
+                          Goal: Include three vibrant colors in every lunchbox this week to boost phytonutrients.
+                        </p>
+                        <div className="mt-6 h-3 w-full bg-white/20 rounded-full overflow-hidden">
+                          <div className="h-full bg-secondary-container w-2/3" />
+                        </div>
+                        <p className="text-xs mt-2 font-medium">4 of 7 days completed</p>
+                      </div>
+                      <div className="shrink-0">
+                        <div className="bg-white/10 backdrop-blur-md p-4 squircle-lg border border-white/20">
+                          <span className="material-symbols-outlined text-5xl material-symbols-outlined-filled">palette</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+                </section>
+
+                <div className="md:col-span-5 grid grid-rows-2 gap-6">
+                  <div className="bg-surface-container-high squircle-lg p-6 flex flex-col gap-4 border-l-8 border-primary">
+                    <div className="flex items-center gap-2 text-primary">
+                      <span className="material-symbols-outlined">bolt</span>
+                      <h4 className="font-bold">Quick Win</h4>
+                    </div>
+                    <p className="text-on-surface font-medium italic">
+                      &quot;Freeze the yogurt tube! It stays cold until lunch and acts as an ice pack.&quot;
+                    </p>
+                  </div>
+                  <div className="bg-error-container/10 squircle-lg p-6 flex flex-col gap-4 border-l-8 border-error">
+                    <div className="flex items-center gap-2 text-error">
+                      <span className="material-symbols-outlined">block</span>
+                      <h4 className="font-bold">Avoid</h4>
+                    </div>
+                    <p className="text-on-surface-variant text-sm">
+                      Don&apos;t pack berries directly with yogurt. They get soggy. Use a separate small container.
+                    </p>
+                  </div>
+                </div>
+
+                <section className="md:col-span-7 bg-surface-container-low squircle-lg p-8 relative">
+                  <div className="flex items-center gap-3 mb-6 text-on-surface">
+                    <span className="material-symbols-outlined text-error">warning</span>
+                    <h4 className="font-headline font-bold text-xl uppercase tracking-wider">School Policy Alert</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {caregiverPolicies.map((policy) => (
+                      <div key={policy.text} className="bg-white p-4 rounded-3xl shadow-sm flex flex-col items-center text-center gap-3">
+                        <span className="material-symbols-outlined text-on-surface-variant text-3xl">{policy.icon}</span>
+                        <p className="font-bold text-sm">{policy.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="md:col-span-12 bg-surface-container-lowest p-8 squircle-xl flex flex-col md:flex-row items-center justify-between gap-8 border border-surface-variant/50">
+                  <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 bg-secondary-container rounded-2xl flex items-center justify-center rotate-3">
+                      <span className="material-symbols-outlined text-on-secondary-container text-4xl">qr_code_2</span>
+                    </div>
+                    <div>
+                      <h4 className="text-2xl font-headline font-extrabold tracking-tight">Ready to hand off?</h4>
+                      <p className="text-on-surface-variant">Use the profile as the single caregiver handoff card.</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => void handleCaregiverAction("whatsapp")}
+                      className="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg active:scale-95"
+                    >
+                      <span className="material-symbols-outlined">chat</span>
+                      WhatsApp
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleCaregiverAction("email")}
+                      className="bg-tertiary text-on-tertiary px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:brightness-110 transition-all shadow-lg active:scale-95"
+                    >
+                      <span className="material-symbols-outlined">mail</span>
+                      Email Hub
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleCaregiverAction("print")}
+                      className="bg-surface-container-highest text-on-surface px-8 py-4 rounded-full font-bold flex items-center gap-3 hover:bg-surface-variant transition-all active:scale-95"
+                    >
+                      <span className="material-symbols-outlined">print</span>
+                      PDF Card
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
           </section>
         </div>
       </main>
