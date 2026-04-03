@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline": "#81817a",
+              "on-secondary-fixed": "#474000",
+              "on-primary-fixed-variant": "#00691a",
+              "on-background": "#383833",
+              "surface-container": "#f5f4eb",
+              "surface-variant": "#e9e9de",
+              "secondary": "#706500",
+              "surface-tint": "#00751f",
+              "on-secondary-fixed-variant": "#665c00",
+              "on-secondary": "#ffffff",
+              "primary-container": "#91f78e",
+              "on-primary-container": "#005e17",
+              "surface-container-high": "#efeee5",
+              "inverse-surface": "#0e0f0a",
+              "primary-fixed-dim": "#83e881",
+              "secondary-fixed-dim": "#ead723",
+              "on-tertiary-container": "#003258",
+              "surface-bright": "#fefcf4",
+              "on-surface": "#383833",
+              "secondary-dim": "#625900",
+              "error": "#be2d06",
+              "surface": "#fefcf4",
+              "on-primary": "#ffffff",
+              "outline-variant": "#bab9b2",
+              "error-dim": "#b92902",
+              "error-container": "#f95630",
+              "tertiary-container": "#70b5ff",
+              "on-tertiary-fixed": "#001930",
+              "background": "#fefcf4",
+              "primary-fixed": "#91f78e",
+              "tertiary-fixed-dim": "#4ca8ff",
+              "on-primary-fixed": "#00480f",
+              "surface-container-low": "#fbf9f1",
+              "on-surface-variant": "#65655f",
+              "surface-container-highest": "#e9e9de",
+              "on-tertiary-fixed-variant": "#003b67",
+              "primary-dim": "#00671a",
+              "primary": "#00751f",
+              "tertiary": "#0067ad",
+              "on-secondary-container": "#5b5300",
+              "on-error-container": "#520c00",
+              "tertiary-dim": "#005b9a",
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#e4e3d8",
+              "secondary-fixed": "#f9e534",
+              "inverse-on-surface": "#9e9d96",
+              "inverse-primary": "#91f78e",
+              "secondary-container": "#f9e534",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#70b5ff",
+              "on-tertiary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle {
+            border-radius: 3rem;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body selection:bg-primary-container">
+<!-- Top Navigation -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fefcf4] dark:bg-stone-950">
+<div class="flex items-center gap-2">
+<span class="text-2xl font-black text-[#00751f] tracking-tight font-headline">LunchLogic</span>
+</div>
+<div class="hidden md:flex gap-8 items-center font-headline font-bold text-lg">
+<a class="text-stone-600 dark:text-stone-400 hover:bg-[#fbf9f1] dark:hover:bg-stone-800 transition-colors px-3 py-1 rounded-full" href="#">Dashboard</a>
+<a class="text-[#00751f] font-bold border-b-2 border-[#00751f] pb-1" href="#">Lunchbox Lab</a>
+<a class="text-stone-600 dark:text-stone-400 hover:bg-[#fbf9f1] dark:hover:bg-stone-800 transition-colors px-3 py-1 rounded-full" href="#">Trends</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant">notifications</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User profile" data-alt="professional headshot of a friendly man smiling against a warm neutral background with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkK8phrn5_ShKy8nHtUiWimPxXonb3ChbREQA9XNLp_v-cUMKcZdQIYuYfPz3m5-pU0a26S-5ZssiPVmw3iKd1zmWr0x__YclIB5DlwOt6RFcM46cCNoCosfVjrk7pEsmnbMfYC9rQnDAb_Po7ZZ_6it150LodHYrs8QSwthtLtpaHUiIZV3S5sxQBeDvNbBW5nsvFcP2xD0O_v59N1Kthi7Ohwm7EGMpRxJYuJe7g-G5un51R6hNK0smsMAcnCTaLwFjn1k8hXuq8"/>
+</div>
+</div>
+</nav>
+<!-- Side Navigation (Web) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-8 bg-[#fefcf4] dark:bg-stone-950 h-screen w-64 rounded-r-[3rem] shadow-[32px_0_32px_rgba(0,0,0,0.06)] hidden lg:flex z-40">
+<div class="px-8 mb-10">
+<h1 class="text-xl font-extrabold text-[#00751f] font-headline">LunchLogic</h1>
+<p class="text-xs text-on-surface-variant font-medium">Organic Kineticist</p>
+</div>
+<div class="flex flex-col gap-1 overflow-y-auto">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-headline font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 bg-[#00751f] text-white rounded-full px-4 py-3 mx-2 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">science</span>
+<span class="font-headline font-medium text-sm">Lunchbox Lab</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="font-headline font-medium text-sm">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-headline font-medium text-sm">Weekly Trends</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-headline font-medium text-sm">Swap Engine</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">kitchen</span>
+<span class="font-headline font-medium text-sm">Fridge Remix</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-[#f9e534]/20 dark:hover:bg-yellow-900/20 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">family_restroom</span>
+<span class="font-headline font-medium text-sm">Caregiver Hub</span>
+</a>
+</div>
+</aside>
+<main class="lg:ml-64 pt-24 px-6 pb-20">
+<!-- Hero Title Section -->
+<header class="max-w-7xl mx-auto mb-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-xs font-bold font-label tracking-widest">SENSORY EXPERIMENT MODE</span>
+<h2 class="text-5xl font-black text-on-surface font-headline mt-2 leading-tight">Lunchbox Lab</h2>
+<p class="text-on-surface-variant mt-2 text-lg max-w-2xl">Turning "No, thank you" into "I'll try a lick" through intentional food bridges and sensory discovery.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-secondary-container text-on-secondary-fixed font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add_circle</span>
+                        Log New Exposure
+                    </button>
+</div>
+</div>
+</header>
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- 1. Taste Bridge (The Visual Map) -->
+<section class="lg:col-span-8 bg-surface-container-low rounded-xl p-8 relative overflow-hidden">
+<div class="flex items-center justify-between mb-8 relative z-10">
+<div>
+<h3 class="text-2xl font-extrabold text-on-surface font-headline">The Taste Bridge</h3>
+<p class="text-on-surface-variant text-sm">Incremental paths to new food acceptances</p>
+</div>
+<button class="text-primary font-bold flex items-center gap-1 group">
+                        See Full Map
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="relative min-h-[400px] flex items-center justify-center">
+<!-- Path Connector (SVG Decor) -->
+<svg class="absolute inset-0 w-full h-full opacity-20" fill="none" viewbox="0 0 800 400">
+<path d="M100 200 C 250 200, 350 100, 500 100 S 750 200, 800 250" stroke="#00751f" stroke-dasharray="12 12" stroke-width="4"></path>
+<path d="M100 200 C 250 200, 350 300, 500 300 S 750 200, 800 150" stroke="#706500" stroke-dasharray="12 12" stroke-width="4"></path>
+</svg>
+<!-- Safe Anchor -->
+<div class="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-20">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-xl border-4 border-primary/20 w-48 text-center transform -rotate-2">
+<div class="w-20 h-20 bg-primary-container/30 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+<img alt="Plain Crackers" class="object-cover w-full h-full" data-alt="a stack of simple plain golden square crackers on a white ceramic plate with bright natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBFTPuk4g_4c7K0oXfUUq9NSNfWpkpu9yF_MXY8d7LCeu51KH45MHWjR1H0QEt2dg6Cle_x5TBuE9dPbrvi9Sn4K3r8TIZ7Ak5oVgsf18m_VxXuFS0sQ2bJZxPej6yO7afhuymn2xofL_JuCFv62--LYBRJOHVu-cux7TvFB-EdgBAji6lHn0rZaIJjZRlPppoTE6SYG0TNw4Gj3TBg5tYnZP3gn_aeqRN8UGhaB_oUrr3nt3IZI1WCE6O368yMf8yQvyGtOaoZTd_"/>
+</div>
+<span class="font-black text-on-primary-container uppercase text-xs tracking-tighter">Safe Anchor</span>
+<p class="font-bold text-on-surface">Plain Crackers</p>
+</div>
+</div>
+<!-- Bridge 1 -->
+<div class="absolute left-1/2 top-1/4 -translate-x-1/2 z-20">
+<div class="bg-surface-container-lowest/80 p-5 rounded-xl shadow-lg w-44 text-center glass-panel transform rotate-3">
+<div class="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
+<img alt="Whole Grain" class="object-cover w-full h-full" data-alt="a close up of artisanal whole grain square crackers with visible seeds and textured surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHzeFJaZt-616QLr_6CUmR96DaVoBc4HUfw1POM-bGrjdIgwoF3dkHwCPaFkblGvMHgCYUIoDJBumGbCMGIqXB7bDOTz572dqS0Hq5qZDDH02PRgALlnBwtLylehsor4P60_Jhu2sygt4yGigtuWhttTX4XbGbbFuNwBRfz6OO0xoc6RRUr7w-erwslcML8g2LXKl3WdYrU_5qLoj1-2flWqz6Pr7h_nlYmvJ77Jm8w7fL02aEDkvAYZNkg8h55LlFfXAD3eTFoBGX"/>
+</div>
+<span class="font-bold text-secondary text-xs uppercase tracking-tight">Step 1: Color</span>
+<p class="font-bold text-on-surface">Whole Grain</p>
+<div class="mt-2 h-1.5 w-full bg-surface-container-high rounded-full">
+<div class="h-full bg-secondary w-3/4 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Bridge 2 -->
+<div class="absolute left-1/2 bottom-1/4 -translate-x-1/2 z-20">
+<div class="bg-surface-container-lowest/80 p-5 rounded-xl shadow-lg w-44 text-center glass-panel transform -rotate-1">
+<div class="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
+<img alt="Sweet Potato" class="object-cover w-full h-full" data-alt="vibrant orange sweet potato crackers in a pile on a light wooden background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKc5VKt7TKCmYd-JDgJ0GHz_Uw_d1fnrNHkoL_AyyhhTc552retUM_g-nRTxfKf4UUmU1hvAiYpIlghpqHihvRZgNyRKYffUGx27BQGq-_-9N7zxfMhqR3RDhOboCSrgs_Sy9tTWWj-Mh0T5rIoeg_nv_PnHILdn_L535XpsCf5zJJoCPc9v5V5sBR0jYTiz3UQ-qJevC1Nbj2CwBGllUzN2a4Nwsqf2Kgr-B7bz68VVonztpRlHLAr-5ItiACmAXl12h-kBrOL00T"/>
+</div>
+<span class="font-bold text-secondary text-xs uppercase tracking-tight">Step 1: Texture</span>
+<p class="font-bold text-on-surface">Sweet Potato</p>
+<div class="mt-2 h-1.5 w-full bg-surface-container-high rounded-full">
+<div class="h-full bg-secondary w-1/4 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Target Goal -->
+<div class="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-20">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-2xl border-4 border-tertiary/20 w-48 text-center transform rotate-6">
+<div class="w-20 h-20 bg-tertiary-container/30 rounded-full mx-auto mb-4 overflow-hidden">
+<img alt="Sliced Apples" class="object-cover w-full h-full" data-alt="crisp slices of red and green apples arranged neatly on a plate with water droplets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDacbSS2ZsQnTwTQiJB-DBT6FoLN6cijPUQeWY69K9k0rpZqxzKyWoCGApFPHgD3LeDdhlLCE2DIt9iTnt1AcV7QYbPBVsbMhaAjVowLam6w_gkvfANKQGg-UXRjEFQB62Cu1Svp53mFGfbRHD4A_jv7ew3VGBos_0wjY7g7XGMBRVJ4bBTpanYrvE2OVlV8w-coeh4CiZhvOEchE6BTUzCQBuOofgEOeTW43B_WDgprO9XiyeHVtYkWSf97Gjr94zQ0VxXcC8DAYF5"/>
+</div>
+<span class="font-black text-on-tertiary-container uppercase text-xs tracking-tighter">Ultimate Goal</span>
+<p class="font-bold text-on-surface">Crisp Apple</p>
+<span class="material-symbols-outlined text-tertiary mt-1">flag</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. Safe Food Anchors -->
+<aside class="lg:col-span-4 flex flex-col gap-8">
+<div class="bg-primary rounded-xl p-6 text-white shadow-xl relative overflow-hidden">
+<div class="absolute -right-10 -bottom-10 opacity-20">
+<span class="material-symbols-outlined text-[10rem]">anchor</span>
+</div>
+<div class="relative z-10">
+<h3 class="text-xl font-black font-headline mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">anchor</span>
+                            Safe Anchors
+                        </h3>
+<div class="space-y-3">
+<div class="bg-white/10 p-3 rounded-xl flex items-center justify-between">
+<span class="font-bold">White Pasta</span>
+<span class="text-xs bg-white/20 px-2 py-1 rounded-full uppercase">100% Trust</span>
+</div>
+<div class="bg-white/10 p-3 rounded-xl flex items-center justify-between">
+<span class="font-bold">Breadsticks</span>
+<span class="text-xs bg-white/20 px-2 py-1 rounded-full uppercase">95% Trust</span>
+</div>
+<div class="bg-white/10 p-3 rounded-xl flex items-center justify-between">
+<span class="font-bold">Apple Juice</span>
+<span class="text-xs bg-white/20 px-2 py-1 rounded-full uppercase">100% Trust</span>
+</div>
+</div>
+<button class="mt-6 w-full py-3 bg-secondary-container text-on-secondary-fixed rounded-xl font-black text-sm uppercase tracking-widest hover:scale-[0.98] transition-transform">
+                            Update Anchor List
+                        </button>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-xl p-6">
+<h3 class="text-lg font-black font-headline mb-4">Quick Tip</h3>
+<div class="flex gap-4">
+<div class="bg-white p-3 rounded-full flex-shrink-0 self-start">
+<span class="material-symbols-outlined text-secondary">lightbulb</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            Try serving <strong>Sweet Potato Crackers</strong> next to <strong>Plain Crackers</strong> today. Use the "Same Shape" logic to reduce visual anxiety.
+                        </p>
+</div>
+</div>
+</aside>
+<!-- 3. Experiment Log -->
+<section class="lg:col-span-12 xl:col-span-7 bg-surface-container-lowest rounded-xl p-8 border-2 border-surface-container-high shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-2xl font-black font-headline text-on-surface">Experiment Log</h3>
+<div class="flex gap-2">
+<span class="bg-primary-container text-on-primary-container text-xs font-bold px-3 py-1 rounded-full">8 Exposures this week</span>
+</div>
+</div>
+<div class="space-y-6">
+<!-- Entry 1 -->
+<div class="flex flex-col md:flex-row md:items-center gap-6 p-4 rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex-shrink-0 w-16 h-16 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">restaurant</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-lg text-on-surface">Whole Grain Toast Bits</h4>
+<p class="text-sm text-on-surface-variant">Wednesday, 2:45 PM</p>
+</div>
+<div class="flex items-center gap-1 md:gap-3">
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">touch_app</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-60">Touched</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">air</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-60">Smelled</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">child_care</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-60">Licked</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">sentiment_satisfied</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-40">Tasted</span>
+</div>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="flex flex-col md:flex-row md:items-center gap-6 p-4 rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex-shrink-0 w-16 h-16 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">nutrition</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-lg text-on-surface">Red Pepper Slices</h4>
+<p class="text-sm text-on-surface-variant">Monday, 6:15 PM</p>
+</div>
+<div class="flex items-center gap-1 md:gap-3">
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">touch_app</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-60">Touched</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">air</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-40">Smelled</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">child_care</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-40">Licked</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">sentiment_satisfied</span>
+</div>
+<span class="text-[10px] uppercase font-black opacity-40">Tasted</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Sensory Texture Map -->
+<section class="lg:col-span-12 xl:col-span-5 bg-surface-container-low rounded-xl p-8 overflow-hidden relative">
+<h3 class="text-2xl font-black font-headline text-on-surface mb-2">Sensory Map</h3>
+<p class="text-on-surface-variant text-sm mb-8">Balance of textures accepted vs. offered</p>
+<div class="relative w-full aspect-square max-w-[320px] mx-auto">
+<!-- Radar/Spider Chart Visualization -->
+<div class="absolute inset-0 border-2 border-outline-variant rounded-full opacity-20"></div>
+<div class="absolute inset-[15%] border-2 border-outline-variant rounded-full opacity-20"></div>
+<div class="absolute inset-[30%] border-2 border-outline-variant rounded-full opacity-20"></div>
+<div class="absolute inset-[45%] border-2 border-outline-variant rounded-full opacity-20"></div>
+<!-- Axes -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 h-full w-px bg-outline-variant/30"></div>
+<div class="absolute top-1/2 left-0 -translate-y-1/2 w-full h-px bg-outline-variant/30"></div>
+<!-- Labels -->
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 font-black text-xs uppercase tracking-widest text-primary">Crunchy</div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-black text-xs uppercase tracking-widest text-secondary">Soft</div>
+<div class="absolute top-1/2 -left-8 -translate-y-1/2 font-black text-xs uppercase tracking-widest text-tertiary origin-center -rotate-90">Wet</div>
+<div class="absolute top-1/2 -right-8 -translate-y-1/2 font-black text-xs uppercase tracking-widest text-on-surface origin-center rotate-90">Dry</div>
+<!-- Chart Polygon (Represented as a stylized overlay) -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-full bg-primary/20" style="clip-path: polygon(50% 10%, 90% 50%, 50% 80%, 30% 40%);"></div>
+<div class="w-full h-full absolute inset-0 border-4 border-primary" style="clip-path: polygon(50% 10%, 90% 50%, 50% 80%, 30% 40%);"></div>
+</div>
+<!-- Floating Indicator Labels -->
+<div class="absolute top-[15%] right-[15%] bg-surface-container-lowest shadow-lg px-2 py-1 rounded-full text-[10px] font-bold">
+                        Pretzels
+                    </div>
+<div class="absolute bottom-[25%] left-[20%] bg-surface-container-lowest shadow-lg px-2 py-1 rounded-full text-[10px] font-bold">
+                        Yogurt (Fear)
+                    </div>
+</div>
+<div class="mt-12 grid grid-cols-2 gap-4">
+<div class="bg-surface-container-highest p-4 rounded-xl text-center">
+<span class="text-2xl font-black text-primary">72%</span>
+<p class="text-xs font-bold uppercase text-on-surface-variant">Crunch Preference</p>
+</div>
+<div class="bg-surface-container-highest p-4 rounded-xl text-center">
+<span class="text-2xl font-black text-error">12%</span>
+<p class="text-xs font-bold uppercase text-on-surface-variant">Wet Tolerance</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Recommendation Banner -->
+<section class="max-w-7xl mx-auto mt-12 bg-tertiary rounded-3xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center gap-10 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+<div class="relative z-10 flex-grow">
+<span class="bg-tertiary-container text-on-tertiary-container px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase mb-4 inline-block">AI Sensory Match</span>
+<h3 class="text-4xl font-black font-headline leading-tight">Next Experiment: Freeze-Dried Strawberries</h3>
+<p class="text-white/80 mt-4 text-lg max-w-xl">Since crunchy textures are highly accepted (72%), we suggest freeze-dried fruit. It provides the vitamin profile of fruit with the "Safe Snap" of a cracker.</p>
+<div class="mt-8 flex flex-wrap gap-4">
+<button class="bg-white text-tertiary font-black px-8 py-4 rounded-xl hover:bg-surface-container-lowest transition-colors">Add to Lab Queue</button>
+<button class="border-2 border-white/30 text-white font-black px-8 py-4 rounded-xl hover:bg-white/10 transition-colors">Why this works?</button>
+</div>
+</div>
+<div class="relative z-10 w-full md:w-1/3">
+<div class="aspect-square bg-surface-container-lowest rounded-full p-4 shadow-2xl relative">
+<img alt="Freeze Dried Strawberries" class="w-full h-full object-cover rounded-full" data-alt="vibrant pink and red freeze dried strawberry halves in a minimal white ceramic bowl with high key bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLow_WegN4bhf3Lc18enreMKlVzZajuadAGifu5MrMNO5A9KsgR-kveQn1iZBY_lu2dxrNOTitUFa2TtxtgUNhdiOjnFMmH0oDDMwNqTPnUa4Gw4l89wub0l-Kk461y2BEL04Dv9DtV9H_5o0U2qGTKqai8Mi9UsWMe9tIB3GTPahagHP5-rKv5DC-cNssWMs9EWViUKDthNVq2dTqpX0AbsBCDAlq0l4cLagoh7Iq-ly7ickQlczesjVc66CPgGsTHiIaGnJADt8v"/>
+<!-- Overlay Badge -->
+<div class="absolute -top-4 -right-4 bg-secondary-container text-on-secondary-container p-4 rounded-full shadow-lg transform rotate-12">
+<span class="material-symbols-outlined text-3xl">star</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-surface-container-high px-6 py-3 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold uppercase">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">science</span>
+<span class="text-[10px] font-bold uppercase">Lab</span>
+</button>
+<div class="relative -top-8">
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-[10px] font-bold uppercase">Trends</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase">Profile</span>
+</button>
+</nav>
+</body></html>

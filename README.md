@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LunchLogic - Next.js Migration
 
-## Getting Started
+A comprehensive lunch planning and nutrition analysis application built with Next.js 15, TypeScript, and Tailwind CSS 4.
 
-First, run the development server:
+## Project Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+LunchLogic is a parent-focused web application that helps families plan, analyze, and optimize their children's school lunches. The app features AI-powered lunchbox analysis, weekly meal planning, smart food swaps, sensory preference tracking, and caregiver collaboration tools.
+
+## Tech Stack
+
+- **Framework**: Next.js 15.2.2 (App Router)
+- **Language**: TypeScript 5.x
+- **Styling**: Tailwind CSS 4.x with custom design tokens
+- **Fonts**: Plus Jakarta Sans (headlines), Inter (body)
+- **Icons**: Material Symbols (Google Fonts)
+
+## Project Structure
+
+```
+app/
+├── page.tsx                    # Redirects to /dashboard
+├── layout.tsx                  # Root layout with fonts + metadata
+├── globals.css                 # Tailwind imports + custom CSS
+├── dashboard/                  # Morning Rush Dashboard (main entry)
+│   └── page.tsx
+├── profile/                    # Child Profile Setup
+│   └── page.tsx
+├── planning/                   # Weekly Planning & Prep
+│   └── page.tsx
+├── analysis/                   # AI Lunchbox Analysis
+│   └── page.tsx
+├── lab/                        # Lunchbox Lab (Sensory Mode)
+│   └── page.tsx
+├── swaps/                      # Tiny Tweaks Swap Engine
+│   └── page.tsx
+├── caregiver/                  # Caregiver Report Card Hub
+│   └── page.tsx
+├── fridge/                     # Fridge Remix Pantry Prep
+│   └── page.tsx
+├── logistics/                  # Logistics & Openability Review
+│   └── page.tsx
+├── store/                      # Smart Store Map & Budget Builder
+│   └── page.tsx
+├── trends/                     # Weekly Pattern Intelligence
+│   └── page.tsx
+├── components/
+│   ├── TopNav.tsx             # Top navigation bar
+│   ├── SideNav.tsx            # Desktop sidebar navigation
+│   ├── MobileNav.tsx          # Mobile bottom navigation
+│   └── MaterialIcon.tsx       # Material Symbols wrapper
+stitch/                         # Original HTML source files (reference)
+public/                         # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Design System
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Color Palette (Material Design 3 - Custom)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Primary Colors:**
+- `primary`: #00751f (Green)
+- `primary-dim`: #00671a
+- `primary-container`: #91f78e
+- `on-primary`: #ffffff
+- `on-primary-container`: #005e17
 
-## Learn More
+**Secondary Colors:**
+- `secondary`: #706500 (Yellow/Olive)
+- `secondary-dim`: #625900
+- `secondary-container`: #f9e534
+- `on-secondary`: #ffffff
+- `on-secondary-container`: #5b5300
 
-To learn more about Next.js, take a look at the following resources:
+**Tertiary Colors:**
+- `tertiary`: #0067ad (Blue)
+- `tertiary-dim`: #005b9a
+- `tertiary-container`: #70b5ff
+- `on-tertiary`: #ffffff
+- `on-tertiary-container`: #003258
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Surface Colors:**
+- `surface`: #fefcf4 (Cream/Off-white background)
+- `surface-container`: #f5f4eb
+- `surface-container-low`: #fbf9f1
+- `surface-container-high`: #efeee5
+- `surface-container-highest`: #e9e9de
+- `on-surface`: #383833
+- `on-surface-variant`: #65655f
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Error Colors:**
+- `error`: #be2d06
+- `error-container`: #f95630
+- `on-error`: #ffffff
 
-## Deploy on Vercel
+### Typography
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Headlines**: Plus Jakarta Sans
+- **Body**: Inter
+- **Icons**: Material Symbols Outlined
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Border Radius Scale
+
+- `DEFAULT`: 1rem
+- `lg`: 2rem
+- `xl`: 3rem
+- `full`: 9999px
+
+## Navigation Routes
+
+| Route | Page | Icon |
+|-------|------|------|
+| `/dashboard` | Morning Rush Dashboard | `dashboard` |
+| `/analysis` | AI Lunchbox Analysis | `qr_code_scanner` |
+| `/trends` | Weekly Trends | `trending_up` |
+| `/swaps` | Swap Engine | `swap_horiz` |
+| `/profile` | Kid Profiles | `face` |
+| `/planning` | Weekly Planning | `calendar_month` |
+| `/lab` | Lunchbox Lab | `science` |
+| `/caregiver` | Caregiver Hub | `family_restroom` |
+| `/fridge` | Fridge Remix | `kitchen` |
+| `/logistics` | Logistics Check | `local_shipping` |
+| `/store` | Smart Store Map | `map` |
+
+## Development
+
+```bash
+npm install
+npm run dev
+npm run build
+```
+
+## Migration Notes
+
+Migrated from standalone HTML files in `stitch/` directory.
+
+## License
+
+Private - All rights reserved.
+

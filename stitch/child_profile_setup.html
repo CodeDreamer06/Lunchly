@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary-fixed-dim": "#83e881",
+            "on-tertiary-container": "#003258",
+            "secondary-fixed-dim": "#ead723",
+            "secondary-dim": "#625900",
+            "on-surface": "#383833",
+            "surface-bright": "#fefcf4",
+            "surface": "#fefcf4",
+            "error": "#be2d06",
+            "on-primary-container": "#005e17",
+            "primary-container": "#91f78e",
+            "surface-container-high": "#efeee5",
+            "inverse-surface": "#0e0f0a",
+            "secondary": "#706500",
+            "on-secondary-fixed-variant": "#665c00",
+            "surface-tint": "#00751f",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed": "#474000",
+            "on-primary-fixed-variant": "#00691a",
+            "outline": "#81817a",
+            "surface-container": "#f5f4eb",
+            "on-background": "#383833",
+            "surface-variant": "#e9e9de",
+            "secondary-fixed": "#f9e534",
+            "inverse-on-surface": "#9e9d96",
+            "surface-dim": "#e4e3d8",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-dim": "#005b9a",
+            "inverse-primary": "#91f78e",
+            "secondary-container": "#f9e534",
+            "on-error": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed": "#70b5ff",
+            "surface-container-highest": "#e9e9de",
+            "on-tertiary-fixed-variant": "#003b67",
+            "primary": "#00751f",
+            "primary-dim": "#00671a",
+            "on-secondary-container": "#5b5300",
+            "tertiary": "#0067ad",
+            "on-error-container": "#520c00",
+            "primary-fixed": "#91f78e",
+            "background": "#fefcf4",
+            "on-primary-fixed": "#00480f",
+            "tertiary-fixed-dim": "#4ca8ff",
+            "surface-container-low": "#fbf9f1",
+            "on-surface-variant": "#65655f",
+            "on-primary": "#ffffff",
+            "outline-variant": "#bab9b2",
+            "error-dim": "#b92902",
+            "on-tertiary-fixed": "#001930",
+            "tertiary-container": "#70b5ff",
+            "error-container": "#f95630"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen">
+<header class="fixed top-0 z-50 w-full flex justify-between items-center px-8 h-16 bg-[#fefcf4] border-b border-stone-200/50">
+<div class="text-2xl font-black text-[#00751f] tracking-tight font-headline">LunchLogic</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-6">
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline font-semibold" href="#">Dashboard</a>
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline font-semibold" href="#">Lunch Scanner</a>
+<a class="text-stone-500 hover:text-[#00751f] transition-colors font-headline font-semibold" href="#">Weekly Trends</a>
+<a class="text-[#00751f] font-bold border-b-2 border-[#00751f] font-headline font-semibold" href="#">Kid Profiles</a>
+</nav>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-stone-500">notifications</span>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
+<img alt="Child Profile Avatar" class="w-full h-full rounded-full" data-alt="Close up portrait of a smiling young boy with curly hair in a bright yellow shirt, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYoLKGYn-07uZy99K4lkl6PUlTvhYGrJvIYVkJtj5Rw0JshT7a-CM6gmLzn2jMz-ZMS5m994HIjYgv96GiIDeIAmuM6VEiuY1xA_oamWhNvqxRH_KFh7LSM2GQruYWmX6Ib6d0YW2ZLP5-JVTtSHf05slBdTNbDk7Fcf_NfPLqqkaJFte5JOEEYt3ZxpEqiVePusq_jZF0MMrXXU-q5-JRP-t6vXNVyst17qVSUBZ3tip37G-4FK6-0Q4MDJ5Ca9X-YmpZ5w7fZOry"/>
+</div>
+<span class="material-symbols-outlined text-stone-500">expand_more</span>
+</div>
+</div>
+</header>
+<aside class="hidden md:flex flex-col pt-20 pb-8 h-screen w-64 fixed left-0 top-0 border-r border-stone-200/50 bg-white/70 backdrop-blur-md shadow-[32px_0_32px_rgba(0,0,0,0.06)] z-40">
+<div class="px-6 mb-8">
+<p class="text-xs font-bold text-primary tracking-widest uppercase mb-1">Parent Portal</p>
+<p class="text-on-surface-variant text-sm">Managing 2 Profiles</p>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-headline font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-headline font-medium text-sm">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-headline font-medium text-sm">Weekly Trends</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 px-4 py-3 mx-2 hover:bg-stone-100 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-headline font-medium text-sm">Swap Engine</span>
+</a>
+<a class="flex items-center gap-3 bg-[#00751f]/10 text-[#00751f] rounded-2xl px-4 py-3 mx-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">face</span>
+<span class="font-headline font-medium text-sm">Kid Profiles</span>
+</a>
+</nav>
+</aside>
+<main class="md:ml-64 pt-24 px-4 pb-20 max-w-7xl mx-auto">
+<div class="mb-10 text-center md:text-left">
+<h1 class="text-4xl font-headline font-extrabold text-on-surface tracking-tight mb-2">Child Profile &amp; Sensory Preferences</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl">Tailor the LunchLogic experience to your child's unique needs, habits, and school environment.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<section class="lg:col-span-4 space-y-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 text-center flex flex-col items-center">
+<div class="relative mb-6">
+<div class="w-32 h-32 rounded-full ring-4 ring-primary-container ring-offset-4 overflow-hidden bg-surface-container-high">
+<img alt="Leo's Profile" class="w-full h-full object-cover" data-alt="Headshot of a happy 7-year-old boy with glasses and a green striped shirt, soft morning window light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsLaACFYG55Sue61y18Ke6kBUViBFKUatfd6Ay4QrZm4S66B8Q_WfJhFnZ6ctjkDpI0CIdePFN5RMdCu7GmsdAaqe66xokKePTXXIkEFDiKy2ErlekFIw7JzJlY1DUs8VCPwbEr2YX5LTiZ1fQPN3dm9--ve2kIsl0ktI6d0gmZqDuHYOw1OtohLnRIuMYzt46ZJ5SlZAzlWRJNx2xtqX5Uu6i57Z9gegNpVsn0Cf6JfETe7PGpOCfvd0mwJadbbnXFyVaMWlmK_-H"/>
+</div>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<h2 class="text-2xl font-headline font-bold text-on-surface">Leo Miller</h2>
+<p class="text-on-surface-variant font-medium">Grade 2 • 7 Years Old</p>
+<div class="mt-6 flex flex-wrap justify-center gap-2">
+<span class="px-3 py-1 bg-tertiary-container/30 text-on-tertiary-container rounded-full text-xs font-semibold">Active Profile</span>
+<span class="px-3 py-1 bg-secondary-container/30 text-on-secondary-container rounded-full text-xs font-semibold">Morning School</span>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<h3 class="font-headline font-bold text-lg mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">school</span>
+            Allergy &amp; School Policy
+          </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">dangerous</span>
+<span class="text-sm font-medium">Nut-Free Policy</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">close</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary">microwave</span>
+<span class="text-sm font-medium">No Reheating</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">close</span>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant rounded-lg text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+              Add New Policy
+            </button>
+</div>
+</div>
+</section>
+<section class="lg:col-span-8 space-y-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15">
+<h3 class="font-headline font-bold text-2xl mb-6">Sensory Preferences</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<label class="group relative flex flex-col gap-4 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 border-transparent transition-all cursor-pointer">
+<input checked="" class="absolute right-4 top-4 w-6 h-6 rounded-full text-primary focus:ring-primary-container border-outline" type="checkbox"/>
+<div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">restaurant</span>
+</div>
+<div>
+<p class="font-headline font-bold text-lg">Picky Eater</p>
+<p class="text-sm text-on-surface-variant">Prioritizes familiar textures and predictable flavor profiles.</p>
+</div>
+</label>
+<label class="group relative flex flex-col gap-4 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 border-transparent transition-all cursor-pointer">
+<input class="absolute right-4 top-4 w-6 h-6 rounded-full text-primary focus:ring-primary-container border-outline" type="checkbox"/>
+<div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div>
+<p class="font-headline font-bold text-lg">Sensory-Sensitive</p>
+<p class="text-sm text-on-surface-variant">Aversion to mixed textures, strong smells, or soggy foods.</p>
+</div>
+</label>
+<label class="group relative flex flex-col gap-4 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 border-transparent transition-all cursor-pointer">
+<input checked="" class="absolute right-4 top-4 w-6 h-6 rounded-full text-primary focus:ring-primary-container border-outline" type="checkbox"/>
+<div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">fitness_center</span>
+</div>
+<div>
+<p class="font-headline font-bold text-lg">Sports Day Focus</p>
+<p class="text-sm text-on-surface-variant">Higher protein and complex carbs for energy on PE days.</p>
+</div>
+</label>
+<label class="group relative flex flex-col gap-4 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 border-transparent transition-all cursor-pointer">
+<input class="absolute right-4 top-4 w-6 h-6 rounded-full text-primary focus:ring-primary-container border-outline" type="checkbox"/>
+<div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-3xl">savings</span>
+</div>
+<div>
+<p class="font-headline font-bold text-lg">Budget-Conscious</p>
+<p class="text-sm text-on-surface-variant">Suggests ingredients that are currently seasonal or in-bulk.</p>
+</div>
+</label>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary text-2xl">edit_note</span>
+<h3 class="font-headline font-bold text-xl">Eating Habits &amp; Independence</h3>
+</div>
+<p class="text-on-surface-variant text-sm mb-4">How much help does your child need during lunch? We use this to suggest packaging and food prep levels.</p>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest rounded-lg border-none focus:ring-2 focus:ring-primary/20 p-4 font-body text-on-surface placeholder:text-outline-variant" placeholder="e.g., Can peel an orange but struggles with tiny wrappers. Needs pre-cut apples." rows="4"></textarea>
+<div class="mt-4 flex flex-wrap gap-2">
+<button class="px-4 py-2 bg-surface-container-high rounded-full text-xs font-semibold hover:bg-surface-container-highest transition-colors">Needs pre-cut food</button>
+<button class="px-4 py-2 bg-surface-container-high rounded-full text-xs font-semibold hover:bg-surface-container-highest transition-colors">Finger foods only</button>
+<button class="px-4 py-2 bg-surface-container-high rounded-full text-xs font-semibold hover:bg-surface-container-highest transition-colors">Self-sufficient</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="flex-1 bg-primary text-white py-4 rounded-xl font-headline font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20">
+            Save Child Profile
+          </button>
+<button class="px-10 py-4 bg-secondary-container text-on-secondary-container rounded-xl font-headline font-bold text-lg hover:bg-secondary-fixed transition-all">
+            Cancel
+          </button>
+</div>
+</section>
+</div>
+</main>
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-stone-200/50 px-6 py-3 flex justify-between items-center z-50">
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium mt-1">Dash</span>
+</div>
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="text-[10px] font-medium mt-1">Scan</span>
+</div>
+<div class="flex flex-col items-center bg-primary-container text-on-primary-container rounded-full p-2 -mt-8 shadow-xl">
+<span class="material-symbols-outlined text-2xl">add</span>
+</div>
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-[10px] font-medium mt-1">Trends</span>
+</div>
+<div class="flex flex-col items-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">face</span>
+<span class="text-[10px] font-medium mt-1">Kids</span>
+</div>
+</nav>
+</body></html>

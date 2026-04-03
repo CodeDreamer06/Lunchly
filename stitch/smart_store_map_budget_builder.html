@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LunchLogic | Smart Store Map &amp; Budget Builder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed": "#91f78e",
+              "on-error": "#ffffff",
+              "primary-dim": "#00671a",
+              "on-secondary-container": "#5b5300",
+              "inverse-primary": "#91f78e",
+              "on-surface-variant": "#65655f",
+              "on-primary": "#ffffff",
+              "surface-tint": "#00751f",
+              "error": "#be2d06",
+              "on-error-container": "#520c00",
+              "surface-container": "#f5f4eb",
+              "secondary-fixed-dim": "#ead723",
+              "on-primary-fixed-variant": "#00691a",
+              "tertiary-container": "#70b5ff",
+              "tertiary-fixed-dim": "#4ca8ff",
+              "on-tertiary-container": "#003258",
+              "on-primary-container": "#005e17",
+              "surface-bright": "#fefcf4",
+              "primary-container": "#91f78e",
+              "inverse-on-surface": "#9e9d96",
+              "secondary-container": "#f9e534",
+              "error-dim": "#b92902",
+              "on-surface": "#383833",
+              "background": "#fefcf4",
+              "on-tertiary-fixed": "#001930",
+              "on-tertiary": "#ffffff",
+              "primary": "#00751f",
+              "surface-variant": "#e9e9de",
+              "surface-container-lowest": "#ffffff",
+              "inverse-surface": "#0e0f0a",
+              "tertiary-dim": "#005b9a",
+              "on-primary-fixed": "#00480f",
+              "on-secondary-fixed-variant": "#665c00",
+              "surface-container-high": "#efeee5",
+              "secondary": "#706500",
+              "on-secondary": "#ffffff",
+              "surface-dim": "#e4e3d8",
+              "error-container": "#f95630",
+              "tertiary-fixed": "#70b5ff",
+              "surface-container-highest": "#e9e9de",
+              "secondary-fixed": "#f9e534",
+              "on-secondary-fixed": "#474000",
+              "surface-container-low": "#fbf9f1",
+              "secondary-dim": "#625900",
+              "tertiary": "#0067ad",
+              "outline-variant": "#bab9b2",
+              "outline": "#81817a",
+              "primary-fixed-dim": "#83e881",
+              "on-background": "#383833",
+              "on-tertiary-fixed-variant": "#003b67",
+              "surface": "#fefcf4"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle { border-radius: 3rem; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar Implementation -->
+<header class="bg-[#fefcf4] dark:bg-stone-950 sticky top-0 z-50">
+<nav class="flex justify-between items-center w-full px-6 py-4 mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#00751f] dark:text-green-500 font-headline">
+                LunchLogic
+            </div>
+<!-- Web Navigation -->
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-headline font-bold text-sm tracking-tight text-stone-500 dark:text-stone-400 font-medium hover:text-[#00751f] transition-colors duration-200" href="#">Dashboard</a>
+<a class="font-headline font-bold text-sm tracking-tight text-stone-500 dark:text-stone-400 font-medium hover:text-[#00751f] transition-colors duration-200" href="#">Scanner</a>
+<a class="font-headline font-bold text-sm tracking-tight text-stone-500 dark:text-stone-400 font-medium hover:text-[#00751f] transition-colors duration-200" href="#">Sensory Lab</a>
+<div class="flex items-center gap-4 ml-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-[#fbf9f1] p-2 rounded-full transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-[#fbf9f1] p-2 rounded-full transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+<!-- Mobile Menu Icon -->
+<div class="md:hidden">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</div>
+</nav>
+</header>
+<main class="flex flex-col md:flex-row min-h-screen">
+<!-- SideNavBar Implementation (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-72 bg-[#fbf9f1] dark:bg-stone-900 py-8 gap-2 rounded-r-[3rem] sticky top-0 shadow-[32px_0_32px_rgba(0,0,0,0.06)]">
+<div class="px-8 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="portrait of a young student with a friendly expression and bright eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKiALFKrrEKJU-jmN9Qs9o61PvGmkJA80BlG_82RceYc3k8RRbyZxIv82Sj7HJQ5OcoSdxMzHk4xzOm8Hwq-PBMUVf0INV4zANM-qyIpIlanboorygHCKfhyVIQjc4boeZGgaZrNbbBC8-Smq0kaa09nK2A8wv5FXQjhtcSS75Cqw1xG4wpkUFzSgvla_bCKfMAZWAG6voUG3JQROprtlVClhrNqt7Es5n7liIXEOg9YS7jYYHgThRbVdp-AK0DtCpYkdMA1b3gpsX"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-[#00751f]">Student Profile</h3>
+<p class="text-xs text-on-surface-variant">Grade 4 - Lunch Explorer</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1 px-2">
+<a class="text-stone-600 dark:text-stone-300 mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#e9e9de] dark:hover:bg-stone-800 rounded-[2rem] transition-all font-['Plus_Jakarta_Sans'] text-base font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="family_restroom">family_restroom</span>
+                    Caregiver Hub
+                </a>
+<a class="text-stone-600 dark:text-stone-300 mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#e9e9de] dark:hover:bg-stone-800 rounded-[2rem] transition-all font-['Plus_Jakarta_Sans'] text-base font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="auto_delete">auto_delete</span>
+                    Leftovers Predictor
+                </a>
+<!-- Active Tab Logic: This is the shopping assistant/budget builder area -->
+<a class="bg-[#00751f] text-white rounded-[2rem] mx-2 px-4 py-3 flex items-center gap-3 font-['Plus_Jakarta_Sans'] text-base font-semibold shadow-lg" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+                    Swap Engine
+                </a>
+<a class="text-stone-600 dark:text-stone-300 mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#e9e9de] dark:hover:bg-stone-800 rounded-[2rem] transition-all font-['Plus_Jakarta_Sans'] text-base font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+                    Sensory Profile
+                </a>
+<a class="text-stone-600 dark:text-stone-300 mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#e9e9de] dark:hover:bg-stone-800 rounded-[2rem] transition-all font-['Plus_Jakarta_Sans'] text-base font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="mt-auto px-6">
+<button class="w-full bg-secondary-container text-on-secondary-container font-headline font-bold py-4 rounded-xl hover:scale-95 transition-transform">
+                    Upgrade to Premium
+                </button>
+<div class="mt-6 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                        Support
+                    </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                        Logout
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex-1 p-6 md:p-10 overflow-y-auto">
+<div class="max-w-6xl mx-auto space-y-10">
+<!-- Header & Budget Goal -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-2">
+<h1 class="text-4xl md:text-5xl font-headline font-extrabold text-on-surface tracking-tight">Smart Shopping Map</h1>
+<p class="text-on-surface-variant text-lg">Optimizing your weekly lunchbox at <span class="font-bold text-primary">Whole Foods Market</span></p>
+</div>
+<div class="bg-surface-container-lowest squircle p-8 shadow-[0_12px_40px_rgba(0,0,0,0.04)] relative overflow-hidden">
+<div class="relative z-10 space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-sm font-headline font-bold text-on-surface-variant">Weekly Budget Goal</span>
+<span class="text-primary font-headline font-black text-xl">$2.50 / lunch</span>
+</div>
+<div class="h-4 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[74%] rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant text-right">74% of budget utilized • <strong>$1.85 current avg.</strong></p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[100px] text-primary" data-icon="savings">savings</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Store Map Card -->
+<div class="md:col-span-8 bg-surface-container-low squircle p-8 relative min-h-[450px]">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-headline font-extrabold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="map">map</span>
+                                Smart Store Route
+                            </h2>
+<div class="flex gap-2">
+<span class="px-4 py-2 bg-surface-container-lowest rounded-full text-xs font-bold shadow-sm">Aisle 4: Dairy</span>
+<span class="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold shadow-sm">Start Shopping</span>
+</div>
+</div>
+<!-- Map Visualization -->
+<div class="relative w-full aspect-video bg-surface-container-highest rounded-lg border-4 border-white overflow-hidden shadow-inner">
+<!-- Simulated Map Grid -->
+<div class="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-2 p-4 opacity-40">
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+<div class="bg-outline-variant rounded"></div>
+</div>
+<!-- Path Logic -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 400 200">
+<path d="M40,160 Q100,160 100,100 T200,80 T300,120 T360,40" fill="none" stroke="#00751f" stroke-dasharray="8 8" stroke-width="4"></path>
+</svg>
+<!-- Pins -->
+<div class="absolute top-[80%] left-[10%] group">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] py-1 px-2 rounded mb-1 whitespace-nowrap">Entrance</div>
+</div>
+<div class="absolute top-[40%] left-[25%]">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-icon="shopping_basket" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
+</div>
+<div class="absolute top-[20%] left-[50%]">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="nutrition" style="font-variation-settings: 'FILL' 1;">nutrition</span>
+</div>
+<div class="absolute top-[10%] left-[90%]">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Best Value Protein Card -->
+<div class="md:col-span-4 bg-tertiary-container text-on-tertiary-container squircle p-8 flex flex-col justify-between">
+<div>
+<h2 class="text-2xl font-headline font-extrabold mb-2">Best Value Protein</h2>
+<p class="text-sm opacity-80 mb-6">Price comparison based on 15g protein serving</p>
+<div class="space-y-4">
+<div class="bg-white/20 p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="egg">egg</span>
+<span class="font-bold">Organic Eggs</span>
+</div>
+<span class="font-headline font-black">$0.42 / srv</span>
+</div>
+<div class="bg-white/20 p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="flatware">flatware</span>
+<span class="font-bold">Greek Yogurt</span>
+</div>
+<span class="font-headline font-black">$0.68 / srv</span>
+</div>
+<div class="bg-white/40 p-4 rounded-2xl flex items-center justify-between border-2 border-white/50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-bold">Rotisserie Chicken</span>
+</div>
+<div class="text-right">
+<span class="font-headline font-black block">$0.35 / srv</span>
+<span class="text-[10px] uppercase tracking-wider font-bold bg-primary text-white px-2 rounded">Top Pick</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<button class="w-full py-4 bg-on-tertiary-container text-white rounded-xl font-headline font-bold text-sm">Update Preferences</button>
+</div>
+</div>
+<!-- On-Sale Staples -->
+<div class="md:col-span-12">
+<div class="flex items-end justify-between mb-6 px-2">
+<div>
+<h2 class="text-3xl font-headline font-extrabold">On-Sale Staples</h2>
+<p class="text-on-surface-variant">Recommended lunchbox basics at Target</p>
+</div>
+<button class="text-primary font-bold flex items-center gap-1">
+                                View Full Flyer
+                                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Product 1 -->
+<div class="bg-surface-container-low p-6 squircle group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-white rounded-3xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="vibrant fresh organic strawberries in a white ceramic bowl on a sunny kitchen counter" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeIYasy-d-YQ9bd6wBd1BRV2N7nx8ANCL3ekfpaaBaaGjLL7Pgea_iVN_QOcS11ShThUKbMM-nStC7IXGlKGiYI-9HC8U-zKtMsaAvgjw5oYlGacfErTJrLG6K9NjSafizvZD3qnhlnKcQEGGZlYZlel2XM7gj_6VQk72V4cTmVlRx_BqxlMgA9M1gO3FvftL9d0CxudNvd8IiekIFjbnMJR1pkFvYjvE0swyN_rtAibaB15t3mtpMVNhTQhunQgp_SvI6NE3vwUCp"/>
+<div class="absolute top-3 right-3 bg-error text-white text-[10px] font-black px-2 py-1 rounded-full">-30%</div>
+</div>
+<h3 class="font-headline font-bold text-lg">Fresh Strawberries</h3>
+<p class="text-on-surface-variant text-sm mb-4">1lb Organic Pack</p>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant line-through">$4.99</span>
+<span class="text-xl font-black text-primary">$3.49</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="bg-surface-container-low p-6 squircle group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-white rounded-3xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="close-up of whole grain bread loaf with visible seeds and grains on a rustic wooden board" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_Ok6YDHb-3k2ApxWjagaBVFFpkeSCX7V7ruXXuD2bCKuEPHX1Cc61NeZBDEjBLYx9yqSVMmI1PYw9KwyuolbhYxU--r5H_xbN32A12f6U_izUrB9FmH5_elnUe8qQYoimVorW4wCmVkCT5BUe2dQDSO4OW0kVtQ2QOAstZpCAu2nvhpl3Lk_xQ5ynjxLTzdPxIWSgmLzD_YDMo0huvO88AI4xuwfrAd2BvwM2UPCFCfMMNrDOJ09ZGs5lwvY3Ws0zDSAi1k6t-AIP"/>
+<div class="absolute top-3 right-3 bg-secondary text-on-secondary text-[10px] font-black px-2 py-1 rounded-full">BOGO</div>
+</div>
+<h3 class="font-headline font-bold text-lg">Sprouted Grain Bread</h3>
+<p class="text-on-surface-variant text-sm mb-4">High-Fiber 20oz Loaf</p>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant line-through">$6.49</span>
+<span class="text-xl font-black text-primary">$3.25</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="bg-surface-container-low p-6 squircle group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-white rounded-3xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="selection of colorful baby carrots in orange, purple, and yellow arranged neatly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6QW1wChs6XzZoDVwZ2in5UvE7OO_cMuTPWvPEr9BmeAQ2_ayN2gFFkfTZehIFz-goeeWFfaQAS-riBiE4Uco07aRbDb2LLGhxRYtxfMfw2szaqJDVlcANGmMtRD7pvTNHWVy96YbZ9s4nMR_WeSxxvDOFgYMv6qpo9NF5U6Zr-IqvWMGivSmeWzkuoBsw_yMeB0RnZauViKMRk0y1Yhi_X9FAZyWN98GKBx0qK2TviX2fK7OGqCUJghGD17DYJ9RupYKV3ULAfgLM"/>
+<div class="absolute top-3 right-3 bg-error text-white text-[10px] font-black px-2 py-1 rounded-full">-15%</div>
+</div>
+<h3 class="font-headline font-bold text-lg">Baby Carrots</h3>
+<p class="text-on-surface-variant text-sm mb-4">Snap Pack • 12oz</p>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant line-through">$2.29</span>
+<span class="text-xl font-black text-primary">$1.95</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="bg-surface-container-low p-6 squircle group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-white rounded-3xl mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="creamy hummus in a small bowl topped with olive oil and chickpeas, garnished with fresh herbs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfdreSgN-9q7RlYM1BsW1n9Z2Fjzhj4V7SRiaRTsbRQJ3CBKK_ndSj6hUvVs9-jWXTtu4i2exYNADuFQj73XJS5yE6axXWpF5C-KLVt3laKwlE61H9wjcZjZjNFuskkEWjVJ3lZ3zxAuKe7x6Pp91_svamv7dGmpQYnH3wuWPeCkl9SgKAIa1RMpIFjV8qF9_cHHaXi2oJKGATmq0LZWLW2DMGAHc3LiUbX3SephN5WxdUDdTGx5FDoKEtaQTdiROdW43l4d1q1shh"/>
+<div class="absolute top-3 right-3 bg-primary-container text-on-primary-container text-[10px] font-black px-2 py-1 rounded-full">Member Deal</div>
+</div>
+<h3 class="font-headline font-bold text-lg">Hummus Singles</h3>
+<p class="text-on-surface-variant text-sm mb-4">Roasted Garlic • 6pk</p>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs text-on-surface-variant line-through">$5.99</span>
+<span class="text-xl font-black text-primary">$4.49</span>
+</div>
+<button class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Implementation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-surface-container-highest px-6 py-4 flex justify-between items-center z-50">
+<div class="flex flex-col items-center text-[#00751f]">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</div>
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined" data-icon="auto_delete">auto_delete</span>
+<span class="text-[10px] font-medium">Predictor</span>
+</div>
+<div class="relative -top-8">
+<div class="w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/40 flex items-center justify-center border-4 border-white">
+<span class="material-symbols-outlined text-3xl" data-icon="shopping_cart">shopping_cart</span>
+</div>
+</div>
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="text-[10px] font-medium">Sensory</span>
+</div>
+<div class="flex flex-col items-center text-stone-400">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-medium">Profile</span>
+</div>
+</nav>
+</body></html>

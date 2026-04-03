@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LunchLogic Swap Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#83e881",
+              "on-tertiary-container": "#003258",
+              "secondary-fixed-dim": "#ead723",
+              "secondary-dim": "#625900",
+              "on-surface": "#383833",
+              "surface-bright": "#fefcf4",
+              "surface": "#fefcf4",
+              "error": "#be2d06",
+              "on-primary-container": "#005e17",
+              "primary-container": "#91f78e",
+              "surface-container-high": "#efeee5",
+              "inverse-surface": "#0e0f0a",
+              "secondary": "#706500",
+              "on-secondary-fixed-variant": "#665c00",
+              "surface-tint": "#00751f",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#474000",
+              "on-primary-fixed-variant": "#00691a",
+              "outline": "#81817a",
+              "surface-container": "#f5f4eb",
+              "on-background": "#383833",
+              "surface-variant": "#e9e9de",
+              "secondary-fixed": "#f9e534",
+              "inverse-on-surface": "#9e9d96",
+              "surface-dim": "#e4e3d8",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005b9a",
+              "inverse-primary": "#91f78e",
+              "secondary-container": "#f9e534",
+              "on-error": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed": "#70b5ff",
+              "surface-container-highest": "#e9e9de",
+              "on-tertiary-fixed-variant": "#003b67",
+              "primary": "#00751f",
+              "primary-dim": "#00671a",
+              "on-secondary-container": "#5b5300",
+              "tertiary": "#0067ad",
+              "on-error-container": "#520c00",
+              "primary-fixed": "#91f78e",
+              "background": "#fefcf4",
+              "on-primary-fixed": "#00480f",
+              "tertiary-fixed-dim": "#4ca8ff",
+              "surface-container-low": "#fbf9f1",
+              "on-surface-variant": "#65655f",
+              "on-primary": "#ffffff",
+              "outline-variant": "#bab9b2",
+              "error-dim": "#b92902",
+              "on-tertiary-fixed": "#001930",
+              "tertiary-container": "#70b5ff",
+              "error-container": "#f95630"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squircle {
+            border-radius: 3rem;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        body {
+            background-color: #fefcf4;
+            color: #383833;
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-[#fefcf4] dark:bg-stone-900 flex justify-between items-center w-full px-8 h-16 border-b border-stone-200/50 dark:border-stone-700/30 docked full-width top-0 z-50 fixed">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#00751f] tracking-tight font-['Plus_Jakarta_Sans']">LunchLogic</span>
+<div class="hidden md:flex gap-6">
+<a class="text-stone-500 dark:text-stone-400 hover:text-[#00751f] transition-colors font-['Plus_Jakarta_Sans'] font-semibold" href="#">Dashboard</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-[#00751f] transition-colors font-['Plus_Jakarta_Sans'] font-semibold" href="#">Lunch Scanner</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-[#00751f] transition-colors font-['Plus_Jakarta_Sans'] font-semibold" href="#">Weekly Trends</a>
+<a class="text-[#00751f] font-bold border-b-2 border-[#00751f] font-['Plus_Jakarta_Sans']" href="#">Swap Engine</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-stone-500">notifications</button>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a friendly smiling mother with warm lighting and a soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADazqBe8mDU-3hHuOAnt_EfZaBKSqCOSDSfVZ9FBQ6tNqxOrZZaP7Sr4IwEgM21f9lYg9o-eVZ9IXIKstEuypJZF40sfaMSIKM2P8S1vELneGHRoLND64m_pbdNpHLsAK0Te0LQP7Ii5bPh-wjI6kLDKHJnZnisST9gLvLsRjfaUSHf6-oKAr3-5AR2SluFUE1DNW_hD47Aq06FGZka-Ks_1tFEGlyrSPjTtk4mHapxJswg1zoA3B_GGMd4u773MVJQx76QunLS5jc"/>
+</div>
+<button class="material-symbols-outlined text-stone-500">expand_more</button>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden lg:flex flex-col pt-20 pb-8 h-screen w-64 fixed left-0 top-0 border-r border-stone-200/50 dark:border-stone-700/30 bg-white/70 dark:bg-stone-900/70 backdrop-blur-md shadow-[32px_0_32px_rgba(0,0,0,0.06)] z-40">
+<div class="px-6 mb-8">
+<h3 class="font-['Plus_Jakarta_Sans'] font-bold text-on-surface">Parent Portal</h3>
+<p class="text-xs text-on-surface-variant">Managing 2 Profiles</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Lunch Scanner</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Weekly Trends</span>
+</a>
+<a class="flex items-center gap-3 bg-[#00751f]/10 text-[#00751f] rounded-2xl px-4 py-3 mx-2" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Swap Engine</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-3 mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-2xl transition-all" href="#">
+<span class="material-symbols-outlined">face</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Kid Profiles</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="pt-24 pb-12 px-6 lg:pl-72 lg:pr-12 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-4xl lg:text-5xl font-extrabold text-on-surface tracking-tight mb-4">Tiny Tweaks</h1>
+<p class="text-lg text-on-surface-variant max-w-2xl">Small changes, massive impact. The Swap Engine uses data to find healthier alternatives that kids actually love.</p>
+</header>
+<!-- Swap Gallery Grid -->
+<section class="mb-16">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_fix_high</span>
+                    Smart Swaps Gallery
+                </h2>
+<div class="flex gap-2">
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-semibold uppercase tracking-wider">All Filters</span>
+<span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-semibold uppercase tracking-wider">Budget Friendly</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Swap Card 1 -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col gap-6 relative overflow-visible group">
+<div class="flex justify-between items-center gap-4 relative">
+<div class="flex-1 text-center">
+<div class="w-full aspect-square rounded-2xl bg-surface-container-highest mb-3 overflow-hidden border-2 border-white/50">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="Close-up of a greasy bag of commercial potato chips on a wooden surface with harsh lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT_JUJo7gwhtvz1m7pBaHMWlmFupIEpE34damOEf1Rf9X9ck5IubxT4SJdLslqLimxkye4fzoaF_86HJPcM8ffsqTeTE9XU1aZLWNVwb531KyUNJA5ydYmMD4qh40geZASc8frRJUi1AP_4O4AQ2dVjuc8XxGsgrx5Jsfiij-BXn4fVq4w5yvul5Senbx3WmX9FkP6oIAo38Nq0OPCw-R_GgRpaEAr3bOptPXnRHQ58Pq2C1IqKYSmiUiijxOva7bL7WOAnYP2djwl"/>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase">Before</span>
+<p class="font-bold text-sm">Potato Chips</p>
+</div>
+<div class="flex items-center justify-center bg-white shadow-lg w-10 h-10 rounded-full z-10 -mx-4">
+<span class="material-symbols-outlined text-primary font-bold">arrow_forward</span>
+</div>
+<div class="flex-1 text-center relative">
+<div class="w-full aspect-square rounded-2xl bg-primary-container mb-3 overflow-hidden border-4 border-white shadow-xl transform group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="A bowl of fluffy white popcorn lightly seasoned with herbs in a sunny kitchen setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBegYE0x1plY71gAQ0jzk2E41trOR1so-T4cMS62-dgNqTAi06F1emL5pLfRWXGQX8NH3sBsAptapOOKxfnQTFMDXU9nzkd90GP59S773LORyjE9EUe6-glrNX5HL321deuFJILQmTZ21zjuWS7xu3m0ZRTPh0vZLlM9StzyfFyZ-a4xGaniZ9T2rZGrq2XlOqV-l8xdhD3JYrzMNllUh8xwq24Cz52elICGGp2haoaZSToS3z22EcYsLkbX_VzrwElh90z7k6WP-ux"/>
+</div>
+<span class="text-xs font-bold text-primary uppercase">After</span>
+<p class="font-bold text-sm">Air-Popped Popcorn</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                            Focus Fuel
+                        </span>
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span>
+                            Same Budget
+                        </span>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-full flex items-center justify-center gap-2 hover:bg-primary-dim transition-all active:scale-95 shadow-lg shadow-primary/20">
+                        Apply this Swap
+                        <span class="material-symbols-outlined">upgrade</span>
+</button>
+</div>
+<!-- Swap Card 2 -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col gap-6 relative overflow-visible group">
+<div class="flex justify-between items-center gap-4 relative">
+<div class="flex-1 text-center">
+<div class="w-full aspect-square rounded-2xl bg-surface-container-highest mb-3 overflow-hidden border-2 border-white/50">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="A plastic cup of processed fruit yogurt with bright artificial coloring and liquid sugar visible" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8a7tF-7D7D38Hwd-AVe900U5EiDR1i4rs7Izwcb_4fvnpUwoUGjdQzYDNkxqeeeFVafcZHfdV-apfPrkUZOhsmYRIRvMEnMrZHJSOlpe6Dqnm9O5t6o6xCiB4twGuVIg3KmWIQWQgvzcATfaotAjUoEr9wn-jZPAslx2x_134Vzo9MCo5pnmaA78IMdFqmmLn3pWy1AhVXdUFY-TeqkfpNg-_y8TE8ZXablrshpzNhKOpn55j2-wSELUJtrj_t0IkC91LLU2e7dAj"/>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase">Before</span>
+<p class="font-bold text-sm">Sugary Yogurt</p>
+</div>
+<div class="flex items-center justify-center bg-white shadow-lg w-10 h-10 rounded-full z-10 -mx-4">
+<span class="material-symbols-outlined text-primary font-bold">arrow_forward</span>
+</div>
+<div class="flex-1 text-center relative">
+<div class="w-full aspect-square rounded-2xl bg-primary-container mb-3 overflow-hidden border-4 border-white shadow-xl transform group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="Thick creamy Greek yogurt in a bowl topped with fresh blueberries and a honey drizzle, bright natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-CoGOffgfS5ufqXjb-bVtQkVUFFBUPaO-fOaJksnu65jSk5jGUhLm7EgqZrOoLWaKp56lIYK1xSivPT0qcWkCJkiJIkkC52jPbK7ZgH1Nw_OJXauszq42nG-h3WkCLr-l7pc9AjkcrlTm8kR6G49HVcTSBrWjoX2vemsSoCUHNRkRrXWYyiAddXwi48slcKeZZVhKSqfek0nIx7E3NoHiYQZmWTyynSkEOO8SYB5_p7yOzbbFVdXJpJuu9wKnWCwXNDBQS4ujsO9x"/>
+</div>
+<span class="text-xs font-bold text-primary uppercase">After</span>
+<p class="font-bold text-sm">Greek Yogurt + Berries</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+                            Steady Energy
+                        </span>
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">health_and_safety</span>
+                            Gut Health
+                        </span>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-full flex items-center justify-center gap-2 hover:bg-primary-dim transition-all active:scale-95 shadow-lg shadow-primary/20">
+                        Apply this Swap
+                        <span class="material-symbols-outlined">upgrade</span>
+</button>
+</div>
+<!-- Swap Card 3 -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col gap-6 relative overflow-visible group">
+<div class="flex justify-between items-center gap-4 relative">
+<div class="flex-1 text-center">
+<div class="w-full aspect-square rounded-2xl bg-surface-container-highest mb-3 overflow-hidden border-2 border-white/50">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="A white bread sandwich with processed deli meat on a plain plate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXUKnY5EEGHZhSjAVNX3bXMySRtizVvjyo82Fhp-kta_WREoGbk_0UMFQWDoluqrBqDUpfstSiayn-ZR6eYqkQ97RKiSW8wX5YAQaIFyoXO7ELQCAxO4z1zMZMIngfBCBuSkhSsqpHMwCBWdNCIeN8jUYJGTNwxs8xSl1piS7XvwNjk95j11xOfNi3v2iljiRmhbenqhIafa4gyfn8whqNERthOYAlhuC-G1EjvDaEJManqODf2WNje2ZeCyV7-62lu6exlfJQRz-U"/>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase">Before</span>
+<p class="font-bold text-sm">White Bread Deli</p>
+</div>
+<div class="flex items-center justify-center bg-white shadow-lg w-10 h-10 rounded-full z-10 -mx-4">
+<span class="material-symbols-outlined text-primary font-bold">arrow_forward</span>
+</div>
+<div class="flex-1 text-center relative">
+<div class="w-full aspect-square rounded-2xl bg-primary-container mb-3 overflow-hidden border-4 border-white shadow-xl transform group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="A whole grain wrap filled with roasted chicken, crisp lettuce, and colorful peppers, vibrant and fresh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvR4ykL8NYH54uy6idg6hRH6cfSiDhMw1YW6HEpSAg4lRzt_3ckjN8vwB8FKN9RdkZibGcYxO-Z5aY-nEUBMrVg4n5gEwdBh0Y5ZOyP9nRGV5zBR3PLG7pAAJJwpB_aQ_KGvFaneUnRzVKQSyc8sSqwgvYvWN_BM_6r0--wWRHe1v_Zi_m3exZs3nH35aLCxmzCd0D4Qos777LeDpiETFbVZmrqkp0U6pX_0eCwF7XDSx-oewzWHxL0pR_vK7vUs6TZywqMR2p9li9"/>
+</div>
+<span class="text-xs font-bold text-primary uppercase">After</span>
+<p class="font-bold text-sm">Whole Grain Wrap</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-error/10 text-error text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+                            Allergy Safe
+                        </span>
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">fitness_center</span>
+                            Protein Punch
+                        </span>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-bold rounded-full flex items-center justify-center gap-2 hover:bg-primary-dim transition-all active:scale-95 shadow-lg shadow-primary/20">
+                        Apply this Swap
+                        <span class="material-symbols-outlined">upgrade</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Fridge Remix Widget -->
+<section class="bg-surface-container-high rounded-3xl p-8 lg:p-12 relative overflow-hidden">
+<!-- Background Decorative Element -->
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex flex-col lg:flex-row gap-12 items-center">
+<div class="lg:w-1/3">
+<div class="w-16 h-16 bg-secondary-container rounded-2xl flex items-center justify-center mb-6 shadow-md">
+<span class="material-symbols-outlined text-secondary text-3xl">kitchen</span>
+</div>
+<h2 class="text-3xl font-extrabold mb-4 tracking-tight">Fridge Remix</h2>
+<p class="text-on-surface-variant mb-6">Stop wasting, start remixing. We scanned your pantry—here's what you can make with yesterday's leftovers.</p>
+<button class="text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all">
+                        Scan Fridge Again
+                        <span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+<div class="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+<!-- Remix Item 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex gap-4 items-start">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Sliced leftovers of a succulent roasted whole chicken on a cutting board, warm kitchen lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHoe8JRjrKN1zsl3M1ApBlw7lBnrEOPKT1Us5s4L6vIF9IGznmiREqEdi_ovN8vQF34EJS-FKXt-TDO3jYBtMO5iJzlVxQN3_hbunFc3WQBS511fYYqr1XNbQTUK4SbKpg5dnQOVyhEMId2XN8_7sNbxE7vLDjWj6CgfZ_J6YBSptKE05gxqiTtaZ-ZZ7_ltSmhALVBlUyUto0AVZl9DhRVaoQNG5pdxoBhpY7q25f2XbI5FtkaFOxpuZuPBh57fhRSP5hiyt6vjeJ"/>
+</div>
+<div class="flex-1">
+<span class="text-[10px] font-black uppercase text-secondary tracking-widest bg-secondary-container px-2 py-0.5 rounded">Remix #1</span>
+<h4 class="font-bold mt-1">Leftover Roast Chicken</h4>
+<p class="text-sm text-on-surface-variant mb-3">Turn into a Pesto Wrap</p>
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                                        2 Mins
+                                    </span>
+<button class="material-symbols-outlined bg-surface-container-high p-1 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">add</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Remix Item 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex gap-4 items-start">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A bowl of plain cooked white rice, soft top-down lighting showing steam" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8x2241E_OOQYxfQfJwXN2LIJfwLGCfoAk2H8fGObXQmSxzWEHgPjgyhdFfdQhGf-MCKT5WFeQtdPqThnC2ORcWuXpMq6O4bGRNqTEi0Inla49w0i1zkCtCgiRc-EdGn1KcRoIGhcWCBJgP49dIntVDHbweeQFa8EcLUxnxjRgPf3unHk7tkqBnsBzA3zoQXEm641dECGCfXswPUWEUy_7Lz1YqKpPLTV63okzVjGlyV8rfA-QoFtC72yC983VC77G_4MjJl6pql3d"/>
+</div>
+<div class="flex-1">
+<span class="text-[10px] font-black uppercase text-secondary tracking-widest bg-secondary-container px-2 py-0.5 rounded">Remix #2</span>
+<h4 class="font-bold mt-1">Steamed White Rice</h4>
+<p class="text-sm text-on-surface-variant mb-3">Turn into Fried Rice Balls</p>
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                                        5 Mins
+                                    </span>
+<button class="material-symbols-outlined bg-surface-container-high p-1 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">add</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- One-Minute Upgrade CTA Section -->
+<section class="mt-16 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-3xl p-8 lg:p-16 flex flex-col items-center text-center">
+<h2 class="text-3xl lg:text-4xl font-black mb-4">Ready for an Upgrade?</h2>
+<p class="max-w-xl text-primary-fixed opacity-90 mb-8 text-lg">Our "One-Minute Upgrade" automatically scans your current week's plan and finds 5 healthier alternatives for a 20% nutrition boost.</p>
+<div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+<button class="px-8 py-4 bg-secondary-container text-on-secondary-container font-bold rounded-full flex items-center justify-center gap-3 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined" data-weight="fill">bolt</span>
+                    Run One-Minute Upgrade
+                </button>
+<button class="px-8 py-4 border-2 border-primary-fixed text-primary-fixed font-bold rounded-full flex items-center justify-center gap-3 hover:bg-white/10 transition-colors">
+                    View Impact Report
+                </button>
+</div>
+</section>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-lg flex justify-around items-center py-3 border-t border-stone-200 z-50">
+<a class="flex flex-col items-center text-stone-400" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center text-stone-400" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="text-[10px] font-bold">Scanner</span>
+</a>
+<a class="flex flex-col items-center text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">swap_horiz</span>
+<span class="text-[10px] font-bold">Swaps</span>
+</a>
+<a class="flex flex-col items-center text-stone-400" href="#">
+<span class="material-symbols-outlined">face</span>
+<span class="text-[10px] font-bold">Kids</span>
+</a>
+</nav>
+</body></html>
