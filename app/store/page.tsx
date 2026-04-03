@@ -26,7 +26,7 @@ export default function Store() {
     <>
       <TopNav />
       
-      <main className="flex-1 p-4 md:p-10 overflow-y-auto pt-24">
+      <main className="flex-1 overflow-y-auto px-4 pb-4 pt-24 md:px-10 md:pb-10">
         <div className="max-w-6xl mx-auto space-y-10">
           {/* Header & Budget Goal */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -89,7 +89,7 @@ export default function Analysis() {
     <>
       <TopNav />
       
-      <main className="flex-1 p-4 md:p-8 space-y-8 pt-24 pb-24">
+      <main className="flex-1 space-y-8 px-4 pb-24 pt-24 md:px-8">
         {/* Header Section */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>

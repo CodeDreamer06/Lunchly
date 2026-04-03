@@ -133,7 +133,7 @@ export default function Fridge() {
     <>
       <TopNav />
       
-      <main className="pt-24 p-4 md:p-8 max-w-7xl mx-auto">
+      <main className="mx-auto max-w-7xl px-4 pb-4 pt-24 md:px-8 md:pb-8">
         {/* Top Header Area */}
         <header className="flex justify-between items-end mb-12">
           <div>

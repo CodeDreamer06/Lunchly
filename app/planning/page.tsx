@@ -180,7 +180,7 @@ export default function Planning() {
     <>
       <TopNav />
       
-      <main className="flex-1 p-4 md:p-10 space-y-10 pt-24">
+      <main className="flex-1 space-y-10 px-4 pb-4 pt-24 md:px-10 md:pb-10">
         {/* Header & Action Row */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
