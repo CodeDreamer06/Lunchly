@@ -81,7 +81,7 @@ export default function ImageUploader({ onImageSelected, className = "" }: Image
           <img
             src={preview}
             alt="Preview"
-            className="w-full h-64 object-cover rounded-xl"
+            className="w-full h-64 object-cover rounded-3xl"
           />
           <button
             onClick={handleRemove}
@@ -96,7 +96,7 @@ export default function ImageUploader({ onImageSelected, className = "" }: Image
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`w-full h-48 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 transition-colors ${
+          className={`w-full h-48 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center gap-3 transition-colors ${
             isDragging
               ? "border-primary bg-primary-container/10"
               : "border-outline-variant bg-surface-container-lowest hover:border-primary/50"

@@ -140,7 +140,7 @@ export default function Fridge() {
         </header>
 
         {/* Ingredients Input Section */}
-        <section className="mb-12 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+        <section className="mb-12 bg-surface-container-lowest rounded-3xl p-8 border border-primary/20">
           <h2 className="text-xl font-headline font-bold mb-6 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">kitchen</span>
             Available Ingredients
@@ -152,11 +152,11 @@ export default function Fridge() {
               onChange={(e) => setNewIngredient(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && addIngredient()}
               placeholder="Add ingredient (e.g., chicken, broccoli, pasta)"
-              className="flex-1 px-4 py-3 bg-surface-container-low rounded-xl border border-transparent focus:border-primary outline-none"
+              className="flex-1 px-4 py-3 bg-surface-container-low rounded-3xl border border-transparent focus:border-primary outline-none"
             />
             <button
               onClick={addIngredient}
-              className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dim transition-colors"
+              className="bg-primary text-white px-6 py-3 rounded-3xl font-bold hover:bg-primary-dim transition-colors"
             >
               <span className="material-symbols-outlined">add</span>
             </button>
@@ -180,7 +180,7 @@ export default function Fridge() {
           <button
             onClick={handleScanFridge}
             disabled={isLoading || ingredients.length === 0}
-            className="w-full bg-gradient-to-r from-primary to-primary-dim text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-primary to-primary-dim text-white py-4 rounded-3xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-50"
           >
             <span className="material-symbols-outlined">auto_awesome</span>
             {isLoading ? "Generating Ideas..." : "Generate Lunch Ideas from Ingredients"}
@@ -188,7 +188,7 @@ export default function Fridge() {
 
           {/* Generated Suggestions */}
           {suggestions !== null && (
-            <div className="mt-8 bg-surface-container-low rounded-xl p-6">
+            <div className="mt-8 bg-surface-container-low rounded-3xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm font-bold text-primary uppercase tracking-wider">
                   {isLoading ? "Generating Suggestions" : "AI-Generated Suggestions"}
@@ -211,7 +211,7 @@ export default function Fridge() {
 
         {/* Fridge Scan Hero */}
         <section className="grid grid-cols-12 gap-8 mb-12">
-          <div className="col-span-12 lg:col-span-8 bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-xl p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-[360px]">
+          <div className="col-span-12 lg:col-span-8 bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-3xl p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-[360px]">
             <div className="relative z-10 max-w-md">
               <div className="flex items-center gap-2 mb-4 bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-md">
                 <span className="material-symbols-outlined text-sm">auto_awesome</span>
@@ -229,7 +229,7 @@ export default function Fridge() {
                 { icon: "eco", label: "Veggie", value: ingredients[2] || "--", color: "bg-primary-container text-on-primary-container" },
               ].map((item, i) => (
                 <div key={i} className="glass-card p-4 rounded-2xl flex items-center gap-3 border border-white/30 text-on-surface">
-                  <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center`}>
+                  <div className={`w-12 h-12 ${item.color} rounded-3xl flex items-center justify-center`}>
                     <span className="material-symbols-outlined">{item.icon}</span>
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function Fridge() {
 
           {/* Quick Stats/Filters */}
           <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-secondary-container rounded-xl p-6 flex-1 flex flex-col justify-between">
+            <div className="bg-secondary-container rounded-3xl p-6 flex-1 flex flex-col justify-between">
               <h4 className="font-black text-on-secondary-container text-xl leading-tight">Quick Filters</h4>
               <div className="flex flex-wrap gap-2 mt-4">
                 {[
@@ -266,7 +266,7 @@ export default function Fridge() {
                 ))}
               </div>
             </div>
-            <div className="bg-surface-container-highest rounded-xl p-6 h-32 flex items-center justify-between">
+            <div className="bg-surface-container-highest rounded-3xl p-6 h-32 flex items-center justify-between">
               <div>
                 <p className="text-on-surface-variant font-bold text-sm">Pantry Items Used</p>
                 <p className="text-3xl font-black">{ingredients.length} <span className="text-sm font-medium opacity-50">Items</span></p>
@@ -283,7 +283,7 @@ export default function Fridge() {
         <h3 className="text-2xl font-headline font-black mb-8">Remix Ideas</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {remixes.map((remix, i) => (
-            <div key={i} className="group relative bg-surface-container-low rounded-xl overflow-hidden hover:bg-white transition-all duration-300">
+            <div key={i} className="group relative bg-surface-container-low rounded-3xl overflow-hidden hover:bg-white transition-all duration-300">
               <div className="h-48 overflow-hidden relative">
                 <img alt={remix.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={remix.img} />
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-primary">
@@ -308,7 +308,7 @@ export default function Fridge() {
         </div>
 
         {/* Pantry Prep Section */}
-        <section className="bg-surface-container rounded-xl p-10 flex flex-col lg:flex-row items-center gap-12">
+        <section className="bg-surface-container rounded-3xl p-10 flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1">
             <h3 className="text-3xl font-headline font-black mb-4">Pantry Prep Mode</h3>
             <p className="text-on-surface-variant font-medium max-w-lg mb-8">
@@ -331,7 +331,7 @@ export default function Fridge() {
               ))}
             </div>
           </div>
-          <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-xl border border-surface-variant/20">
+          <div className="w-full lg:w-1/3 bg-white p-6 rounded-3xl shadow-xl border border-surface-variant/20">
             <h4 className="font-bold text-sm mb-4 uppercase tracking-widest text-secondary">Smart Recommendation</h4>
             <div className="flex items-center gap-4 mb-4">
               <img

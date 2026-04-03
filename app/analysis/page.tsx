@@ -100,7 +100,7 @@ export default function Analysis() {
         </header>
 
         {/* Image Upload Section */}
-        <section className="bg-surface-container-lowest rounded-xl p-8">
+        <section className="bg-surface-container-lowest rounded-3xl p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <h2 className="text-xl font-headline font-bold mb-4 flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function Analysis() {
                 <button
                   onClick={handleAnalyze}
                   disabled={isLoading}
-                  className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-dim transition-transform active:scale-95 disabled:opacity-50"
+                  className="w-full bg-primary text-on-primary py-4 rounded-3xl font-bold flex items-center justify-center gap-2 hover:bg-primary-dim transition-transform active:scale-95 disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined">auto_awesome</span>
                   {isLoading ? "Analyzing..." : "Analyze Lunchbox"}
@@ -130,7 +130,7 @@ export default function Analysis() {
                 Analysis Results
               </h2>
               {analysisResult !== null ? (
-                <div className="bg-surface-container-low rounded-xl p-6 border border-primary/20">
+                <div className="bg-surface-container-low rounded-3xl p-6 border border-primary/20">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-primary">
                       {isLoading ? "Analyzing Lunchbox" : "AI Analysis Complete"}
@@ -149,7 +149,7 @@ export default function Analysis() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-surface-container-low rounded-xl p-6 text-center text-on-surface-variant">
+                <div className="bg-surface-container-low rounded-3xl p-6 text-center text-on-surface-variant">
                   <span className="material-symbols-outlined text-4xl mb-2">restaurant</span>
                   <p>Upload a photo and click Analyze to see AI insights</p>
                 </div>
@@ -160,7 +160,7 @@ export default function Analysis() {
 
         {/* Previous Analyses */}
         {analysisHistory.length > 0 && (
-          <section className="bg-surface-container-low rounded-xl p-8">
+          <section className="bg-surface-container-low rounded-3xl p-8">
             <h2 className="text-xl font-headline font-bold mb-6">Recent Analyses</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analysisHistory.map((item, index) => (
@@ -181,7 +181,7 @@ export default function Analysis() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
           {/* Left: Interactive Bento View */}
           <div className="xl:col-span-7 space-y-6">
-            <div className="relative group rounded-xl overflow-hidden aspect-[4/3] shadow-2xl">
+            <div className="relative group rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl">
               <img
                 alt="Top-down view of a colorful bento box"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -215,7 +215,7 @@ export default function Analysis() {
             </div>
 
             {/* Energy Curve Deep Dive */}
-            <div className="bg-surface-container-lowest p-8 rounded-xl border border-surface-variant/30">
+            <div className="bg-surface-container-lowest p-8 rounded-3xl border border-surface-variant/30">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="font-headline font-bold text-xl flex items-center gap-3">
                   <span className="material-symbols-outlined text-secondary">bolt</span>
@@ -287,12 +287,12 @@ export default function Analysis() {
               <div className="pt-4 space-y-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Kid Acceptance Profile</p>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-surface-container-lowest p-4 rounded-xl text-center">
+                  <div className="bg-surface-container-lowest p-4 rounded-3xl text-center">
                     <span className="material-symbols-outlined text-tertiary mb-2">lock_open</span>
                     <p className="text-[10px] font-bold text-on-surface-variant block">EASE OF OPEN</p>
                     <p className="font-headline font-extrabold">Easy</p>
                   </div>
-                  <div className="bg-surface-container-lowest p-4 rounded-xl text-center">
+                  <div className="bg-surface-container-lowest p-4 rounded-3xl text-center">
                     <span className="material-symbols-outlined text-error mb-2">cleaning_services</span>
                     <p className="text-[10px] font-bold text-on-surface-variant block">MESS FACTOR</p>
                     <p className="font-headline font-extrabold">Medium</p>
@@ -302,7 +302,7 @@ export default function Analysis() {
             </div>
 
             {/* Sensory Profile */}
-            <div className="bg-surface-container-low p-8 rounded-xl relative overflow-hidden">
+            <div className="bg-surface-container-low p-8 rounded-3xl relative overflow-hidden">
               <h3 className="font-headline font-bold text-lg mb-6">Sensory Texture Map</h3>
               <div className="flex justify-center py-4">
                 <div className="relative w-48 h-48 border border-surface-variant rounded-full flex items-center justify-center">
@@ -324,7 +324,7 @@ export default function Analysis() {
                   <span className="absolute left-0 -translate-x-8 text-[10px] font-bold text-on-surface-variant">MIXED</span>
                 </div>
               </div>
-              <div className="mt-8 bg-tertiary/5 p-4 rounded-xl border-l-4 border-tertiary">
+              <div className="mt-8 bg-tertiary/5 p-4 rounded-3xl border-l-4 border-tertiary">
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-tertiary">info</span>
                   <div>
@@ -338,9 +338,9 @@ export default function Analysis() {
             </div>
 
             {/* Leftovers Predictor */}
-            <div className="bg-error/5 border-l-4 border-error p-6 rounded-xl relative">
+            <div className="bg-error/5 border-l-4 border-error p-6 rounded-3xl relative">
               <div className="flex gap-4">
-                <div className="p-3 bg-error/10 rounded-xl text-error shrink-0 self-start">
+                <div className="p-3 bg-error/10 rounded-3xl text-error shrink-0 self-start">
                   <span className="material-symbols-outlined">psychology</span>
                 </div>
                 <div>

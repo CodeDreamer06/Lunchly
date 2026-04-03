@@ -84,7 +84,7 @@ export default function Profile() {
         <main className="pt-24 px-4 pb-20 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <p className="text-on-surface-variant mb-4">No profile found. Please complete the setup.</p>
-            <a href="/" className="bg-primary text-white px-6 py-3 rounded-xl font-bold">
+            <a href="/" className="bg-primary text-white px-6 py-3 rounded-3xl font-bold">
               Go to Setup
             </a>
           </div>
@@ -100,7 +100,7 @@ export default function Profile() {
       <main className="pt-24 px-4 pb-20 max-w-7xl mx-auto">
         {/* Save Message Toast */}
         {saveMessage && (
-          <div className="fixed top-20 right-4 bg-primary text-white px-4 py-3 rounded-xl shadow-lg z-50 animate-fade-in">
+          <div className="fixed top-20 right-4 bg-primary text-white px-4 py-3 rounded-3xl shadow-lg z-50 animate-fade-in">
             {saveMessage}
           </div>
         )}
@@ -118,7 +118,7 @@ export default function Profile() {
           {/* Left Column */}
           <section className="lg:col-span-4 space-y-8">
             {/* Profile Card */}
-            <div className="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 text-center flex flex-col items-center">
+            <div className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/15 text-center flex flex-col items-center">
               <div className="relative mb-6">
                 <div className="w-32 h-32 rounded-full ring-4 ring-primary-container ring-offset-4 overflow-hidden bg-surface-container-high">
                   <img
@@ -144,7 +144,7 @@ export default function Profile() {
             </div>
 
             {/* Allergy & School Policy */}
-            <div className="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+            <div className="bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10">
               <h3 className="font-headline font-bold text-lg mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">school</span>
                 Allergy &amp; School Policy
@@ -188,7 +188,7 @@ export default function Profile() {
           {/* Right Column */}
           <section className="lg:col-span-8 space-y-8">
             {/* Sensory Preferences */}
-            <div className="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15">
+            <div className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/15">
               <h3 className="font-headline font-bold text-2xl mb-6">Sensory Preferences</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
@@ -199,7 +199,7 @@ export default function Profile() {
                 ].map((item) => (
                   <label 
                     key={item.title} 
-                    className={`group relative flex flex-col gap-4 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 transition-all cursor-pointer ${
+                    className={`group relative flex flex-col gap-4 p-5 rounded-3xl bg-surface-container hover:bg-primary-container/10 border-2 transition-all cursor-pointer ${
                       (profile.sensoryPreferences || []).includes(item.title) 
                         ? "border-primary bg-primary-container/5" 
                         : "border-transparent"
@@ -224,7 +224,7 @@ export default function Profile() {
             </div>
 
             {/* Eating Habits & Independence */}
-            <div className="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10">
+            <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/10">
               <div className="flex items-center gap-3 mb-4">
                 <span className="material-symbols-outlined text-primary text-2xl">edit_note</span>
                 <h3 className="font-headline font-bold text-xl">Eating Habits &amp; Independence</h3>

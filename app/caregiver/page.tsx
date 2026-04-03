@@ -47,7 +47,7 @@ export default function Caregiver() {
               </div>
               <div className="space-y-4">
                 {acceptedFoods.map((food, i) => (
-                  <div key={i} className="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 hover:scale-[1.02] transition-transform">
+                  <div key={i} className="bg-surface-container-lowest p-4 rounded-3xl flex items-center gap-4 hover:scale-[1.02] transition-transform">
                     <div className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
                       <span className="material-symbols-outlined text-on-primary-container">{food.icon}</span>
                     </div>
@@ -124,7 +124,7 @@ export default function Caregiver() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {schoolPolicies.map((policy, i) => (
-                  <div key={i} className="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center text-center gap-3">
+                  <div key={i} className="bg-white p-4 rounded-3xl shadow-sm flex flex-col items-center text-center gap-3">
                     <span className="material-symbols-outlined text-on-surface-variant text-3xl">{policy.icon}</span>
                     <p className="font-bold text-sm">{policy.text}</p>
                   </div>

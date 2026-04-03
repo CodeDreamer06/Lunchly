@@ -9,7 +9,7 @@ export default function Trends() {
       <main className="pt-24 px-4 md:px-8 pb-20 min-h-screen">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Parent Emotional UX Banner */}
-          <div className="bg-primary-container/30 rounded-xl p-6 flex items-center gap-6 relative overflow-hidden">
+          <div className="bg-primary-container/30 rounded-3xl p-6 flex items-center gap-6 relative overflow-hidden">
             <div className="flex-1">
               <h3 className="font-headline font-bold text-xl text-on-primary-container">This is a solid lunch week!</h3>
               <p className="text-on-primary-container/80">Leo is trying new textures with confidence. Tomorrow can add more color.</p>
@@ -106,7 +106,7 @@ export default function Trends() {
                 <p className="text-on-surface-variant text-sm">Identifying winning combinations for Leo</p>
               </div>
               <div className="space-y-4">
-                <div className="bg-white p-6 rounded-xl flex items-center gap-6 shadow-sm">
+                <div className="bg-white p-6 rounded-3xl flex items-center gap-6 shadow-sm">
                   <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
                     <img alt="Bell Pepper" className="object-cover w-12 h-12" src="/stitch-assets/db39dae4c9cd974ee97002825f87d5ba0e21a32ecae71b5fb32826895a8e13ba.png" />
                   </div>
@@ -115,7 +115,7 @@ export default function Trends() {
                     <p className="text-lg font-headline font-bold">Bell peppers were accepted 2/5 times when paired with hummus.</p>
                   </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl flex items-center gap-6 shadow-sm opacity-60">
+                <div className="bg-white p-6 rounded-3xl flex items-center gap-6 shadow-sm opacity-60">
                   <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center">
                     <img alt="Broccoli" className="object-cover w-12 h-12" src="/stitch-assets/7e59709ac93f33caa117b2a0d325e4b9a2a84937a2b3bba48f90be7f96b99fb7.png" />
                   </div>

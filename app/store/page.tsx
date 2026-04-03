@@ -110,7 +110,7 @@ export default function Store() {
                 </div>
               </div>
               <div className="mt-8">
-                <button className="w-full py-4 bg-on-tertiary-container text-white rounded-xl font-headline font-bold text-sm">Update Preferences</button>
+                <button className="w-full py-4 bg-on-tertiary-container text-white rounded-3xl font-headline font-bold text-sm">Update Preferences</button>
               </div>
             </div>
 

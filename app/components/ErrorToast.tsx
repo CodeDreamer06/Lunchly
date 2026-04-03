@@ -23,7 +23,7 @@ export default function ErrorToast({ message, onClose, duration = 5000 }: ErrorT
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-error text-on-error px-6 py-4 rounded-xl shadow-xl z-50 flex items-center gap-3 animate-fade-in">
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-error text-on-error px-6 py-4 rounded-3xl shadow-xl z-50 flex items-center gap-3 animate-fade-in">
       <span className="material-symbols-outlined">error</span>
       <p className="font-medium">{message}</p>
       <button

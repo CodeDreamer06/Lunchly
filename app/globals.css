@@ -195,9 +195,9 @@ body {
 
 /* Glass panel effect */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Custom squircle radius */

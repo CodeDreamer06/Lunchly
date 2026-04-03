@@ -133,7 +133,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 bg-error-container/20 border border-error rounded-xl flex items-center gap-3">
+          <div className="mb-6 p-4 bg-error-container/20 border border-error rounded-3xl flex items-center gap-3">
             <span className="material-symbols-outlined text-error">error</span>
             <p className="text-error text-sm">{error}</p>
           </div>
@@ -154,7 +154,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
+                className="w-full bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
                 placeholder="e.g., Leo"
               />
             </div>
@@ -168,7 +168,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   type="number"
                   value={formData.age}
                   onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  className="w-full bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
+                  className="w-full bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
                   placeholder="e.g., 7"
                   min="2"
                   max="18"
@@ -181,7 +181,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 <select
                   value={formData.grade}
                   onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                  className="w-full bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
+                  className="w-full bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
                 >
                   <option value="">Select grade</option>
                   <option value="Preschool">Preschool</option>
@@ -215,12 +215,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   value={newAllergy}
                   onChange={(e) => setNewAllergy(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addAllergy())}
-                  className="flex-1 bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
+                  className="flex-1 bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
                   placeholder="e.g., Peanuts"
                 />
                 <button
                   onClick={addAllergy}
-                  className="bg-primary text-white px-4 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                  className="bg-primary text-white px-4 py-3 rounded-3xl font-bold hover:scale-105 transition-transform"
                 >
                   Add
                 </button>
@@ -256,12 +256,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   value={newPolicy}
                   onChange={(e) => setNewPolicy(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addPolicy())}
-                  className="flex-1 bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
+                  className="flex-1 bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none"
                   placeholder="e.g., Nut-Free Policy"
                 />
                 <button
                   onClick={addPolicy}
-                  className="bg-primary text-white px-4 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                  className="bg-primary text-white px-4 py-3 rounded-3xl font-bold hover:scale-105 transition-transform"
                 >
                   Add
                 </button>
@@ -308,7 +308,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               ].map((item) => (
                 <label
                   key={item.title}
-                  className={`relative flex flex-col gap-3 p-5 rounded-xl bg-surface-container hover:bg-primary-container/10 border-2 transition-all cursor-pointer ${
+                  className={`relative flex flex-col gap-3 p-5 rounded-3xl bg-surface-container hover:bg-primary-container/10 border-2 transition-all cursor-pointer ${
                     formData.sensoryPreferences.includes(item.title)
                       ? "border-primary bg-primary-container/10"
                       : "border-transparent"
@@ -350,7 +350,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               <textarea
                 value={formData.eatingHabits}
                 onChange={(e) => setFormData({ ...formData, eatingHabits: e.target.value })}
-                className="w-full bg-surface-container rounded-xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none min-h-[120px] resize-none"
+                className="w-full bg-surface-container rounded-3xl px-4 py-3 border-2 border-transparent focus:border-primary outline-none min-h-[120px] resize-none"
                 placeholder="e.g., Can peel an orange but struggles with tiny wrappers. Needs pre-cut apples."
               />
             </div>
@@ -380,7 +380,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           {step > 1 && (
             <button
               onClick={handleBack}
-              className="px-8 py-4 bg-surface-container text-on-surface rounded-xl font-headline font-bold hover:bg-surface-container-high transition-colors"
+              className="px-8 py-4 bg-surface-container text-on-surface rounded-3xl font-headline font-bold hover:bg-surface-container-high transition-colors"
             >
               Back
             </button>
@@ -388,7 +388,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           <button
             onClick={handleNext}
             disabled={isSubmitting || (step === 1 && (!formData.name || !formData.age))}
-            className="flex-1 bg-primary text-white py-4 rounded-xl font-headline font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 bg-primary text-white py-4 rounded-3xl font-headline font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>

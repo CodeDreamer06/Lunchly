@@ -78,7 +78,7 @@ export default function Dashboard() {
       
       <main className="pt-24 px-4 pb-24 md:px-8 max-w-7xl mx-auto">
         {/* Hero Section */}
-        <section className="relative mb-12 overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-dim p-8 md:p-12 text-on-primary">
+        <section className="relative mb-12 overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dim p-8 md:p-12 text-on-primary">
           <div className="relative z-10 max-w-2xl">
             <span className="inline-block bg-white/20 backdrop-blur-sm text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
               Morning Rush Mode
@@ -89,7 +89,7 @@ export default function Dashboard() {
             <button
               onClick={handleGenerateSuggestions}
               disabled={isLoading}
-              className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl font-headline font-bold text-lg flex items-center gap-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-3xl font-headline font-bold text-lg flex items-center gap-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="material-symbols-outlined material-symbols-outlined-filled">qr_code_scanner</span>
               {isLoading ? "Generating..." : "Get Lunch Suggestions"}
@@ -106,7 +106,7 @@ export default function Dashboard() {
 
         {/* AI Suggestions Display */}
         {suggestions !== null && (
-          <section className="mb-12 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+          <section className="mb-12 bg-surface-container-lowest rounded-3xl p-8 border border-primary/20">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">auto_awesome</span>

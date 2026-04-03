@@ -121,7 +121,7 @@ export default function Swaps() {
         </header>
 
         {/* AI Swap Generator */}
-        <section className="mb-16 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+        <section className="mb-16 bg-surface-container-lowest rounded-3xl p-8 border border-primary/20">
           <h2 className="text-xl font-headline font-bold mb-6 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">auto_fix_high</span>
             AI Swap Generator
@@ -138,12 +138,12 @@ export default function Swaps() {
                   onChange={(e) => setRejectedFood(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleGetSwaps()}
                   placeholder="e.g., broccoli, apple slices, yogurt"
-                  className="flex-1 px-4 py-3 bg-surface-container-low rounded-xl border border-transparent focus:border-primary outline-none"
+                  className="flex-1 px-4 py-3 bg-surface-container-low rounded-3xl border border-transparent focus:border-primary outline-none"
                 />
                 <button
                   onClick={handleGetSwaps}
                   disabled={isLoading}
-                  className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dim transition-colors disabled:opacity-50"
+                  className="bg-primary text-white px-6 py-3 rounded-3xl font-bold hover:bg-primary-dim transition-colors disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined">send</span>
                 </button>
@@ -151,7 +151,7 @@ export default function Swaps() {
             </div>
             <div>
               {swapResult !== null ? (
-                <div className="bg-surface-container-low rounded-xl p-6">
+                <div className="bg-surface-container-low rounded-3xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-bold text-primary uppercase tracking-wider">
                       {isLoading ? "Generating Suggestions" : "AI Suggestions"}
@@ -170,7 +170,7 @@ export default function Swaps() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-surface-container-low rounded-xl p-6 text-center text-on-surface-variant">
+                <div className="bg-surface-container-low rounded-3xl p-6 text-center text-on-surface-variant">
                   <span className="material-symbols-outlined text-4xl mb-2">swap_horiz</span>
                   <p>Enter a rejected food to get AI-powered swap suggestions</p>
                 </div>
@@ -214,7 +214,7 @@ export default function Swaps() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {swaps.map((swap, i) => (
-              <div key={i} className="bg-surface-container-low rounded-xl p-6 flex flex-col gap-6 relative overflow-visible group">
+              <div key={i} className="bg-surface-container-low rounded-3xl p-6 flex flex-col gap-6 relative overflow-visible group">
                 <div className="flex justify-between items-center gap-4 relative">
                   <div className="flex-1 text-center">
                     <div className="w-full aspect-square rounded-2xl bg-surface-container-highest mb-3 overflow-hidden border-2 border-white/50">
@@ -273,7 +273,7 @@ export default function Swaps() {
               {remixes.map((remix, i) => (
                 <div key={i} className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
                   <div className="flex gap-4 items-start">
-                    <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                    <div className="w-20 h-20 rounded-3xl overflow-hidden flex-shrink-0">
                       <img className="w-full h-full object-cover" src={remix.img} alt={remix.name} />
                     </div>
                     <div className="flex-1">

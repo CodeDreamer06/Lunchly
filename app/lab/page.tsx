@@ -31,7 +31,7 @@ export default function Lab() {
               </p>
             </div>
             <div className="flex gap-3">
-              <button className="bg-secondary-container text-on-secondary-fixed font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:opacity-90 transition-opacity">
+              <button className="bg-secondary-container text-on-secondary-fixed font-bold px-8 py-4 rounded-3xl flex items-center gap-2 hover:opacity-90 transition-opacity">
                 <span className="material-symbols-outlined">add_circle</span>
                 Log New Exposure
               </button>
@@ -41,7 +41,7 @@ export default function Lab() {
 
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Taste Bridge (The Visual Map) */}
-          <section className="lg:col-span-8 bg-surface-container-low rounded-xl p-8 relative overflow-hidden">
+          <section className="lg:col-span-8 bg-surface-container-low rounded-3xl p-8 relative overflow-hidden">
             <div className="flex items-center justify-between mb-8 relative z-10">
               <div>
                 <h3 className="text-2xl font-headline font-extrabold text-on-surface">The Taste Bridge</h3>
@@ -60,7 +60,7 @@ export default function Lab() {
               </svg>
               {/* Safe Anchor */}
               <div className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-20">
-                <div className="bg-surface-container-lowest p-6 rounded-xl shadow-xl border-4 border-primary/20 w-48 text-center transform -rotate-2">
+                <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-xl border-4 border-primary/20 w-48 text-center transform -rotate-2">
                   <div className="w-20 h-20 bg-primary-container/30 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
                     <img alt="Plain Crackers" className="object-cover w-full h-full" src="/stitch-assets/a227ea4fa827c018bb320508839a38f726460c45943bb3a87e9a94dc281ea350.png" />
                   </div>
@@ -70,7 +70,7 @@ export default function Lab() {
               </div>
               {/* Bridge 1 */}
               <div className="absolute left-1/2 top-1/4 -translate-x-1/2 z-20">
-                <div className="bg-surface-container-lowest/80 p-5 rounded-xl shadow-lg w-44 text-center glass-panel transform rotate-3">
+                <div className="bg-surface-container-lowest/80 p-5 rounded-3xl shadow-lg w-44 text-center glass-panel transform rotate-3">
                   <div className="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
                     <img alt="Whole Grain" className="object-cover w-full h-full" src="/stitch-assets/a535da97c1fdfc8bc40c91258eca7a8650263649dfde64982cb03fde075ce899.png" />
                   </div>
@@ -83,7 +83,7 @@ export default function Lab() {
               </div>
               {/* Bridge 2 */}
               <div className="absolute left-1/2 bottom-1/4 -translate-x-1/2 z-20">
-                <div className="bg-surface-container-lowest/80 p-5 rounded-xl shadow-lg w-44 text-center glass-panel transform -rotate-1">
+                <div className="bg-surface-container-lowest/80 p-5 rounded-3xl shadow-lg w-44 text-center glass-panel transform -rotate-1">
                   <div className="w-16 h-16 bg-secondary-container/30 rounded-full mx-auto mb-3 overflow-hidden">
                     <img alt="Sweet Potato" className="object-cover w-full h-full" src="/stitch-assets/287c3e836982dac95dcc15ab57748007c32d6c8271419b90b452340182d56890.png" />
                   </div>
@@ -96,7 +96,7 @@ export default function Lab() {
               </div>
               {/* Target Goal */}
               <div className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-20">
-                <div className="bg-surface-container-lowest p-6 rounded-xl shadow-2xl border-4 border-tertiary/20 w-48 text-center transform rotate-6">
+                <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-2xl border-4 border-tertiary/20 w-48 text-center transform rotate-6">
                   <div className="w-20 h-20 bg-tertiary-container/30 rounded-full mx-auto mb-4 overflow-hidden">
                     <img alt="Sliced Apples" className="object-cover w-full h-full" src="/stitch-assets/16bfebeba44237a95fe683a4c9f8ce8fa0fb43772e38e7cbd7f1e3fc5ba83adb.png" />
                   </div>
@@ -110,7 +110,7 @@ export default function Lab() {
 
           {/* Safe Food Anchors */}
           <aside className="lg:col-span-4 flex flex-col gap-8">
-            <div className="bg-primary rounded-xl p-6 text-white shadow-xl relative overflow-hidden">
+            <div className="bg-primary rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
               <div className="absolute -right-10 -bottom-10 opacity-20">
                 <span className="material-symbols-outlined text-[10rem]">anchor</span>
               </div>
@@ -121,18 +121,18 @@ export default function Lab() {
                 </h3>
                 <div className="space-y-3">
                   {safeAnchors.map((anchor, i) => (
-                    <div key={i} className="bg-white/10 p-3 rounded-xl flex items-center justify-between">
+                    <div key={i} className="bg-white/10 p-3 rounded-3xl flex items-center justify-between">
                       <span className="font-bold">{anchor.name}</span>
                       <span className="text-xs bg-white/20 px-2 py-1 rounded-full uppercase">{anchor.trust} Trust</span>
                     </div>
                   ))}
                 </div>
-                <button className="mt-6 w-full py-3 bg-secondary-container text-on-secondary-fixed rounded-xl font-black text-sm uppercase tracking-widest hover:scale-[0.98] transition-transform">
+                <button className="mt-6 w-full py-3 bg-secondary-container text-on-secondary-fixed rounded-3xl font-black text-sm uppercase tracking-widest hover:scale-[0.98] transition-transform">
                   Update Anchor List
                 </button>
               </div>
             </div>
-            <div className="bg-surface-container-high rounded-xl p-6">
+            <div className="bg-surface-container-high rounded-3xl p-6">
               <h3 className="text-lg font-headline font-black mb-4">Quick Tip</h3>
               <div className="flex gap-4">
                 <div className="bg-white p-3 rounded-full flex-shrink-0 self-start">
@@ -146,7 +146,7 @@ export default function Lab() {
           </aside>
 
           {/* Experiment Log */}
-          <section className="lg:col-span-12 xl:col-span-7 bg-surface-container-lowest rounded-xl p-8 border-2 border-surface-container-high shadow-sm">
+          <section className="lg:col-span-12 xl:col-span-7 bg-surface-container-lowest rounded-3xl p-8 border-2 border-surface-container-high shadow-sm">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-2xl font-headline font-black text-on-surface">Experiment Log</h3>
               <div className="flex gap-2">
@@ -155,8 +155,8 @@ export default function Lab() {
             </div>
             <div className="space-y-6">
               {experimentLog.map((entry, i) => (
-                <div key={i} className="flex flex-col md:flex-row md:items-center gap-6 p-4 rounded-xl hover:bg-surface-container-low transition-colors">
-                  <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+                <div key={i} className="flex flex-col md:flex-row md:items-center gap-6 p-4 rounded-3xl hover:bg-surface-container-low transition-colors">
+                  <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary">
                     <span className="material-symbols-outlined text-3xl">{i === 0 ? "restaurant" : "nutrition"}</span>
                   </div>
                   <div className="flex-grow">
@@ -179,7 +179,7 @@ export default function Lab() {
           </section>
 
           {/* Sensory Texture Map */}
-          <section className="lg:col-span-12 xl:col-span-5 bg-surface-container-low rounded-xl p-8 overflow-hidden relative">
+          <section className="lg:col-span-12 xl:col-span-5 bg-surface-container-low rounded-3xl p-8 overflow-hidden relative">
             <h3 className="text-2xl font-headline font-black text-on-surface mb-2">Sensory Map</h3>
             <p className="text-on-surface-variant text-sm mb-8">Balance of textures accepted vs. offered</p>
             <div className="relative w-full aspect-square max-w-[320px] mx-auto">
@@ -206,11 +206,11 @@ export default function Lab() {
               <div className="absolute bottom-[25%] left-[20%] bg-surface-container-lowest shadow-lg px-2 py-1 rounded-full text-[10px] font-bold">Yogurt (Fear)</div>
             </div>
             <div className="mt-12 grid grid-cols-2 gap-4">
-              <div className="bg-surface-container-highest p-4 rounded-xl text-center">
+              <div className="bg-surface-container-highest p-4 rounded-3xl text-center">
                 <span className="text-2xl font-black text-primary">72%</span>
                 <p className="text-xs font-bold uppercase text-on-surface-variant">Crunch Preference</p>
               </div>
-              <div className="bg-surface-container-highest p-4 rounded-xl text-center">
+              <div className="bg-surface-container-highest p-4 rounded-3xl text-center">
                 <span className="text-2xl font-black text-error">12%</span>
                 <p className="text-xs font-bold uppercase text-on-surface-variant">Wet Tolerance</p>
               </div>
@@ -219,7 +219,7 @@ export default function Lab() {
         </div>
 
         {/* Recommendation Banner */}
-        <section className="max-w-7xl mx-auto mt-12 bg-tertiary rounded-3xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center gap-10 overflow-hidden relative">
+        <section className="max-w-7xl mx-auto mt-12 bg-tertiary rounded-[3rem] p-8 md:p-12 text-white flex flex-col md:flex-row items-center gap-10 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
           <div className="relative z-10 flex-grow">
             <span className="bg-tertiary-container text-on-tertiary-container px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase mb-4 inline-block">
@@ -230,10 +230,10 @@ export default function Lab() {
               Since crunchy textures are highly accepted (72%), we suggest freeze-dried fruit. It provides the vitamin profile of fruit with the &quot;Safe Snap&quot; of a cracker.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <button className="bg-white text-tertiary font-black px-8 py-4 rounded-xl hover:bg-surface-container-lowest transition-colors">
+              <button className="bg-white text-tertiary font-black px-8 py-4 rounded-3xl hover:bg-surface-container-lowest transition-colors">
                 Add to Lab Queue
               </button>
-              <button className="border-2 border-white/30 text-white font-black px-8 py-4 rounded-xl hover:bg-white/10 transition-colors">
+              <button className="border-2 border-white/30 text-white font-black px-8 py-4 rounded-3xl hover:bg-white/10 transition-colors">
                 Why this works?
               </button>
             </div>

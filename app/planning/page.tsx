@@ -133,7 +133,7 @@ export default function Planning() {
 
         {/* AI Generated Plan Display */}
         {generatedPlan && (
-          <section className="bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
+          <section className="bg-surface-container-lowest rounded-3xl p-8 border border-primary/20">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">auto_awesome</span>
@@ -158,7 +158,7 @@ export default function Planning() {
                 )}
               </div>
             </div>
-            <div className="prose prose-sm max-w-none text-on-surface bg-surface-container-low rounded-xl p-6">
+            <div className="prose prose-sm max-w-none text-on-surface bg-surface-container-low rounded-3xl p-6">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {activeTab === "generated"
                   ? generatedPlan?.content || "_Thinking..._"
@@ -236,7 +236,7 @@ export default function Planning() {
                   </div>
                 ))}
               </div>
-              <button className="mt-10 w-full bg-white text-primary py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-container transition-colors">
+              <button className="mt-10 w-full bg-white text-primary py-4 rounded-3xl font-bold flex items-center justify-center gap-2 hover:bg-primary-container transition-colors">
                 <span className="material-symbols-outlined">timer</span> Start Timer (25m)
               </button>
             </div>
