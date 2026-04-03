@@ -24,7 +24,7 @@ export interface LLMError {
   details?: string;
 }
 
-export async function generateLunchSuggestions(
+export async function* generateLunchSuggestions(
   childProfile: {
     name: string;
     age: number;
@@ -35,9 +35,8 @@ export async function generateLunchSuggestions(
     eatingHabits: string;
   },
   availableIngredients?: string[]
-): Promise<string | LLMError> {
-  try {
-    const systemPrompt = `You are LunchLogic, an AI assistant that helps parents create healthy, appealing school lunches for their children.
+): AsyncGenerator<string, void, unknown> {
+  const systemPrompt = `You are LunchLogic, an AI assistant that helps parents create healthy, appealing school lunches for their children.
 You consider:
 - Child's age, sensory preferences, and eating habits
 - School policies (nut-free, no-reheating, etc.)
@@ -48,7 +47,7 @@ You consider:
 Provide practical, specific suggestions with portion sizes appropriate for the child's age.
 Be encouraging and focus on foods that travel well in lunchboxes.`;
 
-    const userPrompt = `Please suggest 3 lunchbox ideas for my child:
+  const userPrompt = `Please suggest 3 lunchbox ideas for my child:
 
 Name: ${childProfile.name}
 Age: ${childProfile.age}
@@ -66,7 +65,8 @@ For each suggestion, include:
 3. Any prep tips specific to this child's needs
 4. Why this lunch works for them (nutritional or sensory rationale)`;
 
-    const response = await openai.chat.completions.create({
+  try {
+    const stream = await openai.chat.completions.create({
       model,
       messages: [
         { role: "system", content: systemPrompt },
@@ -74,39 +74,31 @@ For each suggestion, include:
       ],
       temperature: 0.7,
       max_tokens: 1200,
+      stream: true,
     });
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return { error: "No response from AI", details: "The API returned an empty response" };
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
     }
-
-    return content;
   } catch (error) {
-    console.error("Error generating lunch suggestions:", error);
-    if (error instanceof OpenAI.APIError) {
-      return {
-        error: "AI Service Error",
-        details: error.message || "Failed to communicate with the AI service",
-      };
-    }
-    return {
-      error: "Unexpected Error",
-      details: error instanceof Error ? error.message : "An unknown error occurred",
-    };
+    console.error("Error streaming lunch suggestions:", error);
+    yield `Error: ${error instanceof Error ? error.message : "Failed to generate suggestions"}`;
   }
 }
 
-export async function analyzeLunchboxImage(
+export async function* analyzeLunchboxImage(
   base64Image: string,
   childProfile: {
     name: string;
     age: number;
     allergies: string[];
   }
-): Promise<string | LLMError> {
+): AsyncGenerator<string, void, unknown> {
   try {
-    const response = await openai.chat.completions.create({
+    const stream = await openai.chat.completions.create({
       model,
       messages: [
         {
@@ -137,30 +129,22 @@ Be concise, practical, and encouraging.`,
         },
       ],
       max_tokens: 800,
+      stream: true,
     });
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return { error: "No response from AI", details: "The API returned an empty response" };
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
     }
-
-    return content;
   } catch (error) {
-    console.error("Error analyzing lunchbox image:", error);
-    if (error instanceof OpenAI.APIError) {
-      return {
-        error: "AI Vision Error",
-        details: error.message || "Failed to analyze the image",
-      };
-    }
-    return {
-      error: "Unexpected Error",
-      details: error instanceof Error ? error.message : "An unknown error occurred",
-    };
+    console.error("Error streaming lunchbox analysis:", error);
+    yield `Error: ${error instanceof Error ? error.message : "Failed to analyze image"}`;
   }
 }
 
-export async function generateWeeklyPlan(
+export async function* generateWeeklyPlan(
   childProfile: {
     name: string;
     age: number;
@@ -169,9 +153,8 @@ export async function generateWeeklyPlan(
     schoolPolicies: string[];
   },
   budgetConstraint?: number
-): Promise<string | LLMError> {
-  try {
-    const userPrompt = `Create a 5-day lunch plan (Monday-Friday) for:
+): AsyncGenerator<string, void, unknown> {
+  const userPrompt = `Create a 5-day lunch plan (Monday-Friday) for:
 
 Child: ${childProfile.name}, Age ${childProfile.age}
 Preferences: ${childProfile.preferences.join(", ") || "None"}
@@ -188,7 +171,8 @@ For each day provide:
 
 Include a shopping list organized by store section.`;
 
-    const response = await openai.chat.completions.create({
+  try {
+    const stream = await openai.chat.completions.create({
       model,
       messages: [
         {
@@ -206,38 +190,29 @@ Format clearly with emoji indicators for each day.`,
       ],
       temperature: 0.7,
       max_tokens: 2000,
+      stream: true,
     });
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return { error: "No response from AI", details: "The API returned an empty response" };
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
     }
-
-    return content;
   } catch (error) {
-    console.error("Error generating weekly plan:", error);
-    if (error instanceof OpenAI.APIError) {
-      return {
-        error: "AI Service Error",
-        details: error.message || "Failed to generate weekly plan",
-      };
-    }
-    return {
-      error: "Unexpected Error",
-      details: error instanceof Error ? error.message : "An unknown error occurred",
-    };
+    console.error("Error streaming weekly plan:", error);
+    yield `Error: ${error instanceof Error ? error.message : "Failed to generate weekly plan"}`;
   }
 }
 
-export async function suggestFoodSwaps(
+export async function* suggestFoodSwaps(
   rejectedFood: string,
   childProfile: {
     preferences: string[];
     allergies: string[];
   }
-): Promise<string | LLMError> {
-  try {
-    const userPrompt = `My child rejected "${rejectedFood}" at lunch today.
+): AsyncGenerator<string, void, unknown> {
+  const userPrompt = `My child rejected "${rejectedFood}" at lunch today.
 
 Their sensory preferences: ${childProfile.preferences.join(", ") || "Not specified"}
 Allergies to avoid: ${childProfile.allergies.join(", ") || "None"}
@@ -249,7 +224,8 @@ Suggest 3 alternative foods that:
 
 Explain why each alternative might work better.`;
 
-    const response = await openai.chat.completions.create({
+  try {
+    const stream = await openai.chat.completions.create({
       model,
       messages: [
         {
@@ -260,25 +236,17 @@ Explain why each alternative might work better.`;
       ],
       temperature: 0.7,
       max_tokens: 800,
+      stream: true,
     });
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return { error: "No response from AI", details: "The API returned an empty response" };
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
     }
-
-    return content;
   } catch (error) {
-    console.error("Error suggesting food swaps:", error);
-    if (error instanceof OpenAI.APIError) {
-      return {
-        error: "AI Service Error",
-        details: error.message || "Failed to suggest swaps",
-      };
-    }
-    return {
-      error: "Unexpected Error",
-      details: error instanceof Error ? error.message : "An unknown error occurred",
-    };
+    console.error("Error streaming food swaps:", error);
+    yield `Error: ${error instanceof Error ? error.message : "Failed to suggest swaps"}`;
   }
 }

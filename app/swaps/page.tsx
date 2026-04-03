@@ -7,6 +7,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
 import { suggestFoodSwaps, type LLMError } from "../lib/openai";
 import { getUserData, saveFoodSwap, getFoodSwaps, type ChildProfile, type FoodSwap } from "../lib/storage";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Swaps() {
   const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -38,27 +40,29 @@ export default function Swaps() {
 
     setIsLoading(true);
     setError(null);
+    setSwapResult("");
 
     try {
-      const result = await suggestFoodSwaps(rejectedFood, {
+      const stream = suggestFoodSwaps(rejectedFood, {
         preferences: profile.sensoryPreferences || [],
         allergies: profile.allergies || [],
       });
 
-      if (typeof result === "object" && "error" in result) {
-        const llmError = result as LLMError;
-        setError(llmError.details || llmError.error);
-      } else {
-        setSwapResult(result as string);
-        const newSwap: FoodSwap = {
-          id: Date.now().toString(),
-          rejectedFood: rejectedFood,
-          suggestions: result as string,
-          generatedAt: new Date().toISOString(),
-        };
-        saveFoodSwap(newSwap);
-        setSwapHistory(prev => [newSwap, ...prev].slice(0, 10));
+      let fullContent = "";
+      for await (const chunk of stream) {
+        fullContent += chunk;
+        setSwapResult(fullContent);
       }
+
+      // Save the complete result
+      const newSwap: FoodSwap = {
+        id: Date.now().toString(),
+        rejectedFood: rejectedFood,
+        suggestions: fullContent,
+        generatedAt: new Date().toISOString(),
+      };
+      saveFoodSwap(newSwap);
+      setSwapHistory(prev => [newSwap, ...prev].slice(0, 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to get food swap suggestions");
     } finally {
@@ -154,8 +158,10 @@ export default function Swaps() {
                       close
                     </button>
                   </div>
-                  <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
-                    {swapResult}
+                  <div className="prose prose-sm max-w-none text-on-surface">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {swapResult}
+                    </ReactMarkdown>
                   </div>
                 </div>
               ) : (

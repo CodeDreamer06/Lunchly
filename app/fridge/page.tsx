@@ -7,6 +7,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
 import { generateLunchSuggestions, type LLMError } from "../lib/openai";
 import { getUserData, getAvailableIngredients, setAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Fridge() {
   const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -56,9 +58,10 @@ export default function Fridge() {
 
     setIsLoading(true);
     setError(null);
+    setSuggestions("");
 
     try {
-      const result = await generateLunchSuggestions(
+      const stream = generateLunchSuggestions(
         {
           name: profile.name,
           age: profile.age,
@@ -71,18 +74,19 @@ export default function Fridge() {
         ingredients
       );
 
-      if (typeof result === "object" && "error" in result) {
-        const llmError = result as LLMError;
-        setError(llmError.details || llmError.error);
-      } else {
-        setSuggestions(result as string);
-        saveLunchSuggestion({
-          id: Date.now().toString(),
-          content: result as string,
-          ingredients: ingredients,
-          generatedAt: new Date().toISOString(),
-        });
+      let fullContent = "";
+      for await (const chunk of stream) {
+        fullContent += chunk;
+        setSuggestions(fullContent);
       }
+
+      // Save the complete result
+      saveLunchSuggestion({
+        id: Date.now().toString(),
+        content: fullContent,
+        ingredients: ingredients,
+        generatedAt: new Date().toISOString(),
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate suggestions");
     } finally {
@@ -194,8 +198,10 @@ export default function Fridge() {
                   close
                 </button>
               </div>
-              <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
-                {suggestions}
+              <div className="prose prose-sm max-w-none text-on-surface">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {suggestions}
+                </ReactMarkdown>
               </div>
             </div>
           )}

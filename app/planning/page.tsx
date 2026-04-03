@@ -7,6 +7,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
 import { generateWeeklyPlan, type LLMError } from "../lib/openai";
 import { getUserData, saveWeeklyPlan, getWeeklyPlans, type ChildProfile, type WeeklyPlan } from "../lib/storage";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Planning() {
   const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -37,9 +39,10 @@ export default function Planning() {
 
     setIsLoading(true);
     setError(null);
+    setGeneratedPlan(null);
 
     try {
-      const result = await generateWeeklyPlan(
+      const stream = generateWeeklyPlan(
         {
           name: profile.name,
           age: profile.age,
@@ -50,20 +53,28 @@ export default function Planning() {
         budget
       );
 
-      if (typeof result === "object" && "error" in result) {
-        const llmError = result as LLMError;
-        setError(llmError.details || llmError.error);
-      } else {
-        const newPlan: WeeklyPlan = {
+      let fullContent = "";
+      for await (const chunk of stream) {
+        fullContent += chunk;
+        const tempPlan: WeeklyPlan = {
           id: Date.now().toString(),
-          content: result as string,
+          content: fullContent,
           budget: budget,
           generatedAt: new Date().toISOString(),
         };
-        setGeneratedPlan(newPlan);
-        saveWeeklyPlan(newPlan);
-        setSavedPlans(prev => [newPlan, ...prev].slice(0, 5));
+        setGeneratedPlan(tempPlan);
       }
+
+      // Save the complete result
+      const finalPlan: WeeklyPlan = {
+        id: Date.now().toString(),
+        content: fullContent,
+        budget: budget,
+        generatedAt: new Date().toISOString(),
+      };
+      setGeneratedPlan(finalPlan);
+      saveWeeklyPlan(finalPlan);
+      setSavedPlans(prev => [finalPlan, ...prev].slice(0, 5));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate weekly plan");
     } finally {
@@ -139,8 +150,10 @@ export default function Planning() {
                 )}
               </div>
             </div>
-            <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap bg-surface-container-low rounded-xl p-6">
-              {activeTab === "generated" ? generatedPlan.content : savedPlans[0]?.content}
+            <div className="prose prose-sm max-w-none text-on-surface bg-surface-container-low rounded-xl p-6">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {activeTab === "generated" ? generatedPlan?.content || "" : savedPlans[0]?.content || ""}
+              </ReactMarkdown>
             </div>
             <div className="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
               <span>Generated: {new Date(generatedPlan.generatedAt).toLocaleString()}</span>

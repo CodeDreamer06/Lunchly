@@ -8,6 +8,8 @@ import ErrorToast from "../components/ErrorToast";
 import ImageUploader from "../components/ImageUploader";
 import { analyzeLunchboxImage, type LLMError } from "../lib/openai";
 import { getUserData, saveAnalysisResult, type ChildProfile } from "../lib/storage";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Analysis() {
   const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -43,27 +45,29 @@ export default function Analysis() {
 
     setIsLoading(true);
     setError(null);
+    setAnalysisResult("");
 
     try {
-      const result = await analyzeLunchboxImage(selectedImage, {
+      const stream = analyzeLunchboxImage(selectedImage, {
         name: profile.name,
         age: profile.age,
         allergies: profile.allergies || [],
       });
 
-      if (typeof result === "object" && "error" in result) {
-        const llmError = result as LLMError;
-        setError(llmError.details || llmError.error);
-      } else {
-        setAnalysisResult(result as string);
-        saveAnalysisResult({
-          id: Date.now().toString(),
-          imageData: selectedImage,
-          analysis: result as string,
-          analyzedAt: new Date().toISOString(),
-        });
-        setAnalysisHistory(prev => [{ imageData: selectedImage, analysis: result as string, date: new Date().toLocaleString() }, ...prev].slice(0, 5));
+      let fullContent = "";
+      for await (const chunk of stream) {
+        fullContent += chunk;
+        setAnalysisResult(fullContent);
       }
+
+      // Save the complete result
+      saveAnalysisResult({
+        id: Date.now().toString(),
+        imageData: selectedImage,
+        analysis: fullContent,
+        analyzedAt: new Date().toISOString(),
+      });
+      setAnalysisHistory(prev => [{ imageData: selectedImage, analysis: fullContent, date: new Date().toLocaleString() }, ...prev].slice(0, 5));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to analyze lunchbox");
     } finally {
@@ -133,8 +137,10 @@ export default function Analysis() {
                       close
                     </button>
                   </div>
-                  <div className="prose prose-sm max-w-none text-on-surface whitespace-pre-wrap">
-                    {analysisResult}
+                  <div className="prose prose-sm max-w-none text-on-surface">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {analysisResult}
+                    </ReactMarkdown>
                   </div>
                 </div>
               ) : (
