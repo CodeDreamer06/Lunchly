@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
-import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
 import ImageUploader from "../components/ImageUploader";
-import { analyzeLunchboxImage, type LLMError } from "../lib/openai";
 import { getUserData, saveAnalysisResult, type ChildProfile } from "../lib/storage";
+import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -48,10 +47,14 @@ export default function Analysis() {
     setAnalysisResult("");
 
     try {
-      const stream = analyzeLunchboxImage(selectedImage, {
-        name: profile.name,
-        age: profile.age,
-        allergies: profile.allergies || [],
+      const stream = streamLLM({
+        type: "analyzeLunchboxImage",
+        base64Image: selectedImage,
+        childProfile: {
+          name: profile.name,
+          age: profile.age,
+          allergies: profile.allergies || [],
+        },
       });
 
       let fullContent = "";
@@ -126,10 +129,12 @@ export default function Analysis() {
                 <span className="material-symbols-outlined text-secondary">analytics</span>
                 Analysis Results
               </h2>
-              {analysisResult ? (
+              {analysisResult !== null ? (
                 <div className="bg-surface-container-low rounded-xl p-6 border border-primary/20">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-primary">AI Analysis Complete</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                      {isLoading ? "Analyzing Lunchbox" : "AI Analysis Complete"}
+                    </span>
                     <button
                       onClick={() => setAnalysisResult(null)}
                       className="material-symbols-outlined text-on-surface-variant hover:text-error"
@@ -139,7 +144,7 @@ export default function Analysis() {
                   </div>
                   <div className="prose prose-sm max-w-none text-on-surface">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {analysisResult}
+                      {analysisResult || "_Thinking..._"}
                     </ReactMarkdown>
                   </div>
                 </div>
@@ -353,8 +358,6 @@ export default function Analysis() {
         </div>
       </main>
 
-      <LoadingOverlay isVisible={isLoading} message="Analyzing lunchbox with AI..." />
-      
       {error && (
         <ErrorToast
           message={error}

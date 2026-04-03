@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
-import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
-import { generateLunchSuggestions, type LLMError } from "../lib/openai";
 import { getUserData, getAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
+import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -39,8 +38,9 @@ export default function Dashboard() {
     setSuggestions("");
 
     try {
-      const stream = generateLunchSuggestions(
-        {
+      const stream = streamLLM({
+        type: "generateLunchSuggestions",
+        childProfile: {
           name: profile.name,
           age: profile.age,
           grade: profile.grade,
@@ -49,8 +49,8 @@ export default function Dashboard() {
           schoolPolicies: profile.schoolPolicies || [],
           eatingHabits: profile.eatingHabits || "",
         },
-        ingredients.length > 0 ? ingredients : undefined
-      );
+        availableIngredients: ingredients.length > 0 ? ingredients : undefined,
+      });
 
       let fullContent = "";
       for await (const chunk of stream) {
@@ -105,12 +105,12 @@ export default function Dashboard() {
         </section>
 
         {/* AI Suggestions Display */}
-        {suggestions && (
+        {suggestions !== null && (
           <section className="mb-12 bg-surface-container-lowest rounded-xl p-8 border border-primary/20">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">auto_awesome</span>
-                AI-Generated Lunch Ideas
+                {isLoading ? "Generating Lunch Ideas..." : "AI-Generated Lunch Ideas"}
               </h2>
               <button
                 onClick={() => setSuggestions(null)}
@@ -121,7 +121,7 @@ export default function Dashboard() {
             </div>
             <div className="prose prose-sm max-w-none text-on-surface">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {suggestions}
+                {suggestions || "_Thinking..._"}
               </ReactMarkdown>
             </div>
           </section>
@@ -300,8 +300,6 @@ export default function Dashboard() {
         </div>
       </main>
 
-      <LoadingOverlay isVisible={isLoading} message="Generating lunch suggestions..." />
-      
       {error && (
         <ErrorToast
           message={error}

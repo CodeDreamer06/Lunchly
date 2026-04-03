@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
-import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
-import { generateLunchSuggestions, type LLMError } from "../lib/openai";
 import { getUserData, getAvailableIngredients, setAvailableIngredients, saveLunchSuggestion, type ChildProfile } from "../lib/storage";
+import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -61,8 +60,9 @@ export default function Fridge() {
     setSuggestions("");
 
     try {
-      const stream = generateLunchSuggestions(
-        {
+      const stream = streamLLM({
+        type: "generateLunchSuggestions",
+        childProfile: {
           name: profile.name,
           age: profile.age,
           grade: profile.grade,
@@ -71,8 +71,8 @@ export default function Fridge() {
           schoolPolicies: profile.schoolPolicies || [],
           eatingHabits: profile.eatingHabits || "",
         },
-        ingredients
-      );
+        availableIngredients: ingredients,
+      });
 
       let fullContent = "";
       for await (const chunk of stream) {
@@ -187,10 +187,12 @@ export default function Fridge() {
           </button>
 
           {/* Generated Suggestions */}
-          {suggestions && (
+          {suggestions !== null && (
             <div className="mt-8 bg-surface-container-low rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-bold text-primary uppercase tracking-wider">AI-Generated Suggestions</span>
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">
+                  {isLoading ? "Generating Suggestions" : "AI-Generated Suggestions"}
+                </span>
                 <button
                   onClick={() => setSuggestions(null)}
                   className="material-symbols-outlined text-on-surface-variant hover:text-error"
@@ -200,7 +202,7 @@ export default function Fridge() {
               </div>
               <div className="prose prose-sm max-w-none text-on-surface">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {suggestions}
+                  {suggestions || "_Thinking..._"}
                 </ReactMarkdown>
               </div>
             </div>
@@ -349,8 +351,6 @@ export default function Fridge() {
         </section>
       </main>
 
-      <LoadingOverlay isVisible={isLoading} message="Generating lunch ideas from your ingredients..." />
-      
       {error && (
         <ErrorToast
           message={error}

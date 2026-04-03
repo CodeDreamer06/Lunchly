@@ -1,5 +1,3 @@
-"use server";
-
 import OpenAI from "openai";
 
 const apiKey = process.env.OPENAI_API_KEY;
@@ -22,6 +20,22 @@ const openai = new OpenAI({
 export interface LLMError {
   error: string;
   details?: string;
+}
+
+function extractChunkContent(chunk: any): string {
+  const content = chunk.choices?.[0]?.delta?.content;
+
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("");
+  }
+
+  return "";
 }
 
 export async function* generateLunchSuggestions(
@@ -77,8 +91,8 @@ For each suggestion, include:
       stream: true,
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
+    for await (const chunk of stream as any) {
+      const content = extractChunkContent(chunk);
       if (content) {
         yield content;
       }
@@ -132,8 +146,8 @@ Be concise, practical, and encouraging.`,
       stream: true,
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
+    for await (const chunk of stream as any) {
+      const content = extractChunkContent(chunk);
       if (content) {
         yield content;
       }
@@ -193,8 +207,8 @@ Format clearly with emoji indicators for each day.`,
       stream: true,
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
+    for await (const chunk of stream as any) {
+      const content = extractChunkContent(chunk);
       if (content) {
         yield content;
       }
@@ -239,8 +253,8 @@ Explain why each alternative might work better.`;
       stream: true,
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
+    for await (const chunk of stream as any) {
+      const content = extractChunkContent(chunk);
       if (content) {
         yield content;
       }

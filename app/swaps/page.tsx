@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
-import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
-import { suggestFoodSwaps, type LLMError } from "../lib/openai";
 import { getUserData, saveFoodSwap, getFoodSwaps, type ChildProfile, type FoodSwap } from "../lib/storage";
+import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -43,9 +42,13 @@ export default function Swaps() {
     setSwapResult("");
 
     try {
-      const stream = suggestFoodSwaps(rejectedFood, {
-        preferences: profile.sensoryPreferences || [],
-        allergies: profile.allergies || [],
+      const stream = streamLLM({
+        type: "suggestFoodSwaps",
+        rejectedFood,
+        childProfile: {
+          preferences: profile.sensoryPreferences || [],
+          allergies: profile.allergies || [],
+        },
       });
 
       let fullContent = "";
@@ -147,10 +150,12 @@ export default function Swaps() {
               </div>
             </div>
             <div>
-              {swapResult ? (
+              {swapResult !== null ? (
                 <div className="bg-surface-container-low rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-bold text-primary uppercase tracking-wider">AI Suggestions</span>
+                    <span className="text-sm font-bold text-primary uppercase tracking-wider">
+                      {isLoading ? "Generating Suggestions" : "AI Suggestions"}
+                    </span>
                     <button
                       onClick={() => setSwapResult(null)}
                       className="material-symbols-outlined text-on-surface-variant hover:text-error"
@@ -160,7 +165,7 @@ export default function Swaps() {
                   </div>
                   <div className="prose prose-sm max-w-none text-on-surface">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {swapResult}
+                      {swapResult || "_Thinking..._"}
                     </ReactMarkdown>
                   </div>
                 </div>
@@ -308,8 +313,6 @@ export default function Swaps() {
         </section>
       </main>
 
-      <LoadingOverlay isVisible={isLoading} message="Generating food swap suggestions..." />
-      
       {error && (
         <ErrorToast
           message={error}

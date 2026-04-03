@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
-import LoadingOverlay from "../components/LoadingOverlay";
 import ErrorToast from "../components/ErrorToast";
-import { generateWeeklyPlan, type LLMError } from "../lib/openai";
 import { getUserData, saveWeeklyPlan, getWeeklyPlans, type ChildProfile, type WeeklyPlan } from "../lib/storage";
+import { streamLLM } from "../lib/llm-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -39,25 +38,32 @@ export default function Planning() {
 
     setIsLoading(true);
     setError(null);
-    setGeneratedPlan(null);
+    const planId = Date.now().toString();
+    setGeneratedPlan({
+      id: planId,
+      content: "",
+      budget: budget,
+      generatedAt: new Date().toISOString(),
+    });
 
     try {
-      const stream = generateWeeklyPlan(
-        {
+      const stream = streamLLM({
+        type: "generateWeeklyPlan",
+        childProfile: {
           name: profile.name,
           age: profile.age,
           preferences: profile.sensoryPreferences || [],
           allergies: profile.allergies || [],
           schoolPolicies: profile.schoolPolicies || [],
         },
-        budget
-      );
+        budgetConstraint: budget,
+      });
 
       let fullContent = "";
       for await (const chunk of stream) {
         fullContent += chunk;
         const tempPlan: WeeklyPlan = {
-          id: Date.now().toString(),
+          id: planId,
           content: fullContent,
           budget: budget,
           generatedAt: new Date().toISOString(),
@@ -67,7 +73,7 @@ export default function Planning() {
 
       // Save the complete result
       const finalPlan: WeeklyPlan = {
-        id: Date.now().toString(),
+        id: planId,
         content: fullContent,
         budget: budget,
         generatedAt: new Date().toISOString(),
@@ -131,7 +137,9 @@ export default function Planning() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">auto_awesome</span>
-                <h2 className="text-xl font-headline font-bold">AI-Generated Weekly Plan</h2>
+                <h2 className="text-xl font-headline font-bold">
+                  {isLoading ? "Generating Weekly Plan..." : "AI-Generated Weekly Plan"}
+                </h2>
               </div>
               <div className="flex gap-2">
                 <button
@@ -152,7 +160,9 @@ export default function Planning() {
             </div>
             <div className="prose prose-sm max-w-none text-on-surface bg-surface-container-low rounded-xl p-6">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {activeTab === "generated" ? generatedPlan?.content || "" : savedPlans[0]?.content || ""}
+                {activeTab === "generated"
+                  ? generatedPlan?.content || "_Thinking..._"
+                  : savedPlans[0]?.content || ""}
               </ReactMarkdown>
             </div>
             <div className="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
@@ -322,8 +332,6 @@ export default function Planning() {
         </div>
       </main>
 
-      <LoadingOverlay isVisible={isLoading} message="Generating weekly meal plan..." />
-      
       {error && (
         <ErrorToast
           message={error}
