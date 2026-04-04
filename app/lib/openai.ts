@@ -1,10 +1,16 @@
+import "server-only";
 import OpenAI from "openai";
+import type { ChatCompletionChunk } from "openai/resources/chat/completions";
 
-const apiKey = process.env.OPENAI_API_KEY;
+const apiKeys = (process.env.OPENAI_API_KEY || "")
+  .split(",")
+  .map((key) => key.trim())
+  .filter(Boolean);
 const baseURL = process.env.OPENAI_API_BASE_URL;
 const model = process.env.OPENAI_MODEL || "gpt-5.2";
+let nextClientIndex = 0;
 
-if (!apiKey) {
+if (apiKeys.length === 0) {
   throw new Error("OPENAI_API_KEY environment variable is not set");
 }
 
@@ -12,17 +18,26 @@ if (!baseURL) {
   throw new Error("OPENAI_API_BASE_URL environment variable is not set");
 }
 
-const openai = new OpenAI({
-  apiKey,
-  baseURL,
-});
+const openaiClients = apiKeys.map(
+  (apiKey) =>
+    new OpenAI({
+      apiKey,
+      baseURL,
+    }),
+);
+
+function getNextOpenAIClient(): OpenAI {
+  const client = openaiClients[nextClientIndex];
+  nextClientIndex = (nextClientIndex + 1) % openaiClients.length;
+  return client;
+}
 
 export interface LLMError {
   error: string;
   details?: string;
 }
 
-function extractChunkContent(chunk: any): string {
+function extractChunkContent(chunk: ChatCompletionChunk): string {
   const content = chunk.choices?.[0]?.delta?.content;
 
   if (typeof content === "string") {
@@ -80,7 +95,7 @@ For each suggestion, include:
 4. Why this lunch works for them (nutritional or sensory rationale)`;
 
   try {
-    const stream = await openai.chat.completions.create({
+    const stream = await getNextOpenAIClient().chat.completions.create({
       model,
       messages: [
         { role: "system", content: systemPrompt },
@@ -91,7 +106,7 @@ For each suggestion, include:
       stream: true,
     });
 
-    for await (const chunk of stream as any) {
+    for await (const chunk of stream) {
       const content = extractChunkContent(chunk);
       if (content) {
         yield content;
@@ -176,7 +191,7 @@ Use realistic confidence scores. Consider school lunch constraints. Be encouragi
   const userPrompt = `Analyze this lunchbox for ${childProfile.name} (age ${childProfile.age}). Allergies: ${childProfile.allergies.join(", ") || "none"}.`;
 
   try {
-    const stream = await openai.chat.completions.create({
+    const stream = await getNextOpenAIClient().chat.completions.create({
       model,
       messages: [
         { role: "system", content: systemPrompt },
@@ -195,7 +210,7 @@ Use realistic confidence scores. Consider school lunch constraints. Be encouragi
       stream: true,
     });
 
-    for await (const chunk of stream as any) {
+    for await (const chunk of stream) {
       const content = extractChunkContent(chunk);
       if (content) {
         yield content;
@@ -235,7 +250,7 @@ For each day provide:
 Include a shopping list organized by store section.`;
 
   try {
-    const stream = await openai.chat.completions.create({
+    const stream = await getNextOpenAIClient().chat.completions.create({
       model,
       messages: [
         {
@@ -256,7 +271,7 @@ Format clearly with emoji indicators for each day.`,
       stream: true,
     });
 
-    for await (const chunk of stream as any) {
+    for await (const chunk of stream) {
       const content = extractChunkContent(chunk);
       if (content) {
         yield content;
@@ -288,7 +303,7 @@ Suggest 3 alternative foods that:
 Explain why each alternative might work better.`;
 
   try {
-    const stream = await openai.chat.completions.create({
+    const stream = await getNextOpenAIClient().chat.completions.create({
       model,
       messages: [
         {
@@ -302,7 +317,7 @@ Explain why each alternative might work better.`;
       stream: true,
     });
 
-    for await (const chunk of stream as any) {
+    for await (const chunk of stream) {
       const content = extractChunkContent(chunk);
       if (content) {
         yield content;
