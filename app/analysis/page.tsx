@@ -55,7 +55,7 @@ function CategoryIcon({ category }: { category: string }) {
   const icons: Record<string, string> = {
     protein: "egg_alt",
     carbs: "rice_bowl",
-    vegetable: "ecology",
+    vegetable: "eco",
     fruit: "nutrition",
     dairy: "local_drink",
     snack: "cookies",

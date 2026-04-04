@@ -40,17 +40,7 @@ export interface LLMError {
 function extractChunkContent(chunk: ChatCompletionChunk): string {
   const content = chunk.choices?.[0]?.delta?.content;
 
-  if (typeof content === "string") {
-    return content;
-  }
-
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => (typeof part?.text === "string" ? part.text : ""))
-      .join("");
-  }
-
-  return "";
+  return typeof content === "string" ? content : "";
 }
 
 export async function* generateLunchSuggestions(
