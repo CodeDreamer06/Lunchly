@@ -17,7 +17,7 @@ export interface UserData {
   childProfile: ChildProfile;
 }
 
-const STORAGE_KEY = "lunchlogic_user_data";
+const STORAGE_KEY = "lunchly_user_data";
 
 export function getUserData(): UserData | null {
   if (typeof window === "undefined") return null;
@@ -37,7 +37,7 @@ export function setUserData(data: UserData): void {
   
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    window.dispatchEvent(new CustomEvent("lunchlogic-user-data-changed"));
+    window.dispatchEvent(new CustomEvent("lunchly-user-data-changed"));
   } catch (error) {
     console.error("Error saving user data to localStorage:", error);
     throw new Error("Failed to save user data");
@@ -183,7 +183,7 @@ export interface AvailableIngredients {
   lastUpdated: string;
 }
 
-const AI_STORAGE_KEY = "lunchlogic_ai_data";
+const AI_STORAGE_KEY = "lunchly_ai_data";
 
 interface AIData {
   suggestions: LunchSuggestion[];

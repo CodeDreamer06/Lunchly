@@ -124,7 +124,7 @@ export default function Profile() {
       }
 
       if (action === "email") {
-        window.location.href = `mailto:?subject=${encodeURIComponent(`${profile.name}'s LunchLogic Handoff`)}&body=${encodeURIComponent(summary)}`;
+        window.location.href = `mailto:?subject=${encodeURIComponent(`${profile.name}'s Lunchly Handoff`)}&body=${encodeURIComponent(summary)}`;
         setTimedMessage("Opened email draft.");
         return;
       }
@@ -170,7 +170,7 @@ export default function Profile() {
             Child Profile &amp; Sensory Preferences
           </h1>
           <p className="text-on-surface-variant text-lg max-w-2xl">
-            Tailor the LunchLogic experience to your child&apos;s unique needs, habits, and school environment.
+            Tailor the Lunchly experience to your child&apos;s unique needs, habits, and school environment.
           </p>
         </div>
 

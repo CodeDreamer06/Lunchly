@@ -34,8 +34,8 @@ export default function TopNav() {
   useEffect(() => {
     const syncProfile = () => setChildProfile(getUserData()?.childProfile ?? null);
     syncProfile();
-    window.addEventListener("lunchlogic-user-data-changed", syncProfile);
-    return () => window.removeEventListener("lunchlogic-user-data-changed", syncProfile);
+    window.addEventListener("lunchly-user-data-changed", syncProfile);
+    return () => window.removeEventListener("lunchly-user-data-changed", syncProfile);
   }, []);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function TopNav() {
   return (
     <nav className="fixed top-0 z-50 w-full bg-surface border-b border-stone-200/50 flex justify-between items-center px-4 md:px-8 h-16">
       <Link href="/dashboard" className="text-2xl font-black text-primary tracking-tight font-headline">
-        LunchLogic
+        Lunchly
       </Link>
       
       <div className="hidden md:flex gap-8 items-center">

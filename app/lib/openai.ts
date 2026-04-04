@@ -65,7 +65,7 @@ export async function* generateLunchSuggestions(
   },
   availableIngredients?: string[]
 ): AsyncGenerator<string, void, unknown> {
-  const systemPrompt = `You are LunchLogic, an AI assistant that helps parents create healthy, appealing school lunches for their children.
+  const systemPrompt = `You are Lunchly, an AI assistant that helps parents create healthy, appealing school lunches for their children.
 You consider:
 - Child's age, sensory preferences, and eating habits
 - School policies (nut-free, no-reheating, etc.)
@@ -126,7 +126,7 @@ export async function* analyzeLunchboxImage(
     allergies: string[];
   }
 ): AsyncGenerator<string, void, unknown> {
-  const systemPrompt = `You are LunchLogic's Lunch Scanner - an expert AI nutritionist and child food specialist.
+  const systemPrompt = `You are Lunchly's Lunch Scanner - an expert AI nutritionist and child food specialist.
 
 Analyze the lunchbox image and provide a COMPLETE structured JSON analysis. Be thorough but realistic - only identify foods you can clearly see.
 
@@ -255,7 +255,7 @@ Include a shopping list organized by store section.`;
       messages: [
         {
           role: "system",
-          content: `You are LunchLogic's Weekly Planner. Create practical, varied lunch plans that consider:
+          content: `You are Lunchly's Weekly Planner. Create practical, varied lunch plans that consider:
 - Sensory preferences (texture, temperature, color)
 - School constraints (no-reheat, nut-free, etc.)
 - Batch cooking opportunities
@@ -308,7 +308,7 @@ Explain why each alternative might work better.`;
       messages: [
         {
           role: "system",
-          content: `You are LunchLogic's Swap Engine. When a child rejects a food, analyze why and suggest sensory-compatible alternatives. Consider texture, temperature, color, smell, and familiarity. Be empathetic to picky eating while encouraging gentle expansion of food acceptance.`,
+          content: `You are Lunchly's Swap Engine. When a child rejects a food, analyze why and suggest sensory-compatible alternatives. Consider texture, temperature, color, smell, and familiarity. Be empathetic to picky eating while encouraging gentle expansion of food acceptance.`,
         },
         { role: "user", content: userPrompt },
       ],

@@ -3,7 +3,7 @@ import "./globals.css";
 import { ToastProvider } from "./components/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "LunchLogic - Smart Lunch Planning",
+  title: "Lunchly - Smart Lunch Planning",
   description: "AI-powered lunchbox analysis, weekly meal planning, and smart food swaps for families.",
 };
 

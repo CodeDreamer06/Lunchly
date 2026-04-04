@@ -112,7 +112,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             <span className="material-symbols-outlined text-4xl text-on-primary-container">child_care</span>
           </div>
           <h1 className="text-3xl font-headline font-extrabold text-on-surface mb-2">
-            Welcome to LunchLogic
+            Welcome to Lunchly
           </h1>
           <p className="text-on-surface-variant">
             Let&apos;s set up your child&apos;s profile to create perfect lunches

@@ -1,10 +1,10 @@
-# LunchLogic - Next.js Migration
+# Lunchly - Next.js Migration
 
 A comprehensive lunch planning and nutrition analysis application built with Next.js 15, TypeScript, and Tailwind CSS 4.
 
 ## Project Overview
 
-LunchLogic is a parent-focused web application that helps families plan, analyze, and optimize their children's school lunches. The app features AI-powered lunchbox analysis, weekly meal planning, smart food swaps, sensory preference tracking, and caregiver collaboration tools.
+Lunchly is a parent-focused web application that helps families plan, analyze, and optimize their children's school lunches. The app features AI-powered lunchbox analysis, weekly meal planning, smart food swaps, sensory preference tracking, and caregiver collaboration tools.
 
 ## Tech Stack
 

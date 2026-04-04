@@ -10,7 +10,7 @@ interface ShareModalProps {
   subject?: string;
 }
 
-export default function ShareModal({ isOpen, onClose, title = "Share", text, subject = "LunchLogic Report" }: ShareModalProps) {
+export default function ShareModal({ isOpen, onClose, title = "Share", text, subject = "Lunchly Report" }: ShareModalProps) {
   const { showToast } = useToast();
 
   if (!isOpen) return null;

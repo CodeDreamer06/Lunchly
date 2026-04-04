@@ -23,7 +23,7 @@ type LabState = {
   recommendationQueued: boolean;
 };
 
-const LAB_STORAGE_KEY = "lunchlogic_lab_state";
+const LAB_STORAGE_KEY = "lunchly_lab_state";
 
 const initialSafeAnchors: SafeAnchor[] = [
   { name: "White Pasta", trust: 100 },
