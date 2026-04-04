@@ -111,38 +111,87 @@ export async function* analyzeLunchboxImage(
     allergies: string[];
   }
 ): AsyncGenerator<string, void, unknown> {
+  const systemPrompt = `You are LunchLogic's Lunch Scanner - an expert AI nutritionist and child food specialist.
+
+Analyze the lunchbox image and provide a COMPLETE structured JSON analysis. Be thorough but realistic - only identify foods you can clearly see.
+
+Return ONLY valid JSON in this exact format:
+{
+  "foods": [
+    {
+      "name": "food name",
+      "category": "protein|carbs|vegetable|fruit|dairy|snack|other",
+      "nutrients": ["protein", "fiber", "vitamin C"],
+      "portionSize": "small/medium/large",
+      "calories": number,
+      "confidence": number (0-100),
+      "position": {"x": number (0-100), "y": number (0-100)},
+      "color": "hex color code",
+      "kidFriendlyScore": number (0-100),
+      "allergens": ["none" or allergen names]
+    }
+  ],
+  "nutritionScore": {
+    "overall": number (0-100),
+    "protein": number (0-100),
+    "fiber": number (0-100),
+    "sugar": number (0-100),
+    "variety": number (0-100),
+    "balance": number (0-100)
+  },
+  "energyCurve": [
+    {"time": "12:00", "energyLevel": number, "label": "Lunch"},
+    {"time": "12:30", "energyLevel": number, "label": "Post-Lunch"},
+    {"time": "13:30", "energyLevel": number, "label": "Recess"},
+    {"time": "14:30", "energyLevel": number, "label": "Class"},
+    {"time": "15:30", "energyLevel": number, "label": "Pickup"}
+  ],
+  "kidAcceptance": {
+    "easeOfOpening": "easy|medium|hard",
+    "messFactor": "low|medium|high",
+    "eatingTime": "~15 min",
+    "likelihoodOfFinishing": number (0-100)
+  },
+  "leftovers": [
+    {
+      "item": "food name",
+      "reason": "why it might be left",
+      "likelihood": "low|medium|high",
+      "suggestion": "how to improve"
+    }
+  ],
+  "sensoryMap": {
+    "crunchy": number (0-100),
+    "soft": number (0-100),
+    "wet": number (0-100),
+    "mixed": number (0-100)
+  },
+  "summary": "2-3 sentence summary",
+  "improvementTip": "one actionable tip",
+  "allergyWarnings": ["warning1"]
+}
+
+Use realistic confidence scores. Consider school lunch constraints. Be encouraging but honest. Energy curve should reflect glycemic impact.`;
+
+  const userPrompt = `Analyze this lunchbox for ${childProfile.name} (age ${childProfile.age}). Allergies: ${childProfile.allergies.join(", ") || "none"}.`;
+
   try {
     const stream = await openai.chat.completions.create({
       model,
       messages: [
-        {
-          role: "system",
-          content: `You are LunchLogic's Lunch Scanner. Analyze lunchbox images and provide:
-1. What foods you identify
-2. Nutritional assessment (balance of protein, carbs, fruits/veg)
-3. Portion appropriateness for the child's age
-4. Any allergy warnings based on the child's profile
-5. One improvement suggestion
-
-Be concise, practical, and encouraging.`,
-        },
+        { role: "system", content: systemPrompt },
         {
           role: "user",
           content: [
-            {
-              type: "text",
-              text: `Analyze this lunchbox for my child ${childProfile.name} (age ${childProfile.age}). Allergies to avoid: ${childProfile.allergies.join(", ") || "none"}.`,
-            },
+            { type: "text", text: userPrompt },
             {
               type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${base64Image}`,
-              },
+              image_url: { url: `data:image/jpeg;base64,${base64Image}` },
             },
           ],
         },
       ],
-      max_tokens: 800,
+      max_tokens: 1500,
       stream: true,
     });
 

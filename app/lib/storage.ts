@@ -95,10 +95,72 @@ export interface LunchSuggestion {
   generatedAt: string;
 }
 
+export interface FoodItem {
+  name: string;
+  category: "protein" | "carbs" | "vegetable" | "fruit" | "dairy" | "snack" | "other";
+  nutrients: string[];
+  portionSize: string;
+  calories: number;
+  confidence: number;
+  position: { x: number; y: number };
+  color: string;
+  kidFriendlyScore: number;
+  allergens: string[];
+}
+
+export interface NutritionScore {
+  overall: number;
+  protein: number;
+  fiber: number;
+  sugar: number;
+  variety: number;
+  balance: number;
+}
+
+export interface EnergyCurvePoint {
+  time: string;
+  energyLevel: number;
+  label: string;
+}
+
+export interface KidAcceptanceProfile {
+  easeOfOpening: "easy" | "medium" | "hard";
+  messFactor: "low" | "medium" | "high";
+  eatingTime: string;
+  likelihoodOfFinishing: number;
+}
+
+export interface LeftoverPrediction {
+  item: string;
+  reason: string;
+  likelihood: "low" | "medium" | "high";
+  suggestion: string;
+}
+
+export interface SensoryTextureMap {
+  crunchy: number;
+  soft: number;
+  wet: number;
+  mixed: number;
+}
+
+export interface StructuredAnalysis {
+  foods: FoodItem[];
+  nutritionScore: NutritionScore;
+  energyCurve: EnergyCurvePoint[];
+  kidAcceptance: KidAcceptanceProfile;
+  leftovers: LeftoverPrediction[];
+  sensoryMap: SensoryTextureMap;
+  summary: string;
+  improvementTip: string;
+  allergyWarnings: string[];
+}
+
 export interface AnalysisResult {
   id: string;
   imageData: string;
   analysis: string;
+  structuredData?: StructuredAnalysis;
   analyzedAt: string;
 }
 
