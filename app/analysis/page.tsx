@@ -10,42 +10,101 @@ import { useToast } from "../components/ToastProvider";
 import { getUserData, saveAnalysisResult, type ChildProfile, type StructuredAnalysis, type FoodItem } from "../lib/storage";
 import { streamLLM } from "../lib/llm-client";
 
-// Circular Score Component
-function CircularScore({ score, label, color, size = 80 }: { score: number; label: string; color: string; size?: number }) {
-  const circumference = 2 * Math.PI * ((size - 8) / 2);
-  const strokeDashoffset = circumference - (score / 100) * circumference;
+function getScoreDescriptor(score: number) {
+  if (score >= 80) return "Excellent";
+  if (score >= 65) return "Strong";
+  if (score >= 45) return "Fair";
+  return "Needs work";
+}
 
+// Leftover Risk Badge
+function RiskBadge({ likelihood }: { likelihood: string }) {
+  const configs = {
+    High: { color: "#be2d06", bg: "bg-error/15", text: "text-error", icon: "warning" },
+    Medium: { color: "#706500", bg: "bg-secondary/15", text: "text-secondary", icon: "error_outline" },
+    Low: { color: "#00751f", bg: "bg-primary/15", text: "text-primary", icon: "check_circle" },
+  };
+  const config = configs[likelihood as keyof typeof configs] || configs.Medium;
+  
   return (
-    <div className="flex flex-col items-center gap-2 group hover:-translate-y-1 transition-transform cursor-default">
-      <div className="relative drop-shadow-md" style={{ width: size, height: size }}>
-        <svg className="transform -rotate-90 w-full h-full drop-shadow-sm">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={(size - 8) / 2}
-            stroke="currentColor"
-            strokeWidth="8"
-            fill="transparent"
-            className="text-surface-container-high"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={(size - 8) / 2}
-            stroke={color}
-            strokeWidth="8"
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            className="transition-all duration-1000 ease-out drop-shadow-md"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xl font-black tracking-tighter" style={{ color }}>{score}</span>
+    <div className={`${config.bg} ${config.text} text-[10px] uppercase font-black tracking-wider px-3 py-1.5 rounded-full flex items-center gap-1.5`}>
+      <span className="material-symbols-outlined text-[14px]">{config.icon}</span>
+      {likelihood} Risk
+    </div>
+  );
+}
+
+// Enhanced Leftover Item Card
+function LeftoverCard({ 
+  leftover, 
+  idx,
+  isFixed,
+  onFix 
+}: { 
+  leftover: { item: string; likelihood: string; reason: string; suggestion: string };
+  idx: number;
+  isFixed: boolean;
+  onFix: (idx: number) => void;
+}) {
+  const getRiskColor = () => {
+    switch (leftover.likelihood) {
+      case "High": return "#be2d06";
+      case "Medium": return "#706500";
+      case "Low": return "#00751f";
+      default: return "#706500";
+    }
+  };
+  
+  const riskColor = getRiskColor();
+  
+  return (
+    <div className="group relative overflow-hidden rounded-[1.25rem] bg-surface-container-lowest border border-surface-container-high shadow-[0_2px_12px_-4px_rgba(14,15,10,0.08)] transition-all duration-300 hover:shadow-[0_8px_24px_-8px_rgba(14,15,10,0.15)] hover:-translate-y-0.5">
+      {/* Left accent bar */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-1.5" 
+        style={{ backgroundColor: riskColor, opacity: isFixed ? 0.3 : 0.8 }}
+      />
+      
+      <div className="p-5 pl-6">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300"
+              style={{ backgroundColor: `${riskColor}15` }}
+            >
+              <span className="material-symbols-outlined text-xl" style={{ color: riskColor }}>
+                {leftover.likelihood === "High" ? "priority_high" : leftover.likelihood === "Medium" ? "error_outline" : "check_circle"}
+              </span>
+            </div>
+            <div>
+              <p className="font-headline font-black text-lg text-on-surface leading-tight">{leftover.item}</p>
+              <p className="text-[10px] text-on-surface-variant mt-0.5">Detected item</p>
+            </div>
+          </div>
+          <RiskBadge likelihood={leftover.likelihood} />
         </div>
+        
+        {/* Reason */}
+        <p className="text-sm text-on-surface-variant mb-4 leading-relaxed pl-[52px]">{leftover.reason}</p>
+        
+        {/* Fix Button */}
+        <button
+          onClick={() => onFix(idx)}
+          disabled={isFixed}
+          className={`w-full py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2.5 ${
+            isFixed 
+              ? "bg-primary/10 text-primary cursor-default" 
+              : "bg-gradient-to-r from-error to-error-dim text-white hover:shadow-[0_4px_16px_-4px_rgba(190,45,6,0.4)] hover:-translate-y-0.5 active:translate-y-0"
+          }`}
+          style={isFixed ? {} : { background: `linear-gradient(135deg, ${riskColor}, ${riskColor}dd)` }}
+        >
+          <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isFixed ? "" : "group-hover:rotate-12"}`}>
+            {isFixed ? "check_circle" : "auto_fix_high"}
+          </span>
+          {isFixed ? "Improvement Applied" : leftover.suggestion}
+        </button>
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">{label}</span>
     </div>
   );
 }
@@ -62,6 +121,93 @@ function CategoryIcon({ category }: { category: string }) {
     other: "restaurant",
   };
   return <span className="material-symbols-outlined text-[1em]">{icons[category] || "restaurant"}</span>;
+}
+
+// Score Card Component - Redesigned with better visuals
+function ScoreCard({ 
+  score, 
+  label, 
+  color, 
+  icon,
+  description 
+}: { 
+  score: number; 
+  label: string; 
+  color: string; 
+  icon: string;
+  description: string;
+}) {
+  const descriptor = getScoreDescriptor(score);
+  const circumference = 2 * Math.PI * 38;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+  
+  // Determine color scheme based on score color
+  const getGradient = () => {
+    if (color.includes("91f78e")) return "from-primary-fixed/30 to-primary-fixed/10"; // Green
+    if (color.includes("f9e534")) return "from-secondary-fixed/30 to-secondary-fixed/10"; // Yellow
+    if (color.includes("0067ad")) return "from-tertiary/20 to-tertiary/10"; // Blue
+    if (color.includes("706500")) return "from-secondary-dim/20 to-secondary-dim/10"; // Olive
+    return "from-primary/20 to-primary/10";
+  };
+
+  return (
+    <div className="group relative overflow-hidden rounded-[1.5rem] border border-surface-container-high bg-surface-container-lowest p-4 shadow-[0_4px_20px_-8px_rgba(14,15,10,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_32px_-12px_rgba(14,15,10,0.25)]">
+      {/* Background gradient */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${getGradient()} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+      
+      <div className="relative flex items-center gap-4">
+        {/* Circular Progress */}
+        <div className="relative shrink-0">
+          <svg className="h-20 w-20 -rotate-90" viewBox="0 0 84 84">
+            {/* Track */}
+            <circle
+              cx="42"
+              cy="42"
+              r="38"
+              stroke="currentColor"
+              strokeWidth="6"
+              fill="transparent"
+              className="text-surface-container-high"
+            />
+            {/* Progress */}
+            <circle
+              cx="42"
+              cy="42"
+              r="38"
+              stroke={color}
+              strokeWidth="6"
+              fill="transparent"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              className="transition-all duration-1000 ease-out"
+            />
+          </svg>
+          
+          {/* Center content */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xl font-black tracking-tight" style={{ color }}>{score}</span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="material-symbols-outlined text-base" style={{ color }}>{icon}</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-on-surface-variant">{label}</span>
+          </div>
+          <p className="text-lg font-headline font-black text-on-surface leading-tight">{descriptor}</p>
+          <p className="mt-1 text-xs leading-relaxed text-on-surface-variant/80 line-clamp-2">{description}</p>
+        </div>
+      </div>
+      
+      {/* Bottom accent line */}
+      <div 
+        className="absolute bottom-0 left-0 h-1 rounded-full transition-all duration-500 group-hover:w-full" 
+        style={{ width: `${score}%`, backgroundColor: color, opacity: 0.6 }}
+      />
+    </div>
+  );
 }
 
 // Interactive Box Image Layer
@@ -425,26 +571,75 @@ export default function Analysis() {
                     <section className="bg-surface-container-lowest rounded-3xl p-8 shadow-xl border border-surface-container-highest relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                       
-                      <div className="flex items-end justify-between mb-8 relative z-10">
-                        <div>
+                      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-stretch mb-8 relative z-10">
+                        <div className="rounded-[2rem] border border-surface-container-high bg-linear-to-br from-surface-container-lowest via-surface-container-lowest to-surface-container-low p-6 shadow-[0_24px_50px_-34px_rgba(14,15,10,0.45)]">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="material-symbols-outlined text-primary text-xl">workspace_premium</span>
                             <span className="text-xs font-black uppercase tracking-widest text-primary">Nutrition</span>
                           </div>
                           <h3 className="font-headline font-black text-3xl">Bento Score</h3>
+                          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-on-surface-variant">
+                            A quick health read on the lunch composition, weighted across protein, fiber, sugar control, variety, and overall balance.
+                          </p>
                         </div>
-                        <div className="flex items-baseline gap-1 bg-surface-container-low px-6 py-4 rounded-3xl shadow-inner border border-surface-container">
-                          <span className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary-dim tracking-tighter drop-shadow-sm">{analysisData.nutritionScore.overall}</span>
-                          <span className="text-xl font-bold text-on-surface-variant">/100</span>
+                        <div className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-[radial-gradient(circle_at_top_left,rgba(145,247,142,0.65),rgba(255,255,255,0)_45%),linear-gradient(135deg,#fffef9_0%,#f5f4eb_100%)] p-6 shadow-[0_28px_60px_-34px_rgba(0,117,31,0.45)]">
+                          <div className="absolute right-0 top-0 h-32 w-32 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-2xl" />
+                          <p className="relative z-10 text-[11px] font-black uppercase tracking-[0.26em] text-on-surface-variant">Overall</p>
+                          <div className="relative z-10 mt-4 flex items-end gap-2">
+                            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary-dim tracking-tighter">{analysisData.nutritionScore.overall}</span>
+                            <span className="pb-2 text-2xl font-bold text-on-surface-variant">/100</span>
+                          </div>
+                          <div className="relative z-10 mt-5 flex items-center justify-between gap-4 rounded-2xl bg-white/70 px-4 py-3 backdrop-blur-sm">
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">Verdict</p>
+                              <p className="mt-1 text-lg font-headline font-black text-on-surface">
+                                {getScoreDescriptor(analysisData.nutritionScore.overall)}
+                              </p>
+                            </div>
+                            <div className="h-14 w-px bg-surface-container-high" />
+                            <p className="max-w-[10rem] text-sm leading-relaxed text-on-surface-variant">
+                              {analysisData.improvementTip || "Solid structure with room for a few smarter swaps."}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-6 sm:gap-4 relative z-10">
-                        <CircularScore score={analysisData.nutritionScore.protein} label="Protein" color="#00751f" />
-                        <CircularScore score={analysisData.nutritionScore.fiber} label="Fiber" color="#706500" />
-                        <CircularScore score={100 - analysisData.nutritionScore.sugar} label="Low Sugar" color="#0067ad" />
-                        <CircularScore score={analysisData.nutritionScore.variety} label="Variety" color="#91f78e" />
-                        <CircularScore score={analysisData.nutritionScore.balance} label="Balance" color="#f9e534" />
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 relative z-10">
+                        <ScoreCard 
+                          score={analysisData.nutritionScore.protein} 
+                          label="Protein" 
+                          color="var(--primary)" 
+                          icon="egg_alt"
+                          description="Amino acids fuel growth and sustained energy throughout the school day."
+                        />
+                        <ScoreCard 
+                          score={analysisData.nutritionScore.fiber} 
+                          label="Fiber" 
+                          color="var(--secondary)" 
+                          icon="eco"
+                          description="Promotes healthy digestion and helps maintain steady blood sugar levels."
+                        />
+                        <ScoreCard 
+                          score={100 - analysisData.nutritionScore.sugar} 
+                          label="Low Sugar" 
+                          color="var(--tertiary)" 
+                          icon="water_drop"
+                          description="Lower sugar swings keep the lunch steadier through the afternoon."
+                        />
+                        <ScoreCard 
+                          score={analysisData.nutritionScore.variety} 
+                          label="Variety" 
+                          color="var(--primary-fixed-dim)" 
+                          icon="palette"
+                          description="Diverse nutrients from colorful foods support overall development."
+                        />
+                        <ScoreCard 
+                          score={analysisData.nutritionScore.balance} 
+                          label="Balance" 
+                          color="var(--secondary-fixed)" 
+                          icon="scale"
+                          description="Well-proportioned macronutrients for optimal energy and satisfaction."
+                        />
                       </div>
                     </section>
                   )}
@@ -518,37 +713,31 @@ export default function Analysis() {
 
                       {analysisData.leftovers.length > 0 && (
                         <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-xl border border-surface-container-highest">
-                          <h3 className="font-headline font-black text-xl mb-4 flex items-center gap-3">
-                            <div className="p-2 bg-error/10 rounded-xl text-error">
-                              <span className="material-symbols-outlined">psychology</span>
-                            </div>
-                            Leftovers Predictor
-                          </h3>
+                          <div className="flex items-center justify-between mb-5">
+                            <h3 className="font-headline font-black text-xl flex items-center gap-3">
+                              <div className="p-2.5 bg-gradient-to-br from-error/20 to-error/5 rounded-xl text-error shadow-sm">
+                                <span className="material-symbols-outlined">psychology</span>
+                              </div>
+                              Leftovers Predictor
+                            </h3>
+                            <span className="text-[11px] font-black uppercase tracking-wider text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-full">
+                              {analysisData.leftovers.length} items
+                            </span>
+                          </div>
                           <div className="space-y-4">
                             {analysisData.leftovers.map((leftover, idx) => (
-                              <div key={idx} className="p-5 rounded-2xl border-l-[6px] bg-surface-container-low border-error shadow-sm hover:shadow-md transition-shadow">
-                                <div className="flex justify-between items-start mb-2">
-                                  <p className="font-black text-lg">{leftover.item}</p>
-                                  <div className="bg-error/10 text-error text-[10px] uppercase font-black tracking-widest px-2 py-1 rounded-md">
-                                    {leftover.likelihood} Risk
-                                  </div>
-                                </div>
-                                <p className="text-sm text-on-surface-variant mb-4">{leftover.reason}</p>
-                                <button
-                                  onClick={() => {
-                                    setCorrectionApplied(prev => ({ ...prev, [idx]: true }));
-                                    if (!correctionApplied[idx]) {
-                                      showToast(`Applied: ${leftover.suggestion}`, "success");
-                                    }
-                                  }}
-                                  className={`w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${correctionApplied[idx] ? "bg-primary/10 text-primary" : "bg-error text-white hover:bg-error-dim"}`}
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">
-                                    {correctionApplied[idx] ? "check_circle" : "build"}
-                                  </span>
-                                  {correctionApplied[idx] ? "Fixed!" : `Fix: ${leftover.suggestion}`}
-                                </button>
-                              </div>
+                              <LeftoverCard 
+                                key={idx}
+                                leftover={leftover}
+                                idx={idx}
+                                isFixed={correctionApplied[idx] || false}
+                                onFix={(idx) => {
+                                  setCorrectionApplied(prev => ({ ...prev, [idx]: true }));
+                                  if (!correctionApplied[idx]) {
+                                    showToast(`Applied: ${leftover.suggestion}`, "success");
+                                  }
+                                }}
+                              />
                             ))}
                           </div>
                         </section>
