@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import TopNav from "../components/TopNav";
 import MobileNav from "../components/MobileNav";
 import ErrorToast from "../components/ErrorToast";
@@ -16,15 +16,15 @@ function CircularScore({ score, label, color, size = 80 }: { score: number; labe
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg className="transform -rotate-90 w-full h-full">
+    <div className="flex flex-col items-center gap-2 group hover:-translate-y-1 transition-transform cursor-default">
+      <div className="relative drop-shadow-md" style={{ width: size, height: size }}>
+        <svg className="transform -rotate-90 w-full h-full drop-shadow-sm">
           <circle
             cx={size / 2}
             cy={size / 2}
             r={(size - 8) / 2}
             stroke="currentColor"
-            strokeWidth="6"
+            strokeWidth="8"
             fill="transparent"
             className="text-surface-container-high"
           />
@@ -33,19 +33,19 @@ function CircularScore({ score, label, color, size = 80 }: { score: number; labe
             cy={size / 2}
             r={(size - 8) / 2}
             stroke={color}
-            strokeWidth="6"
+            strokeWidth="8"
             fill="transparent"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
-            className="transition-all duration-1000 ease-out"
+            className="transition-all duration-1000 ease-out drop-shadow-md"
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-black" style={{ color }}>{score}</span>
+          <span className="text-xl font-black tracking-tighter" style={{ color }}>{score}</span>
         </div>
       </div>
-      <span className="text-xs font-bold uppercase tracking-wide text-on-surface-variant">{label}</span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">{label}</span>
     </div>
   );
 }
@@ -61,100 +61,108 @@ function CategoryIcon({ category }: { category: string }) {
     snack: "cookies",
     other: "restaurant",
   };
-  return <span className="material-symbols-outlined text-sm">{icons[category] || "restaurant"}</span>;
+  return <span className="material-symbols-outlined text-[1em]">{icons[category] || "restaurant"}</span>;
 }
 
-// Energy Curve
-function EnergyCurve({ data, childName }: { data: { time: string; energyLevel: number; label: string }[]; childName: string }) {
-  const width = 400;
-  const height = 120;
-  const padding = 20;
-  const xScale = (width - padding * 2) / (data.length - 1);
-  const yScale = (height - padding * 2) / 100;
-
-  const points = data.map((d, i) => ({
-    x: padding + i * xScale,
-    y: height - padding - d.energyLevel * yScale,
-    ...d,
-  }));
-
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-
-  return (
-    <div className="w-full">
-      <svg viewBox={`0 0 ${width} ${height + 30}`} className="w-full h-auto overflow-visible">
-        <defs>
-          <linearGradient id="energyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#00751f" />
-            <stop offset="50%" stopColor="#706500" />
-            <stop offset="100%" stopColor="#00751f" />
-          </linearGradient>
-          <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#00751f" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#00751f" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={`${pathD} L ${points[points.length - 1].x} ${height - padding} L ${padding} ${height - padding} Z`} fill="url(#areaGradient)" />
-        <path d={pathD} fill="none" stroke="url(#energyGradient)" strokeWidth="4" strokeLinecap="round" />
-        {points.map((p, i) => (
-          <g key={i}>
-            <circle cx={p.x} cy={p.y} r="6" fill="white" stroke="#00751f" strokeWidth="3" />
-            <text x={p.x} y={height - 5} textAnchor="middle" className="text-[10px] font-bold fill-on-surface-variant uppercase">{p.label}</text>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-// Interactive Image
+// Interactive Box Image Layer
 function InteractiveLunchboxImage({
   imageData,
   foods,
   activeFood,
   onFoodClick,
+  isScanning = false,
 }: {
   imageData: string;
   foods: FoodItem[];
   activeFood: string | null;
   onFoodClick: (name: string) => void;
+  isScanning?: boolean;
 }) {
   return (
-    <div className="relative group rounded-3xl overflow-hidden shadow-2xl bg-surface-container-lowest aspect-square">
-      <img src={`data:image/jpeg;base64,${imageData}`} alt="Analyzed lunchbox" className="w-full h-full object-cover" />
+    <div className="relative group rounded-3xl overflow-hidden shadow-2xl bg-surface-container-lowest aspect-square border-4 border-surface-container-lowest transition-all hover:shadow-primary/20 hover:border-primary/10">
+      <img src={`data:image/jpeg;base64,${imageData}`} alt="Analyzed lunchbox" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
       
-      {foods.map((food) => (
-        <button
-          key={food.name}
-          onClick={() => onFoodClick(food.name)}
-          className="absolute w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center cursor-pointer group/spot"
-          style={{ left: `${food.position.x}%`, top: `${food.position.y}%` }}
-        >
-          <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: food.color }} />
-          <div
-            className="w-4 h-4 rounded-full shadow-lg border-2 border-white transition-transform"
-            style={{ backgroundColor: food.color, transform: activeFood === food.name ? "scale(1.5)" : "scale(1)" }}
-          />
-          <div className={`absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all ${activeFood === food.name ? "opacity-100" : "opacity-0 group-hover/spot:opacity-100"}`}>
-            <div className="bg-surface px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-              <CategoryIcon category={food.category} />
-              {food.name}
-            </div>
+      {isScanning && (
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          <div className="h-[2px] w-full bg-primary shadow-[0_0_20px_5px_rgba(0,117,31,0.5)] absolute top-0 animate-[scan_2s_ease-in-out_infinite]" />
+          <div className="absolute inset-0 bg-primary/10 mix-blend-overlay animate-[pulse_2s_ease-in-out_infinite]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-md text-white px-6 py-3 rounded-full font-bold flex items-center gap-3">
+            <span className="material-symbols-outlined animate-spin text-primary-fixed">auto_awesome</span>
+            <span className="tracking-widest uppercase text-sm">AI Scanning...</span>
           </div>
-        </button>
-      ))}
-
-      <div className="absolute bottom-4 left-4">
-        <span className="bg-black/50 backdrop-blur-md text-white text-[10px] px-3 py-1.5 rounded-full uppercase tracking-widest font-bold">
-          Tap items to explore
-        </span>
-      </div>
-
-      {foods.length > 0 && (
-        <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1.5 rounded-full text-xs font-bold">
-          {foods.length} items
         </div>
       )}
+
+      {!isScanning && foods.map((food) => {
+        const isActive = activeFood === food.name;
+        return (
+          <button
+            key={food.name}
+            onClick={() => onFoodClick(food.name)}
+            className="absolute w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center cursor-pointer group/spot z-20"
+            style={{ left: `${food.position.x}%`, top: `${food.position.y}%` }}
+          >
+            <div className={`absolute inset-0 rounded-full opacity-40 transition-all duration-500 delay-75 ${isActive ? "animate-ping scale-150" : "group-hover/spot:animate-ping"}`} style={{ backgroundColor: food.color }} />
+            <div
+              className={`w-5 h-5 rounded-full shadow-2xl border-[3px] border-white transition-all duration-300 ${isActive ? "scale-150 ring-4 ring-white/50" : "scale-100 ring-0 hover:scale-125"}`}
+              style={{ backgroundColor: food.color }}
+            />
+            <div className={`absolute -top-12 pr-1 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-300 ${isActive ? "opacity-100 -translate-y-2" : "opacity-0 translate-y-0 group-hover/spot:opacity-100 group-hover/spot:-translate-y-2 pointer-events-none"}`}>
+              <div className="bg-inverse-surface/90 backdrop-blur-md text-inverse-on-surface px-4 py-2 rounded-full text-sm font-bold shadow-2xl flex items-center gap-2">
+                <span style={{ color: food.color }} className="flex items-center"><CategoryIcon category={food.category} /></span>
+                {food.name}
+              </div>
+            </div>
+          </button>
+        );
+      })}
+
+      {!isScanning && foods.length > 0 && (
+        <>
+          <div className="absolute bottom-6 left-6 z-20">
+            <span className="glass-card text-on-surface text-[10px] px-4 py-2 rounded-full uppercase tracking-widest font-black flex items-center gap-2 shadow-lg">
+              <span className="material-symbols-outlined text-[14px] animate-bounce text-primary">touch_app</span>
+              Tap items to explore
+            </span>
+          </div>
+
+          <div className="absolute top-6 right-6 z-20 glass-card px-4 py-2 rounded-full text-xs font-black text-on-surface shadow-lg flex items-center gap-2 border border-white/20">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            {foods.length} items detected
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// JSON Code Viewer Component
+function JSONViewer({ data }: { data: any }) {
+  const codeString = JSON.stringify(data, null, 2);
+  return (
+    <div className="relative group max-h-[500px] overflow-hidden rounded-2xl bg-[#0d1117] border border-[#30363d] shadow-2xl">
+      <div className="absolute top-0 left-0 right-0 h-10 bg-[#161b22] border-b border-[#30363d] flex items-center px-4 gap-2 z-10">
+        <div className="flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+          <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+          <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+        </div>
+        <span className="ml-2 text-xs font-mono text-[#8b949e]">llm-response.json</span>
+        <div className="ml-auto flex items-center gap-2 bg-[#21262d] py-1 px-3 rounded-md text-[#c9d1d9] text-[10px] font-bold uppercase tracking-widest border border-[#30363d]">
+          <span className="material-symbols-outlined text-[12px] text-primary-fixed">auto_awesome</span> Raw Response
+        </div>
+      </div>
+      <div className="p-4 pt-14 overflow-y-auto max-h-[500px] text-[12px] md:text-sm font-mono leading-relaxed text-[#c9d1d9] no-scrollbar">
+        <pre className="m-0">
+          <code dangerouslySetInnerHTML={{
+            __html: codeString
+              .replace(/"(.*?)":/g, '<span class="text-[#7ee787]">"$1"</span>:')
+              .replace(/: (true|false)/g, ': <span class="text-[#79c0ff]">$1</span>')
+              .replace(/: (-?\d+\.?\d*)/g, ': <span class="text-[#79c0ff]">$1</span>')
+              .replace(/: "(.*?)"/g, ': <span class="text-[#a5d6ff]">"$1"</span>')
+          }} />
+        </pre>
+      </div>
     </div>
   );
 }
@@ -165,11 +173,15 @@ export default function Analysis() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rawAnalysisContent, setRawAnalysisContent] = useState<string>("");
   const [analysisData, setAnalysisData] = useState<StructuredAnalysis | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [planApproved, setPlanApproved] = useState(false);
   const [activeFood, setActiveFood] = useState<string | null>(null);
   const [correctionApplied, setCorrectionApplied] = useState<Record<string, boolean>>({});
+  const [viewMode, setViewMode] = useState<"visual" | "json">("visual");
+
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const userData = getUserData();
@@ -194,9 +206,11 @@ export default function Analysis() {
   const handleImageSelected = (base64Image: string) => {
     setSelectedImage(base64Image);
     setAnalysisData(null);
+    setRawAnalysisContent("");
     setError(null);
     setActiveFood(null);
     setPlanApproved(false);
+    setViewMode("visual");
   };
 
   const handleAnalyze = async () => {
@@ -212,6 +226,8 @@ export default function Analysis() {
 
     setIsLoading(true);
     setError(null);
+    setAnalysisData(null);
+    setRawAnalysisContent("");
 
     try {
       const stream = streamLLM({
@@ -227,6 +243,7 @@ export default function Analysis() {
       let fullContent = "";
       for await (const chunk of stream) {
         fullContent += chunk;
+        setRawAnalysisContent(fullContent); // Stream in the raw content!
       }
 
       const structuredData = parseJSONResponse(fullContent);
@@ -241,6 +258,9 @@ export default function Analysis() {
           analyzedAt: new Date().toISOString(),
         });
         showToast("Analysis complete!", "success");
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
       } else {
         setError("Could not parse analysis. Please try again.");
       }
@@ -253,234 +273,317 @@ export default function Analysis() {
 
   return (
     <>
+      <style suppressHydrationWarning>{`
+        @keyframes scan {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(100%); }
+          100% { transform: translateY(0); }
+        }
+      `}</style>
       <TopNav />
       
-      <main className="flex-1 space-y-8 px-4 pb-24 pt-24 md:px-8 max-w-7xl mx-auto">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary">AI-Powered</span>
-            </div>
-            <h1 className="font-headline font-black text-4xl md:text-5xl text-on-surface tracking-tight">
-              Lunchbox Analysis
-            </h1>
-            <p className="text-on-surface-variant font-medium mt-2">
-              Smart nutrition insights for {profile?.name || "your child"}&apos;s lunch
-            </p>
+      <main className="flex-1 space-y-12 px-4 pb-24 pt-24 md:px-8 max-w-7xl mx-auto">
+        <header className="flex flex-col items-center text-center max-w-3xl mx-auto gap-4">
+          <div className="inline-flex items-center gap-2 mb-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20">
+            <span className="material-symbols-outlined text-primary text-xl animate-pulse">auto_awesome</span>
+            <span className="text-xs font-black uppercase tracking-widest text-primary">AI-Powered Magic</span>
           </div>
+          <h1 className="font-headline font-black text-5xl md:text-6xl text-on-surface tracking-tight leading-tight">
+            Analyze the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-tertiary">Lunchbox</span>
+          </h1>
+          <p className="text-on-surface-variant font-medium text-lg leading-relaxed max-w-2xl">
+            Upload a photo of {profile?.name || "your child"}&apos;s meal and let our LLM vision model extract ingredients, build a nutritional profile, and map the visual landscape.
+          </p>
         </header>
 
-        <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h2 className="text-xl font-headline font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">photo_camera</span>
-                Upload Photo
-              </h2>
-              <ImageUploader onImageSelected={handleImageSelected} />
-              {selectedImage && (
-                <button
-                  onClick={handleAnalyze}
-                  disabled={isLoading}
-                  className="w-full bg-primary text-on-primary py-4 rounded-2xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  <span className={`material-symbols-outlined ${isLoading ? "animate-spin" : ""}`}>
-                    {isLoading ? "progress_activity" : "auto_awesome"}
-                  </span>
-                  {isLoading ? "Analyzing..." : "Analyze Lunchbox"}
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-headline font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-secondary">lightbulb</span>
-                Pro Tips
-              </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: "nutrition", text: "Include 3+ food groups", color: "text-primary" },
-                  { icon: "palette", text: "Add colorful veggies", color: "text-secondary" },
-                  { icon: "timer", text: "Easy-to-eat items", color: "text-tertiary" },
-                  { icon: "favorite", text: "Add a sweet surprise", color: "text-error" },
-                ].map((tip, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-surface-container p-3 rounded-2xl">
-                    <span className={`material-symbols-outlined ${tip.color}`}>{tip.icon}</span>
-                    <span className="text-sm font-medium">{tip.text}</span>
+        <section className={`transition-all duration-1000 ${analysisData ? "opacity-0 h-0 overflow-hidden" : "opacity-100"}`}>
+          <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-2xl border border-surface-container-highest max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-headline font-black mb-2 text-on-surface">Snap a pic</h2>
+                  <p className="text-on-surface-variant">Upload the packed lunch. Make sure it's well-lit so our AI can see every crumb!</p>
+                </div>
+                
+                {selectedImage && isLoading ? (
+                  <div className="aspect-square w-full rounded-2xl overflow-hidden relative border-4 border-surface-container shadow-inner">
+                    <InteractiveLunchboxImage
+                      imageData={selectedImage}
+                      foods={[]}
+                      activeFood={null}
+                      onFoodClick={() => {}}
+                      isScanning={true}
+                    />
                   </div>
-                ))}
+                ) : (
+                  <div className="bg-surface-container/50 rounded-3xl p-2 border-2 border-dashed border-primary/30 hover:border-primary/60 transition-colors">
+                    <ImageUploader onImageSelected={handleImageSelected} />
+                  </div>
+                )}
+                
+                {selectedImage && !isLoading && !analysisData && (
+                  <button
+                    onClick={handleAnalyze}
+                    className="w-full bg-gradient-to-r from-primary to-primary-dim text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-[0_10px_30px_-10px_rgba(0,117,31,0.6)] hover:shadow-[0_10px_40px_-5px_rgba(0,117,31,0.8)] hover:-translate-y-1 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-2xl">auto_awesome</span>
+                    Start AI Analysis
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-6 bg-surface-container p-8 rounded-3xl h-full border border-surface-container-highest">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-secondary">memory</span>
+                  </div>
+                  <h2 className="text-xl font-headline font-black">Under the hood</h2>
+                </div>
+                <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                  When you upload an image, we send it directly to an LLM endpoint. The model generates this beautiful UI entirely from <span className="font-mono text-primary font-bold">structured JSON</span>, extracting properties like coordinates for hotspots!
+                </p>
+                <div className="space-y-4">
+                  {[
+                    { icon: "crop_free", text: "Maps X/Y visual coordinates", color: "text-tertiary" },
+                    { icon: "palette", text: "Extracts hex colors for elements", color: "text-error" },
+                    { icon: "nutrition", text: "Nutritional breakdown & scores", color: "text-primary" },
+                    { icon: "mood_bad", text: "Predicts picky eating rejection", color: "text-secondary" },
+                  ].map((tip, i) => (
+                    <div key={i} className="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-2xl shadow-sm border border-surface-variant/30 hover:border-surface-variant transition-colors group">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-surface-container \${tip.color} group-hover:scale-110 transition-transform`}>
+                        <span className="material-symbols-outlined text-sm">{tip.icon}</span>
+                      </div>
+                      <span className="text-sm font-bold text-on-surface">{tip.text}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {analysisData && selectedImage && (
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-            <div className="xl:col-span-7 space-y-6">
-              <section className="bg-surface-container-lowest rounded-3xl p-4 shadow-lg">
-                <InteractiveLunchboxImage
-                  imageData={selectedImage}
-                  foods={analysisData.foods}
-                  activeFood={activeFood}
-                  onFoodClick={setActiveFood}
-                />
-              </section>
-
-              <section className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl p-6 border border-primary/10">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-headline font-bold text-xl">Bento Intelligence Score</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-4xl font-black text-primary">{analysisData.nutritionScore.overall}</span>
-                    <span className="text-lg text-on-surface-variant">/100</span>
-                  </div>
+        {(analysisData || isLoading) && selectedImage && (
+          <div ref={resultsRef} className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-surface-variant pb-6">
+              <h2 className="text-3xl font-headline font-black flex items-center gap-3">
+                Analysis Results
+                {isLoading && (
+                  <span className="bg-primary-container text-on-primary-container text-xs px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full border-t border-on-primary-container animate-spin"/> Generating
+                  </span>
+                )}
+              </h2>
+              {analysisData && (
+                <div className="bg-surface-container-high rounded-full p-1 flex">
+                  <button
+                    onClick={() => setViewMode("visual")}
+                    className={`px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all ${viewMode === "visual" ? "bg-surface-container-lowest text-primary shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">visibility</span> Visual UI
+                  </button>
+                  <button
+                    onClick={() => setViewMode("json")}
+                    className={`px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all ${viewMode === "json" ? "bg-inverse-surface text-inverse-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">data_object</span> Raw JSON
+                  </button>
                 </div>
-
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                  <CircularScore score={analysisData.nutritionScore.protein} label="Protein" color="#00751f" />
-                  <CircularScore score={analysisData.nutritionScore.fiber} label="Fiber" color="#706500" />
-                  <CircularScore score={100 - analysisData.nutritionScore.sugar} label="Low Sugar" color="#0067ad" />
-                  <CircularScore score={analysisData.nutritionScore.variety} label="Variety" color="#91f78e" />
-                  <CircularScore score={analysisData.nutritionScore.balance} label="Balance" color="#f9e534" />
-                </div>
-              </section>
-
-              <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-lg">
-                <h3 className="font-headline font-bold text-lg mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary">bolt</span>
-                  Energy Curve
-                </h3>
-                <EnergyCurve data={analysisData.energyCurve} childName={profile?.name || "Your child"} />
-                <p className="text-sm text-on-surface-variant mt-4">{analysisData.summary}</p>
-              </section>
+              )}
             </div>
 
-            <div className="xl:col-span-5 space-y-6">
-              <section className="bg-surface-container-low rounded-3xl p-6 shadow-lg">
-                <h3 className="font-headline font-bold text-lg mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-tertiary">restaurant_menu</span>
-                  Detected Foods ({analysisData.foods.length})
-                </h3>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                  {analysisData.foods.map((food) => (
-                    <button
-                      key={food.name}
-                      onClick={() => setActiveFood(activeFood === food.name ? null : food.name)}
-                      className={`w-full text-left p-4 rounded-2xl transition-all ${activeFood === food.name ? "bg-primary/10 ring-2 ring-primary" : "bg-surface-container-lowest"}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${food.color}20` }}>
-                          <span style={{ color: food.color }}><CategoryIcon category={food.category} /></span>
+            {viewMode === "json" ? (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-6 bg-tertiary/10 border border-tertiary/20 rounded-2xl p-6 flex gap-4 items-start">
+                  <span className="material-symbols-outlined text-tertiary text-3xl">lightbulb</span>
+                  <div>
+                    <h3 className="font-black text-tertiary mb-1">Look at this JSON magic!</h3>
+                    <p className="text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+                      This entire UI is dynamically driven by the JSON output of the LLM. Notice the <code className="bg-surface font-mono text-primary px-1 rounded">position: {`{x,y}`}</code> nodes! We use those to place the interactive dots directly on the image you uploaded. We love combining beautiful UX with structured LLM data.
+                    </p>
+                  </div>
+                </div>
+                {isLoading ? (
+                  <JSONViewer data={rawAnalysisContent ? parseJSONResponse(rawAnalysisContent) || { streaming: true, raw: rawAnalysisContent } : { status: "Starting stream..." }} />
+                ) : (
+                  <JSONViewer data={analysisData} />
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-in fade-in zoom-in-95 duration-500">
+                <div className="xl:col-span-7 space-y-8">
+                  <section className="bg-surface-container-lowest rounded-[2rem] p-2 shadow-2xl relative">
+                    <InteractiveLunchboxImage
+                      imageData={selectedImage}
+                      foods={analysisData?.foods || []}
+                      activeFood={activeFood}
+                      onFoodClick={setActiveFood}
+                      isScanning={isLoading}
+                    />
+                  </section>
+
+                  {analysisData && (
+                    <section className="bg-surface-container-lowest rounded-3xl p-8 shadow-xl border border-surface-container-highest relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                      
+                      <div className="flex items-end justify-between mb-8 relative z-10">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="material-symbols-outlined text-primary text-xl">workspace_premium</span>
+                            <span className="text-xs font-black uppercase tracking-widest text-primary">Nutrition</span>
+                          </div>
+                          <h3 className="font-headline font-black text-3xl">Bento Score</h3>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold">{food.name}</span>
-                            <span className="text-[10px] bg-primary/10 text-primary px-1.5 rounded-full">{food.confidence}%</span>
-                          </div>
-                          <div className="text-xs text-on-surface-variant mt-1">
-                            {food.category} • {food.portionSize} • {food.calories} cal
-                          </div>
-                          {activeFood === food.name && (
-                            <div className="mt-3 pt-3 border-t border-surface-variant/50">
-                              <div className="flex flex-wrap gap-1">
-                                {food.nutrients.map(n => (
-                                  <span key={n} className="text-[10px] bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-full">{n}</span>
-                                ))}
-                              </div>
-                              <p className="text-xs mt-2">Kid-friendly: {food.kidFriendlyScore}/100</p>
-                            </div>
-                          )}
+                        <div className="flex items-baseline gap-1 bg-surface-container-low px-6 py-4 rounded-3xl shadow-inner border border-surface-container">
+                          <span className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary-dim tracking-tighter drop-shadow-sm">{analysisData.nutritionScore.overall}</span>
+                          <span className="text-xl font-bold text-on-surface-variant">/100</span>
                         </div>
                       </div>
-                    </button>
-                  ))}
+
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-6 sm:gap-4 relative z-10">
+                        <CircularScore score={analysisData.nutritionScore.protein} label="Protein" color="#00751f" />
+                        <CircularScore score={analysisData.nutritionScore.fiber} label="Fiber" color="#706500" />
+                        <CircularScore score={100 - analysisData.nutritionScore.sugar} label="Low Sugar" color="#0067ad" />
+                        <CircularScore score={analysisData.nutritionScore.variety} label="Variety" color="#91f78e" />
+                        <CircularScore score={analysisData.nutritionScore.balance} label="Balance" color="#f9e534" />
+                      </div>
+                    </section>
+                  )}
                 </div>
-              </section>
 
-              <section className="bg-surface-container-low rounded-3xl p-6">
-                <h3 className="font-headline font-bold text-lg mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary">child_care</span>
-                  Kid Acceptance
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-surface-container-lowest p-4 rounded-2xl text-center">
-                    <span className="material-symbols-outlined text-primary mb-2">lock_open</span>
-                    <p className="text-[10px] font-bold uppercase text-on-surface-variant">Easy to Open</p>
-                    <p className="font-bold capitalize">{analysisData.kidAcceptance.easeOfOpening}</p>
-                  </div>
-                  <div className="bg-surface-container-lowest p-4 rounded-2xl text-center">
-                    <span className="material-symbols-outlined text-error mb-2">cleaning_services</span>
-                    <p className="text-[10px] font-bold uppercase text-on-surface-variant">Mess Factor</p>
-                    <p className="font-bold capitalize">{analysisData.kidAcceptance.messFactor}</p>
-                  </div>
-                  <div className="bg-surface-container-lowest p-4 rounded-2xl text-center">
-                    <span className="material-symbols-outlined text-tertiary mb-2">schedule</span>
-                    <p className="text-[10px] font-bold uppercase text-on-surface-variant">Eating Time</p>
-                    <p className="font-bold">{analysisData.kidAcceptance.eatingTime}</p>
-                  </div>
-                  <div className="bg-surface-container-lowest p-4 rounded-2xl text-center">
-                    <span className="material-symbols-outlined text-primary mb-2">check_circle</span>
-                    <p className="text-[10px] font-bold uppercase text-on-surface-variant">Will Finish</p>
-                    <p className="font-bold">{analysisData.kidAcceptance.likelihoodOfFinishing}%</p>
-                  </div>
+                <div className="xl:col-span-5 space-y-8">
+                  {analysisData && (
+                    <>
+                      <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-xl border border-surface-container-highest">
+                        <h3 className="font-headline font-black text-xl mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-tertiary/10 rounded-xl text-tertiary">
+                            <span className="material-symbols-outlined">restaurant_menu</span>
+                          </div>
+                          Detected Ingredients
+                          <span className="ml-auto bg-surface px-3 py-1 rounded-full text-xs font-bold text-on-surface-variant border border-outline-variant">{analysisData.foods.length}</span>
+                        </h3>
+                        
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
+                          {analysisData.foods.map((food) => {
+                            const isActive = activeFood === food.name;
+                            return (
+                              <button
+                                key={food.name}
+                                onClick={() => setActiveFood(isActive ? null : food.name)}
+                                className={`w-full text-left p-4 rounded-2xl transition-all duration-300 border ${isActive ? "bg-primary/5 border-primary/30 shadow-md translate-x-2" : "bg-surface-container-low border-surface-container hover:bg-surface-container-high hover:border-surface-variant"}`}
+                              >
+                                <div className="flex items-start gap-4">
+                                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner transition-transform ${isActive ? "scale-110" : ""}`} style={{ backgroundColor: `${food.color}25` }}>
+                                    <span style={{ color: food.color, filter: 'brightness(0.8)' }} className="text-2xl drop-shadow-sm"><CategoryIcon category={food.category} /></span>
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-black text-lg">{food.name}</span>
+                                      <span className="text-[10px] font-bold bg-surface-container px-2 py-1 rounded-md text-on-surface border border-outline-variant/30 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[12px] text-primary">verified</span>
+                                        {food.confidence}%
+                                      </span>
+                                    </div>
+                                    <div className="text-xs font-medium text-on-surface-variant flex items-center gap-2">
+                                      <span className="capitalize">{food.category}</span>
+                                      <div className="w-1 h-1 rounded-full bg-outline-variant" />
+                                      <span>{food.portionSize}</span>
+                                      <div className="w-1 h-1 rounded-full bg-outline-variant" />
+                                      <span className="text-primary-dim font-bold">{food.calories} cal</span>
+                                    </div>
+                                    
+                                    {/* Expandable Info */}
+                                    <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isActive ? "max-h-40 opacity-100 mt-4 pt-4 border-t border-surface-variant/50" : "max-h-0 opacity-0 mt-0 pt-0 border-transparent"}`}>
+                                      <div className="flex flex-wrap gap-2 mb-3">
+                                        {food.nutrients.map(n => (
+                                          <span key={n} className="text-[10px] font-bold bg-surface-container-highest text-on-surface px-2.5 py-1 rounded-md border border-surface-variant shadow-sm">{n}</span>
+                                        ))}
+                                      </div>
+                                      <div className="flex items-center justify-between bg-surface-container-lowest p-3 rounded-xl border border-surface-variant/30">
+                                        <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Kid-friendly</span>
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-24 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                                            <div className="h-full bg-tertiary" style={{ width: `${food.kidFriendlyScore}%` }} />
+                                          </div>
+                                          <span className="font-black text-xs">{food.kidFriendlyScore}/100</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+
+                      {analysisData.leftovers.length > 0 && (
+                        <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-xl border border-surface-container-highest">
+                          <h3 className="font-headline font-black text-xl mb-4 flex items-center gap-3">
+                            <div className="p-2 bg-error/10 rounded-xl text-error">
+                              <span className="material-symbols-outlined">psychology</span>
+                            </div>
+                            Leftovers Predictor
+                          </h3>
+                          <div className="space-y-4">
+                            {analysisData.leftovers.map((leftover, idx) => (
+                              <div key={idx} className="p-5 rounded-2xl border-l-[6px] bg-surface-container-low border-error shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex justify-between items-start mb-2">
+                                  <p className="font-black text-lg">{leftover.item}</p>
+                                  <div className="bg-error/10 text-error text-[10px] uppercase font-black tracking-widest px-2 py-1 rounded-md">
+                                    {leftover.likelihood} Risk
+                                  </div>
+                                </div>
+                                <p className="text-sm text-on-surface-variant mb-4">{leftover.reason}</p>
+                                <button
+                                  onClick={() => {
+                                    setCorrectionApplied(prev => ({ ...prev, [idx]: true }));
+                                    if (!correctionApplied[idx]) {
+                                      showToast(`Applied: ${leftover.suggestion}`, "success");
+                                    }
+                                  }}
+                                  className={`w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${correctionApplied[idx] ? "bg-primary/10 text-primary" : "bg-error text-white hover:bg-error-dim"}`}
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">
+                                    {correctionApplied[idx] ? "check_circle" : "build"}
+                                  </span>
+                                  {correctionApplied[idx] ? "Fixed!" : `Fix: ${leftover.suggestion}`}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      <div className="flex gap-4 pt-4">
+                        <button 
+                          onClick={() => setIsShareModalOpen(true)}
+                          className="flex-1 bg-surface-container py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-surface-container-high transition-colors text-on-surface border border-outline-variant/30 hover:border-outline-variant"
+                        >
+                          <span className="material-symbols-outlined">ios_share</span> Share Report
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setPlanApproved(true);
+                            showToast("You're all set! A perfect lunch.", "success");
+                          }}
+                          className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all duration-500 shadow-xl overflow-hidden relative group ${planApproved ? "bg-primary text-white" : "bg-inverse-surface text-inverse-on-surface hover:-translate-y-1"}`}
+                        >
+                          {planApproved && (
+                            <div className="absolute inset-0 z-0">
+                              <div className="absolute inset-0 bg-[url('https://cdn.pixabay.com/photo/2018/11/03/06/37/confetti-3791444_1280.png')] opacity-20 bg-cover animate-[scan_2s_linear_infinite]" />
+                            </div>
+                          )}
+                          <div className="relative z-10 flex items-center gap-2">
+                            <span className={`material-symbols-outlined transition-transform duration-500 ${planApproved ? "scale-125" : "group-hover:rotate-12"}`}>{planApproved ? "celebration" : "thumb_up"}</span>
+                            {planApproved ? "Approved!" : "Approve Plan"}
+                          </div>
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </section>
-
-              {analysisData.leftovers.length > 0 && (
-                <section className="space-y-3">
-                  <h3 className="font-headline font-bold text-lg flex items-center gap-2">
-                    <span className="material-symbols-outlined text-error">psychology</span>
-                    Leftovers Predictor
-                  </h3>
-                  {analysisData.leftovers.map((leftover, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl border-l-4 bg-error/5 border-error">
-                      <p className="font-bold text-sm">{leftover.item}</p>
-                      <p className="text-sm text-on-surface-variant mt-1">{leftover.reason}</p>
-                      <button
-                        onClick={() => {
-                          setCorrectionApplied(prev => ({ ...prev, [idx]: true }));
-                          showToast(`Applied: ${leftover.suggestion}`, "success");
-                        }}
-                        className={`mt-3 text-xs font-bold border-b ${correctionApplied[idx] ? "text-primary border-primary" : "text-error border-error"}`}
-                      >
-                        {correctionApplied[idx] ? `✓ ${leftover.suggestion}` : `Fix: ${leftover.suggestion}`}
-                      </button>
-                    </div>
-                  ))}
-                </section>
-              )}
-
-              <section className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-3xl p-6 border border-secondary/20">
-                <div className="flex gap-3">
-                  <div className="p-2 bg-secondary rounded-xl text-white">
-                    <span className="material-symbols-outlined">lightbulb</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-secondary mb-1">Improvement Tip</p>
-                    <p className="text-sm leading-relaxed">{analysisData.improvementTip}</p>
-                  </div>
-                </div>
-              </section>
-
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="flex-1 bg-surface-container-high text-on-surface py-3 rounded-2xl font-bold flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">share</span> Share
-                </button>
-                <button 
-                  onClick={() => {
-                    setPlanApproved(true);
-                    showToast("Plan approved!", "success");
-                  }}
-                  className={`flex-1 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 ${planApproved ? "bg-secondary text-white" : "bg-primary text-on-primary"}`}
-                >
-                  <span className="material-symbols-outlined">{planApproved ? "check" : "check_circle"}</span>
-                  {planApproved ? "Approved" : "Approve"}
-                </button>
               </div>
-            </div>
+            )}
           </div>
         )}
       </main>
